@@ -70,13 +70,9 @@ var SYSTEM_PROMPT =
 
 // ========== CSS INJECTION ==========
 var CSS = [
-'#ai-chat-toggle{position:fixed;right:0;top:calc(50% + 80px);z-index:145;width:40px;height:44px;',
-  'border-radius:8px 0 0 8px;background:linear-gradient(135deg,#6a82f0,#8e54e9);border:none;',
-  'color:#fff;font-size:1em;cursor:pointer;opacity:.92;transition:all .25s;',
-  'box-shadow:-2px 0 12px rgba(0,0,0,.2);display:flex;align-items:center;justify-content:center;',
-  'writing-mode:vertical-lr;letter-spacing:2px;font-weight:600;font-size:.82em}',
-'#ai-chat-toggle:hover{opacity:1;box-shadow:-4px 0 16px rgba(0,0,0,.25)}',
-'#ai-chat-toggle.active{right:'+PANEL_WIDTH+'px}',
+'#ai-chat-toggle{transition:right .35s cubic-bezier(.4,0,.2,1)}',
+'#ai-chat-toggle:hover{opacity:1!important;box-shadow:-4px 0 16px rgba(0,0,0,.3)!important}',
+'#ai-chat-toggle.active{right:'+PANEL_WIDTH+'px!important}',
 '#ai-chat-panel{position:fixed;right:-'+(PANEL_WIDTH+10)+'px;top:0;width:'+PANEL_WIDTH+'px;height:100vh;',
   'z-index:140;background:var(--card-bg,#fef9ee);border-left:1px solid var(--card-border,#e5d5b5);',
   'display:flex;flex-direction:column;transition:right .35s cubic-bezier(.4,0,.2,1);',
@@ -126,7 +122,6 @@ var CSS = [
 
 // ========== HTML INJECTION ==========
 var HTML = [
-'<button id="ai-chat-toggle" title="AI 助手">AI 助手</button>',
 '<div id="ai-chat-panel">',
 '  <div class="chat-header">',
 '    <span class="title">🤖 AI 学习助手</span>',
@@ -172,7 +167,15 @@ var apiBase = localStorage.getItem('ai-chat-base') || '';
 var apiModel= localStorage.getItem('ai-chat-model')|| '';
 
 // ========== DOM REFS ==========
-var toggleBtn  = document.getElementById('ai-chat-toggle');
+// Toggle button may already exist in page HTML, or we create it
+var toggleBtn = document.getElementById('ai-chat-toggle');
+if(!toggleBtn){
+  toggleBtn = document.createElement('button');
+  toggleBtn.id = 'ai-chat-toggle';
+  toggleBtn.title = 'AI 助手';
+  toggleBtn.textContent = 'AI 助手';
+  document.body.appendChild(toggleBtn);
+}
 var panel      = document.getElementById('ai-chat-panel');
 var closeBtn   = document.getElementById('chat-close');
 var msgsEl     = document.getElementById('chat-msgs');
