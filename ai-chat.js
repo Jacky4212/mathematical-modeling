@@ -132,14 +132,17 @@ var HTML = [
 '    <button class="close-btn" id="chat-close">×</button>',
 '  </div>',
 '  <div class="chat-settings" id="chat-settings">',
-'    <label>API Key</label>',
+'    <label>API Key <span style="font-weight:400;font-size:.85em;color:var(--ink-light)">🔒 仅存你本地</span></label>',
 '    <input type="password" id="api-key" placeholder="sk-...">',
 '    <label>Base URL <span style="font-weight:400;font-size:.9em">(默认 OpenAI)</span></label>',
 '    <input type="text" id="api-base" placeholder="'+DEFAULT_BASE+'">',
 '    <div class="row">',
 '      <input type="text" id="api-model" placeholder="模型: '+DEFAULT_MODEL+'" style="flex:1;margin:3px 0">',
 '      '<button class="save-btn" id="save-config">保存</button>',
+'      <button class="save-btn" id="clear-config" style="background:#888">清除</button>',
 '    </div>',
+'    <p style="margin:6px 0 0;font-size:.75em;color:var(--ink-light)">',
+'    🔒 Key仅保存在你浏览器本地，其他用户看不到也无法使用。</p>',
 '  </div>',
 '  <div class="chat-msgs" id="chat-msgs">',
 '    <div class="msg assistant">👋 你好！我是数学建模AI助教，已学习本网站全部知识点（插值与拟合、蒙特卡洛、线性回归、AI与建模竞赛策略）。<br><br>请先输入你的 API Key 并保存，然后开始提问。</div>',
@@ -178,6 +181,7 @@ var keyInput   = document.getElementById('api-key');
 var baseInput  = document.getElementById('api-base');
 var modelInput = document.getElementById('api-model');
 var saveBtn    = document.getElementById('save-config');
+var clearBtn   = document.getElementById('clear-config');
 
 // Init inputs
 keyInput.value   = apiKey;
@@ -215,7 +219,7 @@ document.addEventListener('click', function(e){
   }
 });
 
-// ========== SAVE CONFIG ==========
+// ========== SAVE / CLEAR CONFIG ==========
 saveBtn.addEventListener('click', function(){
   apiKey  = keyInput.value.trim();
   apiBase = baseInput.value.trim();
@@ -224,6 +228,14 @@ saveBtn.addEventListener('click', function(){
   localStorage.setItem('ai-chat-base', apiBase);
   localStorage.setItem('ai-chat-model',apiModel);
   addMsg('assistant', '✅ 配置已保存！现在可以向我提问了。');
+});
+clearBtn.addEventListener('click', function(){
+  apiKey=''; apiBase=''; apiModel='';
+  keyInput.value=''; baseInput.value=''; modelInput.value='';
+  localStorage.removeItem('ai-chat-key');
+  localStorage.removeItem('ai-chat-base');
+  localStorage.removeItem('ai-chat-model');
+  addMsg('assistant', '🗑️ 配置已清除。');
 });
 
 // ========== CHAT ==========
