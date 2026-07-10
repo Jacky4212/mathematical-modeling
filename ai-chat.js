@@ -114,6 +114,7 @@ var CSS = [
 '#ai-chat-panel .chat-input-wrap button:hover{opacity:.85}',
 '#ai-chat-panel .chat-input-wrap button:disabled{opacity:.5;cursor:not-allowed}',
 '#ai-chat-panel .typing{color:var(--ink-light,#6b5f48);font-size:.8em;padding:4px 12px;font-style:italic}',
+'@media print{#ai-chat-toggle,#ai-chat-panel{display:none}}',
 '@media(max-width:768px){#ai-chat-toggle{top:auto;bottom:80px}#ai-chat-panel{width:100vw;right:-110vw}',
   '#ai-chat-panel.open{right:0}}',
 'body.ai-chat-open .main-wrap{margin-right:'+PANEL_WIDTH+'px}',
@@ -167,15 +168,7 @@ var apiBase = localStorage.getItem('ai-chat-base') || '';
 var apiModel= localStorage.getItem('ai-chat-model')|| '';
 
 // ========== DOM REFS ==========
-// Toggle button may already exist in page HTML, or we create it
-var toggleBtn = document.getElementById('ai-chat-toggle');
-if(!toggleBtn){
-  toggleBtn = document.createElement('button');
-  toggleBtn.id = 'ai-chat-toggle';
-  toggleBtn.title = 'AI 助手';
-  toggleBtn.textContent = 'AI 助手';
-  document.body.appendChild(toggleBtn);
-}
+var toggleBtn  = document.getElementById('ai-chat-toggle');
 var panel      = document.getElementById('ai-chat-panel');
 var closeBtn   = document.getElementById('chat-close');
 var msgsEl     = document.getElementById('chat-msgs');
