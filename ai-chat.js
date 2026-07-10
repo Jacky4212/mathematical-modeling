@@ -70,10 +70,11 @@ var SYSTEM_PROMPT =
 
 // ========== CSS INJECTION ==========
 var CSS = [
-'#ai-chat-toggle{position:fixed;right:0;top:calc(50% + 55px);z-index:145;width:38px;height:38px;',
+'#ai-chat-toggle{position:fixed;right:0;top:calc(50% + 80px);z-index:145;width:40px;height:44px;',
   'border-radius:8px 0 0 8px;background:linear-gradient(135deg,#6a82f0,#8e54e9);border:none;',
-  'color:#fff;font-size:1.1em;cursor:pointer;opacity:.85;transition:all .25s;',
-  'box-shadow:-2px 0 10px rgba(0,0,0,.15);display:flex;align-items:center;justify-content:center}',
+  'color:#fff;font-size:1em;cursor:pointer;opacity:.92;transition:all .25s;',
+  'box-shadow:-2px 0 12px rgba(0,0,0,.2);display:flex;align-items:center;justify-content:center;',
+  'writing-mode:vertical-lr;letter-spacing:2px;font-weight:600;font-size:.82em}',
 '#ai-chat-toggle:hover{opacity:1;box-shadow:-4px 0 16px rgba(0,0,0,.25)}',
 '#ai-chat-toggle.active{right:'+PANEL_WIDTH+'px}',
 '#ai-chat-panel{position:fixed;right:-'+(PANEL_WIDTH+10)+'px;top:0;width:'+PANEL_WIDTH+'px;height:100vh;',
@@ -125,7 +126,7 @@ var CSS = [
 
 // ========== HTML INJECTION ==========
 var HTML = [
-'<button id="ai-chat-toggle" title="AI 助手">🤖</button>',
+'<button id="ai-chat-toggle" title="AI 助手">AI 助手</button>',
 '<div id="ai-chat-panel">',
 '  <div class="chat-header">',
 '    <span class="title">🤖 AI 学习助手</span>',
