@@ -15,13 +15,14 @@ var SYS = '你是数学建模复习系统的AI助教，已学完本网站所有�
 
 // ===== CSS =====
 var CSS =
-'#ai-btn{position:fixed;right:0;top:calc(50% + 80px);z-index:145;background:linear-gradient(135deg,#1a3a5c,var(--accent,#2d7fc1));color:#fff;border:none;border-radius:8px 0 0 8px;padding:12px 10px;font-family:var(--font);font-size:.82em;cursor:pointer;font-weight:600;opacity:.8;box-shadow:-2px 0 10px rgba(0,0,0,.15);transition:all .25s;writing-mode:vertical-lr;letter-spacing:2px}'+
+'#ai-btn{position:fixed;right:0;top:calc(50% + 80px);z-index:145;background:linear-gradient(135deg,#1a3a5c,var(--accent,#2d7fc1));color:#fff;border:none;border-radius:8px 0 0 8px;padding:10px 14px;font-family:var(--font);font-size:.82em;cursor:pointer;font-weight:600;opacity:.8;box-shadow:-2px 0 10px rgba(0,0,0,.15);transition:all .25s}'+
 '#ai-btn:hover{opacity:1}'+
-'#ai-panel{display:none;position:fixed;right:0;top:0;width:360px;height:100vh;z-index:140;flex-direction:column;background:var(--card-bg,#fef9ee);border-left:1px solid var(--card-border,#e5d5b5);box-shadow:-4px 0 24px rgba(0,0,0,.12);font-family:var(--font)}'+
+'#ai-panel{display:none;position:fixed;right:0;top:0;width:360px;height:100vh;z-index:146;flex-direction:column;background:var(--card-bg,#fef9ee);border-left:1px solid var(--card-border,#e5d5b5);box-shadow:-4px 0 24px rgba(0,0,0,.12);font-family:var(--font)}'+
 '#ai-panel.show{display:flex}'+
 '#ai-panel .hdr{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:linear-gradient(135deg,#1a3a5c,var(--accent,#2d7fc1));color:#fff;flex-shrink:0}'+
 '#ai-panel .hdr span{font-size:.95em;font-weight:700}'+
-'#ai-panel .hdr button{background:none;border:none;color:#fff;font-size:1.4em;cursor:pointer;line-height:1;padding:0 4px}'+
+'#ai-panel .hdr .close-btn{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;font-size:.82em;cursor:pointer;padding:5px 12px;border-radius:4px;font-weight:600;transition:background .15s}'+
+'#ai-panel .hdr .close-btn:hover{background:rgba(255,255,255,.3)}'+
 '#ai-panel .cfg{padding:14px 16px;border-bottom:1px solid var(--divider,#d9c9a0);flex-shrink:0;font-size:.82em;background:var(--paper-dark,#f3e8d0)}'+
 '#ai-panel .cfg label{display:block;font-weight:600;color:var(--ink-light,#6b5f48);margin-top:6px;font-size:.9em}'+
 '#ai-panel .cfg label:first-child{margin-top:0}'+
@@ -47,7 +48,7 @@ var CSS =
 var HTML =
 '<button id="ai-btn">AI</button>'+
 '<div id="ai-panel">'+
-'<div class="hdr"><span>🤖 AI 学习助手</span><button id="ai-close">×</button></div>'+
+'<div class="hdr"><span>🤖 AI 学习助手</span><button class="close-btn" id="ai-close">关闭</button></div>'+
 '<div class="cfg" id="ai-cfg">'+
 '<label>API Key <span style="font-weight:400">🔒 仅存你本地</span></label>'+
 '<input type="password" id="ai-key" placeholder="sk-...">'+
@@ -94,13 +95,21 @@ baseEl.value = cfg.base;
 modelEl.value = cfg.model;
 
 // ===== TOGGLE =====
+function openPanel(){
+  panel.style.display = 'flex';
+  btn.style.display = 'none';
+  setTimeout(function(){ input.focus(); }, 300);
+}
+function closePanel(){
+  panel.style.display = 'none';
+  btn.style.display = '';
+}
 btn.onclick = function(){
-  panel.style.display = (panel.style.display === 'flex') ? 'none' : 'flex';
-  if(panel.style.display === 'flex') setTimeout(function(){ input.focus(); }, 300);
+  if(panel.style.display === 'flex') closePanel(); else openPanel();
 };
-close.onclick = function(){ panel.style.display = 'none'; };
+close.onclick = closePanel;
 document.addEventListener('keydown', function(e){
-  if(e.key === 'Escape' && panel.style.display === 'flex') panel.style.display = 'none';
+  if(e.key === 'Escape' && panel.style.display === 'flex') closePanel();
 });
 
 // ===== SAVE / CLEAR =====
