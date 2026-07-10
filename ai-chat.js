@@ -162,7 +162,13 @@ function doSend(){
       max_tokens: 4096
     })
   }).then(function(res){
-    if(!res.ok) return res.json().then(function(e){ throw new Error('API '+res.status+': '+(e.error?e.error.message:'请检查配置')); });
+    if(!res.ok){
+      return res.text().then(function(body){
+        var msg = body;
+        try{ var j=JSON.parse(body); msg=j.error?j.error.message:body; }catch(e){}
+        throw new Error('HTTP '+res.status+': '+msg);
+      });
+    }
     typing.remove();
     var msgEl = document.createElement('div');
     msgEl.className = 'm a'; msgs.appendChild(msgEl);
@@ -189,14 +195,19 @@ function doSend(){
         }
         read();
       }).catch(function(e){
-        if(!msgEl.textContent) msgEl.textContent = '❌ 读取失败: '+e.message;
+        if(!msgEl.textContent) msgEl.textContent = '⚠️ 读取中断: '+e.message;
         busy=false; send.disabled=false;
       });
     }
     read();
   }).catch(function(e){
     typing.remove();
-    addMsg('a','❌ '+e.message+'\n\n请检查：\n1. API Key 是否正确\n2. Base URL 是否正确\n3. 网络是否正常\n4. 账户余额');
+    var errMsg = e.message || e.toString();
+    if(errMsg.indexOf('Failed to fetch')>=0 || errMsg.indexOf('NetworkError')>=0){
+      addMsg('a','❌ 网络请求失败\n\n可能原因：\n1. Base URL 不可达\n2. 浏览器或网络阻止了请求（CORS）\n3. 请检查URL格式是否正确');
+    } else {
+      addMsg('a','❌ '+errMsg);
+    }
     busy=false; send.disabled=false;
   });
 }
