@@ -102,14 +102,17 @@ baseEl.value = cfg.base;
 modelEl.value = cfg.model;
 
 // ===== TOGGLE =====
+var themeBtn = document.querySelector('.theme-toggle');
 function openPanel(){
   panel.style.display = 'flex';
   btn.style.display = 'none';
+  if(themeBtn) themeBtn.style.display = 'none';
   setTimeout(function(){ input.focus(); }, 300);
 }
 function closePanel(){
   panel.style.display = 'none';
   btn.style.display = '';
+  if(themeBtn) themeBtn.style.display = '';
 }
 btn.onclick = function(){
   if(panel.style.display === 'flex') closePanel(); else openPanel();
