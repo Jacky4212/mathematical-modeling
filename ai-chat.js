@@ -36,11 +36,18 @@ var CSS =
 '#ai-panel .msgs .m{max-width:90%;padding:8px 12px;border-radius:8px;font-size:.85em;line-height:1.6;word-break:break-word}'+
 '#ai-panel .msgs .m.u{align-self:flex-end;background:var(--accent,#2d7fc1);color:#fff}'+
 '#ai-panel .msgs .m.a{align-self:flex-start;background:var(--code-bg,#ede0c5);color:var(--ink,#3d3525)}'+
+'#ai-panel .msgs .m.a h3,#ai-panel .msgs .m.a h4{margin:8px 0 4px;font-size:.95em}'+
+'#ai-panel .msgs .m.a pre{background:#2d2a26;color:#ece6da;padding:10px 12px;border-radius:4px;overflow-x:auto;margin:6px 0;font-size:.82em;line-height:1.5}'+
+'#ai-panel .msgs .m.a pre code{background:none;color:inherit;padding:0;font-size:1em}'+
+'#ai-panel .msgs .m.a code{font-family:"Cascadia Code","JetBrains Mono","Consolas",monospace;font-size:.85em;background:rgba(0,0,0,.08);padding:1px 5px;border-radius:3px}'+
+'#ai-panel .msgs .m.a ul{margin:4px 0;padding-left:18px}'+
+'#ai-panel .msgs .m.a li{margin:2px 0}'+
 '#ai-panel .msgs .typing{color:var(--ink-light);font-size:.8em;padding:4px 2px;font-style:italic}'+
 '#ai-panel .inp{display:flex;gap:6px;padding:10px 14px;border-top:1px solid var(--divider,#d9c9a0);flex-shrink:0}'+
 '#ai-panel .inp textarea{flex:1;padding:8px 10px;border:1px solid var(--card-border,#e5d5b5);border-radius:6px;resize:none;font-size:.85em;line-height:1.5;background:var(--card-bg,#fef9ee);color:var(--ink,#3d3525);outline:none;max-height:80px;font-family:inherit}'+
 '#ai-panel .inp button{padding:8px 16px;background:var(--accent,#2d7fc1);color:#fff;border:none;border-radius:6px;cursor:pointer;font-weight:600;font-size:.85em;white-space:nowrap}'+
 '#ai-panel .inp button:disabled{opacity:.5}'+
+'.dark-mode #ai-panel .msgs .m.a code{background:rgba(255,255,255,.1)}'+
 '@media print{#ai-btn,#ai-panel{display:none!important}}'+
 '@media(max-width:768px){#ai-panel{width:100vw}#ai-btn{top:auto;bottom:80px}}';
 
@@ -131,9 +138,31 @@ clearBtn.onclick = function(){
 function addMsg(role, text){
   var el = document.createElement('div');
   el.className = 'm ' + role;
-  el.innerHTML = text.replace(/\n/g,'<br>');
+  el.innerHTML = renderMD(text);
   msgs.appendChild(el);
   msgs.scrollTop = msgs.scrollHeight;
+}
+
+function renderMD(t){
+  // Escape HTML first (except what we'll generate)
+  t = t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  // Code blocks: ```...```
+  t = t.replace(/```(\w*)\n?([\s\S]*?)```/g, function(_,lang,code){
+    return '<pre><code>' + code.replace(/\n$/,'') + '</code></pre>';
+  });
+  // Inline code: `...`
+  t = t.replace(/`([^`]+)`/g, '<code>$1</code>');
+  // Bold: **...**
+  t = t.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  // Headings: ### ...
+  t = t.replace(/^### (.+)$/gm, '<h4>$1</h4>');
+  t = t.replace(/^## (.+)$/gm, '<h3>$1</h3>');
+  // Unordered list items: - ...
+  t = t.replace(/^- (.+)$/gm, '<li>$1</li>');
+  t = t.replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>');
+  // Line breaks
+  t = t.replace(/\n/g,'<br>');
+  return t;
 }
 
 function doSend(){
