@@ -8,48 +8,48 @@
 /* ===== CSS Variables ===== */
 :root {
   --paper: #fdf6e3;
-  --paper-dark: #f5ecd7;
-  --ink: #2c2c2c;
-  --ink-light: #555;
-  --accent: #2563eb;
-  --accent-hover: #1d4ed8;
-  --divider: #d6c8a8;
-  --card-bg: #fef9ef;
-  --card-border: #e8dcc8;
-  --sidebar-bg: #f5ecd7;
-  --sidebar-border: #e0d4b8;
-  --code-bg: #eee8d8;
-  --highlight-bg: #eff6ff;
-  --highlight-border: #2563eb;
-  --highlight-strong: #1d4ed8;
-  --checkpoint-bg: #eff6ff;
-  --checkpoint-border: #bfdbfe;
-  --checkpoint-color: #1e40af;
-  --tag-must-bg: #fee2e2; --tag-must-color: #991b1b;
-  --tag-key-bg: #fef3c7; --tag-key-color: #92400e;
-  --tag-freq-bg: #dbeafe; --tag-freq-color: #1e40af;
-  --tag-info-bg: #f0fdf4; --tag-info-color: #166534;
-  --heading-color: #1a1a2e;
-  --code-text: #8a4b1e;
+  --paper-dark: #f3e8d0;
+  --ink: #3d3525;
+  --ink-light: #6b5f48;
+  --accent: #2c6e5c;
+  --accent-hover: #1f5244;
+  --divider: #d9c9a0;
+  --card-bg: #fef9ee;
+  --card-border: #e5d5b5;
+  --sidebar-bg: #f5ebd5;
+  --sidebar-border: #e5d5b5;
+  --code-bg: #ede0c5;
+  --highlight-bg: #fdf2d8;
+  --highlight-border: #c9a040;
+  --highlight-strong: #7a5a10;
+  --checkpoint-bg: #f2efe0;
+  --checkpoint-border: #c4b890;
+  --checkpoint-color: #5a4a30;
+  --tag-must-bg: #fce4e4; --tag-must-color: #a03030;
+  --tag-key-bg: #fef3c0; --tag-key-color: #8a5a00;
+  --tag-freq-bg: #dff0e8; --tag-freq-color: #1a6b52;
+  --tag-info-bg: #e2f0e8; --tag-info-color: #2a6b4a;
+  --heading-color: #2a2015;
+  --code-text: #7a4a1e;
   --radius: 6px;
   --font: "Microsoft YaHei","PingFang SC","Noto Sans SC",sans-serif;
 }
 .dark-mode {
-  --paper: #0f172a; --paper-dark: #162239;
-  --ink: #e2e8f0; --ink-light: #8494b8;
-  --accent: #38b2ce; --accent-hover: #4fc3e0;
-  --divider: #223355;
-  --card-bg: #18243c; --card-border: #243555;
-  --sidebar-bg: #0f172a; --sidebar-border: #1e2d4a;
-  --code-bg: #1a2744;
-  --highlight-bg: #162a35; --highlight-border: #38b2ce; --highlight-strong: #6ad4ee;
-  --checkpoint-bg: #16223a; --checkpoint-border: #2a4070; --checkpoint-color: #6aa8e8;
-  --tag-must-bg: #3d1f1f; --tag-must-color: #f28b8b;
+  --paper: #1e1b14; --paper-dark: #282318;
+  --ink: #e5dcc5; --ink-light: #a09878;
+  --accent: #5cc4a8; --accent-hover: #7ad4bc;
+  --divider: #3a3220;
+  --card-bg: #242017; --card-border: #3a3220;
+  --sidebar-bg: #1e1b14; --sidebar-border: #2e281c;
+  --code-bg: #2a2418;
+  --highlight-bg: #2a2218; --highlight-border: #a0a040; --highlight-strong: #d0d060;
+  --checkpoint-bg: #242118; --checkpoint-border: #4a4030; --checkpoint-color: #a09870;
+  --tag-must-bg: #3d1f1f; --tag-must-color: #f09090;
   --tag-key-bg: #3d3018; --tag-key-color: #e0b860;
-  --tag-freq-bg: #1a2f4a; --tag-freq-color: #7ab8f0;
-  --tag-info-bg: #1a3a2a; --tag-info-color: #6ac090;
+  --tag-freq-bg: #1a3a2e; --tag-freq-color: #6ac0a0;
+  --tag-info-bg: #1a3a28; --tag-info-color: #6ac088;
   --heading-color: var(--ink);
-  --code-text: #c8b878;
+  --code-text: #c8a870;
   background-color: var(--paper);
 }
 
@@ -88,7 +88,7 @@ td{background:var(--card-bg)}
 .main-wrap{flex:1;margin-left:210px;display:flex;flex-direction:column;min-height:100vh}
 
 /* ===== Topbar ===== */
-.topbar{position:sticky;top:0;z-index:90;background:linear-gradient(135deg, #0d3b5c 0%, #0d7c9e 100%);padding:0}
+.topbar{position:sticky;top:0;z-index:90;background:linear-gradient(135deg, #1a4a3a 0%, #2c6e5c 100%);padding:0}
 .topbar-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:14px 28px}
 .topbar-inner h2{color:#fff;font-size:1.15em;font-weight:600}
 .topbar-inner a{color:rgba(255,255,255,.85);font-size:.9em;padding:5px 12px;border-radius:4px;transition:background .2s}
@@ -113,16 +113,16 @@ td{background:var(--card-bg)}
 .formula{text-align:center;background:var(--code-bg);padding:12px 20px;margin:14px 0;border-radius:6px;font-family:"Cascadia Code","Consolas","Courier New",monospace;font-size:1em;color:var(--ink)}
 
 .code-block{background:var(--code-bg);border:1px solid var(--card-border);border-radius:6px;padding:16px 20px;margin:12px 0;overflow-x:auto;font-family:"Cascadia Code","Consolas","Courier New",monospace;font-size:.88em;line-height:1.65;color:var(--ink);white-space:pre}
-.code-block .kw{color:#0550ae;font-weight:600}
-.code-block .fn{color:#8250df}
-.code-block .str{color:#0a3069}
-.code-block .co{color:#6e7781;font-style:italic}
-.code-block .num{color:#0550ae}
-.dark-mode .code-block .kw{color:#79c0ff}
-.dark-mode .code-block .fn{color:#d2a8ff}
-.dark-mode .code-block .str{color:#a5d6ff}
-.dark-mode .code-block .co{color:#8b949e}
-.dark-mode .code-block .num{color:#79c0ff}
+.code-block .kw{color:#82502e;font-weight:600}
+.code-block .fn{color:#7b5ea7}
+.code-block .str{color:#5a7a3a}
+.code-block .co{color:#8a8070;font-style:italic}
+.code-block .num{color:#a06030}
+.dark-mode .code-block .kw{color:#e0b878}
+.dark-mode .code-block .fn{color:#c8a8e0}
+.dark-mode .code-block .str{color:#a0c868}
+.dark-mode .code-block .co{color:#908878}
+.dark-mode .code-block .num{color:#e0a870}
 
 .checkpoint{background:var(--checkpoint-bg);border:1px solid var(--checkpoint-border);border-radius:6px;padding:14px 18px;margin:14px 0}
 .checkpoint::before{content:"🧠 自查练习：";font-weight:700;color:var(--checkpoint-color);display:block;margin-bottom:6px}
