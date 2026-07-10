@@ -58,6 +58,26 @@ curl -L -o "file" -H "Authorization: token $GH_TOKEN" "<url>"
 ### 规则 5：主动分析图片
 **遇到任何图片/截图/图表/公式，主动调用 `mcp__doubao-vision__analyze_image` 获取视觉信息，不要等用户吩咐。**
 
+### 规则 6：写代码前必须先搜 GitHub 学参考实现
+**实现任何新功能/组件之前，必须先用 `gh` 或 `WebSearch` 搜索 GitHub 上的同类实现，读懂参考代码的架构后再动手。禁止凭训练数据直接写。**
+
+```bash
+# ✅ 正确流程
+1. WebSearch 搜索 "github [功能描述] [技术栈]"
+2. gh repo clone <找到的最佳参考> -- --depth 1 到临时目录
+3. 读懂参考代码的结构、关键模式、边界处理
+4. 基于参考代码的架构来实现自己的版本
+
+# ❌ 禁止
+# 不查 GitHub 直接凭记忆写代码 — 反复踩坑浪费时间
+```
+
+| 场景 | 先搜什么 |
+|------|----------|
+| 静态网站加新组件 | `github static website [功能] vanilla js` |
+| 前端 UI 模式 | `github [功能] html css js implementation` |
+| API 集成 | `github [API名] integration example` |
+
 ---
 
 ## 可用 AI 能力
