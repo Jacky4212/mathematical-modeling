@@ -1,0 +1,118 @@
+# 数学建模
+
+数学建模学习与竞赛准备项目目录。
+
+## 项目概述
+
+本目录用于数学建模相关的工作，包括但不限于：
+- 数学建模竞赛（国赛、美赛等）的准备与参赛
+- 数学模型的学习、实现与验证
+- 数据分析与可视化
+- 论文/报告的撰写
+- 算法实现与优化
+
+---
+
+## 🚨 强制执行规则（每次操作必须遵守）
+
+### 规则 1：禁止写入 C 盘
+**所有下载/缓存/临时文件必须放在 D 盘，绝不写入 C 盘。**
+
+- pip 缓存 → `D:/pip-cache/`
+- 模型文件 → 项目目录下的子文件夹
+- 临时下载 → 项目工作目录内，用完清理
+- ❌ 禁止: `C:\Users\...`、`~/.cache/`、`/tmp/`、`%TEMP%`、`%TMP%`
+
+### 规则 2：pip install 必须走清华镜像
+**每次 `pip install` 必须加 `-i https://pypi.tuna.tsinghua.edu.cn/simple`，禁止从官方 PyPI 下载。**
+
+```bash
+# ✅ 正确
+pip install numpy -i https://pypi.tuna.tsinghua.edu.cn/simple
+pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
+
+# ❌ 错误
+pip install numpy
+```
+
+### 规则 3：GitHub 下载必须用 gh CLI
+**从 GitHub 下载文件时优先用 `gh release download`，而不是 Python urllib/requests 或 curl。**
+
+```bash
+# ✅ 正确
+gh release download <tag> --repo <owner/repo> --pattern "<文件名>" --clobber
+
+# 备选：带 token 的 curl
+GH_TOKEN=$(gh auth token)
+curl -L -o "file" -H "Authorization: token $GH_TOKEN" "<url>"
+```
+
+### 规则 4：大文件下载用镜像
+**HuggingFace 模型等用 hf-mirror.com，GitHub release 用清华镜像。**
+
+| 源 | 镜像 |
+|----|------|
+| HuggingFace | `https://hf-mirror.com/{user}/{repo}/resolve/main/{path}` |
+| GitHub release | `https://mirrors.tuna.tsinghua.edu.cn/github-release/` |
+
+### 规则 5：主动分析图片
+**遇到任何图片/截图/图表/公式，主动调用 `mcp__doubao-vision__analyze_image` 获取视觉信息，不要等用户吩咐。**
+
+---
+
+## 可用 AI 能力
+
+### MCP 服务（豆包/火山方舟）
+
+| 服务 | 功能 | 模型 |
+|------|------|------|
+| **doubao-vision** | 图片/图表/公式/论文截图分析 | doubao-seed-2-0-pro-260215 |
+| **doubao-image-gen** | AI 图片生成（示意图/流程图配图等） | doubao-seedream-5-0-260128 |
+| **doubao-video-gen** | AI 视频生成（演示动画等） | doubao-seedance-2-0-260128 |
+
+> 配置在 `.mcp.json`，脚本在 `.claude/mcp_servers/`
+
+### Skills（按需加载）
+
+| Skill | 用途 | 触发场景 |
+|-------|------|----------|
+| **doubao-vision** | 图片分析详细指南 | 图片/图表/公式/论文截图 |
+| **word-report-gen** | python-docx 生成 Word 报告 | 生成论文/报告/试卷答案 |
+| **ppt-extract** | PPT 文本提取（含乱码修复） | 从课件 PPT 提取知识点 |
+
+> 所有 skill 位于 `.claude/skills/`，通过 `Skill` 工具加载
+
+---
+
+## 关键命令
+
+### Python 环境
+```bash
+# 安装包（必须用清华镜像 — 见强制执行规则 2）
+pip install <包名> -i https://pypi.tuna.tsinghua.edu.cn/simple
+
+# 常用数学建模库
+pip install numpy scipy matplotlib pandas sympy -i https://pypi.tuna.tsinghua.edu.cn/simple
+pip install jupyter notebook -i https://pypi.tuna.tsinghua.edu.cn/simple
+pip install python-docx openpyxl -i https://pypi.tuna.tsinghua.edu.cn/simple
+pip install scikit-learn cvxpy pulp -i https://pypi.tuna.tsinghua.edu.cn/simple
+```
+
+### Git 工作流
+```bash
+git init
+git add .
+git commit -m "feat: 描述"
+git remote add origin <url>
+git push -u origin main
+```
+
+---
+
+## 注意事项
+
+1. **数值稳定性**: 数学代码注意避免除零、log(0)、矩阵奇异等问题
+2. **量纲一致性**: 建模时确保所有变量量纲统一
+3. **代码可复现**: 设置随机种子，记录依赖版本
+4. **论文写作**: 需要生成 Word 报告时调用 `word-report-gen` skill
+5. **PPT 提取**: 需要从课件提取知识点时调用 `ppt-extract` skill

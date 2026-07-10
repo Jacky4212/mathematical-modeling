@@ -1,0 +1,12 @@
+.claude/
+__pycache__/
+*.pyc
+*.pyo
+.ipynb_checkpoints/
+generated_images/
+generated_videos/
+*.tmp
+*.log
+~$*
+.DS_Store
+Thumbs.db

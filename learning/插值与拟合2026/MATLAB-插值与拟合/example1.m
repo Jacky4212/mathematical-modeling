@@ -1,0 +1,14 @@
+t=1:12;
+temp=[5,8,9,15,25,29,31,30,22,25,27,24];
+t0=1:0.1:12;
+y_nearest=interp1(t,temp,t0,'nearest');
+y_linear=interp1(t,temp,t0,'linear');
+y_spline=interp1(t,temp,t0,'spline');
+y_pchip=interp1(t,temp,t0,'pchip');
+y_lagrange=lagrange(t,temp,t0);
+subplot(2,3,1),plot(t,temp,'r*');
+subplot(2,3,2),plot(t0,y_nearest,'r');
+subplot(2,3,3),plot(t0,y_linear,'r');
+subplot(2,3,4),plot(t0,y_spline,'r');
+subplot(2,3,5),plot(t0,y_pchip,'r');
+subplot(2,3,6),plot(t0,y_lagrange,'r');

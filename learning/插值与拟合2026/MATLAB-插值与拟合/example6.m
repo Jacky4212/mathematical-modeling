@@ -1,0 +1,20 @@
+x=[0.3 0.4 0.7 0.9 1.2 1.9 2.8 3.2 3.7 4.5];
+y=[1 2 3 4 2 6 9 2 7 8];
+a_1=polyfit(x,y,1);
+a_2=polyfit(x,y,2);
+a_3=polyfit(x,y,3);
+z_1=polyval(a_1,x);
+z_2=polyval(a_2,x);
+z_3=polyval(a_3,x);
+plot(x,y,'+');
+hold on
+plot(x,z_1,'r',x,z_2,'b',x,z_3,'g');
+x0=0.3:0.01:4.5;
+z0_1=polyval(a_1,x0);
+z0_2=polyval(a_2,x0);
+z0_3=polyval(a_3,x0);
+plot(x0,z0_1,'r',x0,z0_2,'b',x0,z0_3,'g');
+z2_2=polyval(a_2,1);
+R=[(x.^2)' x' ones(10,1)];
+A=R\y';
+[p,s]= polyfit(x,y,3);

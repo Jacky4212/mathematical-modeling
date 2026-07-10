@@ -1,0 +1,11 @@
+x=1:5;
+y=1:3;
+z=[82  81  80  82  84;79  63  61  65  81; 84  84  82  85  86 ];
+x0=1:0.1:5;
+y0=1:0.1:3;
+z_cubic=interp2(x,y,z,x0',y0,'cubic');
+mesh(x0,y0,z_cubic);
+z_nearest=interp2(x,y,z,x0',y0,'nearest');
+mesh(x0,y0,z_nearest);
+z_linear=interp2(x,y,z,x0',y0,'linear');
+mesh(x0,y0,z_linear);
