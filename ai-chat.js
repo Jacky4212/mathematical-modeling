@@ -199,19 +199,21 @@ function closePanel(){
   toggleBtn.classList.remove('active');
   document.body.classList.remove('ai-chat-open');
 }
+// Toggle handled by inline onclick on #ai-chat-toggle in HTML
 toggleBtn.addEventListener('click', function(){
-  isOpen ? closePanel() : openPanel();
+  isOpen = !isOpen;
+  if(isOpen){ setTimeout(function(){ inputEl.focus(); }, 400); }
 });
-closeBtn.addEventListener('click', closePanel);
+closeBtn.addEventListener('click', function(){ closePanel(); });
 
 // Close on Escape
 document.addEventListener('keydown', function(e){
-  if(e.key === 'Escape' && isOpen){ closePanel(); }
+  if(e.key === 'Escape' && panel.classList.contains('open')){ closePanel(); }
 });
 
-// Close on click outside (but not on toggle)
+// Close on click outside
 document.addEventListener('click', function(e){
-  if(isOpen && !panel.contains(e.target) && e.target !== toggleBtn && !toggleBtn.contains(e.target)){
+  if(panel.classList.contains('open') && !panel.contains(e.target) && e.target !== toggleBtn && !toggleBtn.contains(e.target)){
     closePanel();
   }
 });

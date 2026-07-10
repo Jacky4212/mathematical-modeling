@@ -549,7 +549,7 @@ betafit = <span class="fn">nlinfit</span>(tdata, cdata, <span class="str">'fun1'
 <button class="back2top" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="回到顶部">↑</button>
 
 <!-- Chapter Nav Toggle + Panel -->
-<button id="ai-chat-toggle" title="AI助手" style="position:fixed;right:0;top:calc(50% + 80px);z-index:145;background:linear-gradient(135deg,#6a82f0,#8e54e9);color:#fff;border:none;border-radius:8px 0 0 8px;padding:12px 8px;font-family:var(--font);font-size:.82em;cursor:pointer;writing-mode:vertical-lr;letter-spacing:2px;font-weight:600;opacity:.92;box-shadow:-2px 0 12px rgba(0,0,0,.2)">AI 助手</button>
+<button id="ai-chat-toggle" title="AI接口" onclick="var p=document.getElementById('ai-chat-panel');if(p){p.classList.toggle('open');this.classList.toggle('active');document.body.classList.toggle('ai-chat-open')}" style="position:fixed;right:0;top:calc(50% + 80px);z-index:145;background:linear-gradient(135deg,#6a82f0,#8e54e9);color:#fff;border:none;border-radius:8px 0 0 8px;padding:10px 12px;font-family:var(--font);font-size:.82em;cursor:pointer;font-weight:600;opacity:.92;box-shadow:-2px 0 12px rgba(0,0,0,.2)">AI 接口</button>
 <button class="chapter-nav-toggle" onclick="toggleChapterNav()" title="章节导航">📖 章节导航</button>
 <div class="chapter-nav-panel" id="chapterNav">
   <div class="nav-header">📐 目录导航</div>
@@ -564,7 +564,7 @@ betafit = <span class="fn">nlinfit</span>(tdata, cdata, <span class="str">'fun1'
 
 <!-- ===== JavaScript ===== -->
 <script>
-(function(){var v='250711j';if(localStorage.getItem('mm-ver')!==v){localStorage.setItem('mm-ver',v);location.reload(true);}})();
+(function(){var v='250711k';if(localStorage.getItem('mm-ver')!==v){localStorage.setItem('mm-ver',v);location.reload(true);}})();
 // Sidebar current-page highlight
 (function(){
   var p = window.location.pathname.split('/').pop() || '插值与拟合.html';
@@ -611,6 +611,6 @@ document.addEventListener('DOMContentLoaded', function(){
 });
 </script>
 
-<script src="ai-chat.js?v=250711j"></script>
+<script src="ai-chat.js?v=250711k"></script>
 </body>
 </html>
