@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>蒙特卡洛方法 — 数学建模复习系统</title>
+<style>
+/* ===== CSS Variables ===== */
+:root {
+  --paper: #f7f9fc;
+  --paper-dark: #edf1f7;
+  --ink: #1a2138;
+  --ink-light: #5a6380;
+  --accent: #0d7c9e;
+  --accent-hover: #086788;
+  --divider: #d0daea;
+  --card-bg: #ffffff;
+  --card-border: #e2e8f5;
+  --sidebar-bg: #f0f3fa;
+  --sidebar-border: #dce2f0;
+  --code-bg: #eef2f8;
+  --highlight-bg: #eaf6f9;
+  --highlight-border: #0d7c9e;
+  --highlight-strong: #065471;
+  --checkpoint-bg: #f0f4ff;
+  --checkpoint-border: #8eb8e5;
+  --checkpoint-color: #1e3f6f;
+  --tag-must-bg: #fde8e8; --tag-must-color: #b4343a;
+  --tag-key-bg: #fef7e3; --tag-key-color: #8a5a00;
+  --tag-freq-bg: #e3f0fd; --tag-freq-color: #1d6eb8;
+  --tag-info-bg: #e6f7ef; --tag-info-color: #1a6b42;
+  --heading-color: #0c2d48;
+  --code-text: #5c3d0a;
+  --radius: 8px;
+  --font: "Microsoft YaHei","PingFang SC","Noto Sans SC",sans-serif;
+}
+.dark-mode {
+  --paper: #0f172a; --paper-dark: #162239;
+  --ink: #e2e8f0; --ink-light: #8494b8;
+  --accent: #38b2ce; --accent-hover: #4fc3e0;
+  --divider: #223355;
+  --card-bg: #18243c; --card-border: #243555;
+  --sidebar-bg: #0f172a; --sidebar-border: #1e2d4a;
+  --code-bg: #1a2744;
+  --highlight-bg: #162a35; --highlight-border: #38b2ce; --highlight-strong: #6ad4ee;
+  --checkpoint-bg: #16223a; --checkpoint-border: #2a4070; --checkpoint-color: #6aa8e8;
+  --tag-must-bg: #3d1f1f; --tag-must-color: #f28b8b;
+  --tag-key-bg: #3d3018; --tag-key-color: #e0b860;
+  --tag-freq-bg: #1a2f4a; --tag-freq-color: #7ab8f0;
+  --tag-info-bg: #1a3a2a; --tag-info-color: #6ac090;
+  --heading-color: var(--ink);
+  --code-text: #c8b878;
+  background-color: var(--paper);
+}
+
+/* ===== Reset & Base ===== */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font);font-size:11pt;line-height:1.8;color:var(--ink);background:var(--paper);display:flex;min-height:100vh}
+a{color:var(--accent);text-decoration:none;transition:color .2s}
+a:hover{color:var(--accent-hover)}
+ul,ol{padding-left:1.5em}
+li{margin-bottom:.3em}
+table{border-collapse:collapse;width:100%;margin:12px 0;font-size:.95em}
+th,td{border:1px solid var(--card-border);padding:8px 12px;text-align:center}
+th{background:var(--paper-dark);font-weight:600}
+td{background:var(--card-bg)}
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-thumb{background:var(--ink-light);border-radius:3px}
+
+/* ===== Sidebar ===== */
+.sidebar{position:fixed;top:0;left:0;width:210px;height:100vh;background:var(--sidebar-bg);border-right:1px solid var(--sidebar-border);overflow-y:auto;z-index:100;padding:0 0 20px}
+.sidebar-header{padding:22px 16px 16px;border-bottom:1px solid var(--sidebar-border)}
+.sidebar-header .site-name{font-size:1.15em;font-weight:700;color:var(--accent)}
+.sidebar-header .site-sub{font-size:.75em;color:var(--ink-light);margin-top:2px}
+.sidebar-nav{padding:8px 0}
+.sidebar-nav .group-label{font-size:.7em;text-transform:uppercase;letter-spacing:1px;color:var(--ink-light);padding:12px 16px 4px;font-weight:600}
+.sidebar-nav a{display:flex;align-items:center;padding:7px 16px;font-size:.9em;color:var(--ink);gap:8px;border-left:3px solid transparent;transition:background .15s,border-color .15s}
+.sidebar-nav a:hover{background:var(--paper-dark);color:var(--accent)}
+.sidebar-nav a.current{background:var(--highlight-bg);border-left-color:var(--accent);color:var(--accent);font-weight:600}
+.sidebar-nav .tag{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:var(--paper-dark);font-size:.75em;font-weight:600;flex-shrink:0}
+.sidebar-nav a.current .tag{background:var(--accent);color:#fff}
+
+/* ===== Theme Toggle ===== */
+.theme-toggle{position:fixed;top:12px;right:20px;z-index:200;background:var(--card-bg);border:1px solid var(--card-border);border-radius:50%;width:38px;height:38px;font-size:1.1em;cursor:pointer;line-height:1;transition:transform .2s}
+.theme-toggle:hover{transform:scale(1.1)}
+
+/* ===== Main Area ===== */
+.main-wrap{flex:1;margin-left:210px;display:flex;flex-direction:column;min-height:100vh}
+
+/* ===== Topbar ===== */
+.topbar{position:sticky;top:0;z-index:90;background:linear-gradient(135deg, #0d3b5c 0%, #0d7c9e 100%);padding:0}
+.topbar-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:14px 28px}
+.topbar-inner h2{color:#fff;font-size:1.15em;font-weight:600}
+.topbar-inner a{color:rgba(255,255,255,.85);font-size:.9em;padding:5px 12px;border-radius:4px;transition:background .2s}
+.topbar-inner a:hover{background:rgba(255,255,255,.15);color:#fff}
+
+/* ===== Container ===== */
+.container{max-width:1100px;margin:0 auto;padding:28px 28px 40px;width:100%}
+
+/* ===== Content Blocks ===== */
+.section{background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--radius);padding:24px 28px;margin-bottom:22px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.section h2{font-size:1.3em;color:var(--heading-color);margin-bottom:16px;padding-bottom:8px;border-bottom:2px solid var(--divider)}
+.section h3{font-size:1.08em;color:var(--accent);margin:20px 0 10px;padding-bottom:6px;border-bottom:1px dashed var(--divider)}
+.section h4{font-size:1em;color:var(--ink);font-weight:600;margin:14px 0 6px}
+.section p{margin-bottom:10px}
+
+.highlight{background:var(--highlight-bg);border-left:4px solid var(--highlight-border);padding:12px 16px;margin:14px 0;border-radius:0 6px 6px 0;font-size:.95em}
+.highlight strong{color:var(--highlight-strong)}
+
+.def-box{background:var(--code-bg);border:1px solid var(--card-border);border-radius:6px;padding:14px 18px;margin:12px 0}
+.def-box .def-title{font-weight:700;color:var(--accent);margin-bottom:4px;font-size:.92em}
+
+.formula{text-align:center;background:var(--code-bg);padding:12px 20px;margin:14px 0;border-radius:6px;font-family:"Cascadia Code","Consolas","Courier New",monospace;font-size:1em;color:var(--ink)}
+
+.code-block{background:var(--code-bg);border:1px solid var(--card-border);border-radius:6px;padding:16px 20px;margin:12px 0;overflow-x:auto;font-family:"Cascadia Code","Consolas","Courier New",monospace;font-size:.88em;line-height:1.65;color:var(--ink);white-space:pre}
+.code-block .kw{color:#0550ae;font-weight:600}
+.code-block .fn{color:#8250df}
+.code-block .str{color:#0a3069}
+.code-block .co{color:#6e7781;font-style:italic}
+.code-block .num{color:#0550ae}
+.dark-mode .code-block .kw{color:#79c0ff}
+.dark-mode .code-block .fn{color:#d2a8ff}
+.dark-mode .code-block .str{color:#a5d6ff}
+.dark-mode .code-block .co{color:#8b949e}
+.dark-mode .code-block .num{color:#79c0ff}
+
+.checkpoint{background:var(--checkpoint-bg);border:1px solid var(--checkpoint-border);border-radius:6px;padding:14px 18px;margin:14px 0}
+.checkpoint::before{content:"🧠 自查练习：";font-weight:700;color:var(--checkpoint-color);display:block;margin-bottom:6px}
+.checkpoint ol,.checkpoint ul{margin-bottom:0}
+
+.tag-must,.tag-key,.tag-freq,.tag-info{display:inline-block;padding:1px 8px;border-radius:3px;font-size:.8em;font-weight:600;margin:0 2px}
+.tag-must{background:var(--tag-must-bg);color:var(--tag-must-color)}
+.tag-key{background:var(--tag-key-bg);color:var(--tag-key-color)}
+.tag-freq{background:var(--tag-freq-bg);color:var(--tag-freq-color)}
+.tag-info{background:var(--tag-info-bg);color:var(--tag-info-color)}
+
+/* ===== Bottom Nav ===== */
+.nav-links{display:flex;justify-content:space-between;align-items:center;margin-top:30px;padding:16px 0}
+.nav-links a{padding:8px 18px;border:1px solid var(--card-border);border-radius:6px;background:var(--card-bg);font-size:.9em;transition:all .2s}
+.nav-links a:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+/* ===== Back to Top ===== */
+.back2top{position:fixed;right:24px;bottom:30px;z-index:90;width:42px;height:42px;background:var(--accent);color:#fff;border:none;border-radius:50%;font-size:1.2em;cursor:pointer;opacity:.7;transition:opacity .2s}
+.back2top:hover{opacity:1}
+
+/* ===== Chapter Nav Panel (right slide-in) ===== */
+.chapter-nav-toggle{position:fixed;right:0;top:50%;transform:translateY(-50%);z-index:95;background:var(--accent);color:#fff;border:none;border-radius:8px 0 0 8px;padding:14px 8px;font-size:1.1em;cursor:pointer;writing-mode:vertical-lr;letter-spacing:2px}
+.chapter-nav-panel{position:fixed;right:-260px;top:0;width:250px;height:100vh;z-index:150;background:var(--sidebar-bg);border-left:1px solid var(--sidebar-border);overflow-y:auto;transition:right .35s cubic-bezier(.4,0,.2,1);padding:20px 0}
+.chapter-nav-panel.open{right:0}
+.chapter-nav-panel .nav-header{padding:12px 20px 16px;border-bottom:1px solid var(--sidebar-border);font-weight:700;color:var(--accent);font-size:1.05em}
+.chapter-nav-panel .nav-section{padding:8px 20px 2px;font-size:.7em;text-transform:uppercase;letter-spacing:1px;color:var(--ink-light);font-weight:600}
+.chapter-nav-panel a{display:flex;align-items:center;padding:7px 20px;font-size:.9em;color:var(--ink);gap:8px;transition:background .15s}
+.chapter-nav-panel a:hover{background:var(--paper-dark);color:var(--accent)}
+.chapter-nav-panel a.current{color:var(--accent);font-weight:600}
+.chapter-nav-panel .num{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:var(--paper-dark);font-size:.75em;font-weight:600;flex-shrink:0}
+
+/* ===== Footer ===== */
+.footer{text-align:center;padding:20px;color:var(--ink-light);font-size:.82em;border-top:1px solid var(--divider);margin-top:auto}
+
+/* ===== Responsive ===== */
+@media(max-width:768px){
+  .sidebar{display:none}
+  .main-wrap{margin-left:0}
+  body{font-size:10.5pt}
+}
+@media(max-width:640px){
+  .section{padding:18px 16px}
+  .topbar-inner h2{font-size:1em}
+  .topbar-inner{padding:10px 14px}
+  .chapter-nav-panel{width:200px}
+  table{font-size:.85em}
+  th,td{padding:5px 8px}
+  .back2top{right:10px;bottom:20px;width:38px;height:38px}
+  .container{padding:16px 12px 30px}
+}
+
+/* ===== Print ===== */
+@media print{.sidebar,.topbar,.theme-toggle,.chapter-nav-toggle,.chapter-nav-panel,.back2top,.nav-links,.footer{display:none}.main-wrap{margin-left:0}}
+</style>
+</head>
+<body>
+
+<!-- ===== Sidebar ===== -->
+<nav class="sidebar">
+  <div class="sidebar-header">
+    <div class="site-name">📐 数学建模</div>
+    <div class="site-sub">方法与算法 · 复习系统</div>
+  </div>
+  <div class="sidebar-nav">
+    <div class="group-label">核心方法</div>
+    <a href="插值与拟合.html"><span class="tag">1</span>插值与拟合</a>
+    <a href="蒙特卡洛.html"><span class="tag">2</span>蒙特卡洛方法</a>
+    <a href="线性回归.html"><span class="tag">3</span>线性回归</a>
+    <div class="group-label">综合专题</div>
+    <a href="AI与建模.html"><span class="tag">4</span>AI与数学建模</a>
+    <a href="index.html" style="margin-top:6px;border-top:1px solid var(--sidebar-border);padding-top:8px"><span class="tag">⌂</span>返回首页</a>
+  </div>
+</nav>
+
+<!-- ===== Theme Toggle ===== -->
+<button class="theme-toggle no-print" onclick="toggleTheme()" title="切换暗黑模式">🌙</button>
+
+<!-- ===== Main ===== -->
+<div class="main-wrap">
+
+<!-- Topbar -->
+<div class="topbar">
+  <div class="topbar-inner">
+    <a href="插值与拟合.html">← 插值与拟合</a>
+    <h2>2. 蒙特卡洛方法</h2>
+    <a href="线性回归.html">线性回归 →</a>
+  </div>
+</div>
+
+<!-- Content -->
+<div class="container">
+
+<!-- 1. MC基本原理 -->
+<div class="section">
+<h2>一、蒙特卡洛方法基本原理 <span class="tag-must">必须掌握</span></h2>
+
+<h3>1.1 什么是蒙特卡洛方法</h3>
+
+<div class="def-box">
+  <div class="def-title">定义</div>
+  <p><strong>蒙特卡洛方法（Monte Carlo Method）</strong>是一类基于随机采样和统计模拟的数值计算方法。其核心思想是：通过生成大量随机样本，用统计量（如样本均值）来近似待求的数学量（如积分值、期望值、概率等）。</p>
+</div>
+
+<p>蒙特卡洛方法得名于摩纳哥著名赌城，暗喻其"随机"本质。其应用极为广泛：数值积分、优化问题、物理模拟、金融风险分析、人工智能（MCMC 采样）等领域均有重要作用。</p>
+
+<h3>1.2 理论基础</h3>
+
+<div class="def-box">
+  <div class="def-title">大数定律 (Law of Large Numbers)</div>
+  <p>设 <code>X₁, X₂, ..., X<sub>N</sub></code> 是独立同分布的随机变量，期望 <code>E[Xi] = μ</code>，则当样本数 N → ∞ 时：</p>
+  <div class="formula" style="text-align:left;padding-left:20px">(1/N) Σ Xᵢ → μ （依概率收敛）</div>
+  <p style="margin-top:4px"><strong>含义：</strong>样本均值随着样本量的增加必然趋近于真实期望值，这保证了 MC 方法的<strong>收敛性</strong>（一致性）。</p>
+</div>
+
+<div class="def-box">
+  <div class="def-title">中心极限定理 (Central Limit Theorem)</div>
+  <p>设 <code>X₁, ..., X<sub>N</sub></code> i.i.d.，方差 σ² 有限，则：</p>
+  <div class="formula" style="text-align:left;padding-left:20px">√N · (X̄<sub>N</sub> - μ) / σ → N(0, 1) （依分布收敛）</div>
+  <p style="margin-top:4px"><strong>含义：</strong>MC 估计误差近似服从正态分布，误差的标准差 ∝ σ/√N。这给出了 MC 方法的<strong>误差收敛速率 O(1/√N)</strong>。</p>
+</div>
+
+<h3>1.3 MC 方法工作流程</h3>
+
+<div class="highlight">
+  <strong>标准 MC 四步走：</strong><br>
+  ① <strong>定义域</strong> → 将问题表示为一个定积分或期望形式<br>
+  ② <strong>采样</strong> → 在定义域 Ω 内生成 N 个均匀（或依某种分布）随机点<br>
+  ③ <strong>计算</strong> → 计算每个采样点上的被积函数值<br>
+  ④ <strong>聚合</strong> → (均值) × (定义域的体积/面积) = 积分近似值<br>
+  <strong>公式：</strong> I = ∫<sub>Ω</sub> f(x)dx ≈ (V/N) · Σ f(xᵢ)，其中 V = vol(Ω)
+</div>
+
+<h3>1.4 优缺点分析</h3>
+
+<table>
+  <tr><th>优点</th><th>缺点</th></tr>
+  <tr>
+    <td><strong>维度无关性：</strong>收敛速度 O(1/√N) 与积分维数 d 无关，而确定性格点法误差为 O(N⁻²/d)，高维时 MC 占优</td>
+    <td><strong>收敛缓慢：</strong>精度每提高一位，样本量需增加 100 倍</td>
+  </tr>
+  <tr>
+    <td><strong>几何灵活性：</strong>可处理任意复杂形状的积分区域，无需规则网格</td>
+    <td><strong>精度有限：</strong>单位计算成本下的精度低于低维格点法</td>
+  </tr>
+  <tr>
+    <td><strong>直观易懂：</strong>方法原理简单，易于编程实现和并行化</td>
+    <td><strong>随机误差：</strong>结果带有统计不确定性，需要误差估计</td>
+  </tr>
+</table>
+
+<div class="highlight">
+  <strong>黄金法则：</strong>对于 d ≤ 3 的低维积分，确定性方法（梯形法则、Simpson、Gauss）通常更优；当 d ≥ 4 时，MC 方法的效率开始超越确定性格点法。在金融数学（上千维度）、统计物理、贝叶斯推断等场景，MC 几乎是唯一可行的数值方法。
+</div>
+
+<h3>1.5 误差与收敛性深入分析</h3>
+
+<div class="formula">ε ≈ σ / √N，其中 σ 为被积函数的标准差</div>
+
+<p>MC 误差有以下关键性质：</p>
+<ul>
+  <li><strong>概率性：</strong>误差估计是一个置信区间（通常取 95% CI = ±1.96σ/√N），而非严格的确定性误差界</li>
+  <li><strong>与维数无关：</strong>O(1/√N) 不含维数 d，这是 MC 在高维问题中的核心竞争力</li>
+  <li><strong>减方差技术：</strong>可通过<em>重要性采样</em>（沿重要区域多采样）、<em>控制变量法</em>（减去一个已知均值的相关变量）、<em>对偶变量法</em>（利用负相关降低方差）等手段，在不增加 N 的情况下减小 σ²</li>
+</ul>
+
+<table>
+  <tr><th>目标精度 ε</th><th>需样本量 N（σ=1 时）</th></tr>
+  <tr><td>10% (0.1)</td><td>~100</td></tr>
+  <tr><td>1% (0.01)</td><td>~10,000</td></tr>
+  <tr><td>0.1% (0.001)</td><td>~1,000,000</td></tr>
+  <tr><td>0.01% (0.0001)</td><td>~100,000,000</td></tr>
+</table>
+<p style="font-size:.85em;color:var(--ink-light)">表中清晰体现了 MC 的 "平方根瓶颈"：精度提高 10 倍需要 100 倍的样本量。</p>
+</div>
+
+<!-- 2. MC积分 -->
+<div class="section">
+<h2>二、蒙特卡洛积分 <span class="tag-key">重点</span></h2>
+
+<h3>2.1 一维 MC 积分</h3>
+
+<div class="def-box">
+  <div class="def-title">基本公式</div>
+  <div class="formula">I = ∫<sub>a</sub><sup>b</sup> f(x) dx ≈ (b - a) · (1/N) Σ f(xᵢ)</div>
+  <p style="margin-top:4px">其中 xᵢ ~ Uniform(a, b)，即从区间 [a, b] 上均匀随机采样 N 个点。</p>
+</div>
+
+<p><strong>原理：</strong>定积分等于函数在区间上的平均值乘以区间长度。MC 方法用随机样本的算术平均来估计函数均值。</p>
+
+<div class="code-block"><span class="co">% mc1d.m — 一维 MC 积分示例</span>
+<span class="co">% 计算 ∫₀¹ x² dx 的精确值为 1/3 ≈ 0.3333</span>
+a = <span class="num">0</span>; b = <span class="num">1</span>;
+N = <span class="num">10000</span>;                     <span class="co">% 样本数</span>
+x = a + (b - a) * <span class="fn">rand</span>(<span class="num">1</span>, N);  <span class="co">% U(a,b) 随机点</span>
+f = x.^<span class="num">2</span>;                      <span class="co">% 被积函数 f(x) = x²</span>
+I_mc = (b - a) * <span class="fn">mean</span>(f);        <span class="co">% MC 积分值</span>
+err = <span class="fn">abs</span>(I_mc - <span class="num">1</span>/<span class="num">3</span>);           <span class="co">% 绝对误差</span>
+<span class="fn">fprintf</span>(<span class="str">'MC = %.6f, 误差 = %.6e\n'</span>, I_mc, err);</div>
+
+<h3>2.2 二维与三维 MC 积分</h3>
+
+<p>MC 积分在高维直接推广——只需将区间长度替换为区域的面积/体积，采样从高维均匀分布中进行。</p>
+
+<div class="def-box">
+  <div class="def-title">二维 MC 积分</div>
+  <div class="formula">∬<sub>D</sub> f(x, y) dxdy ≈ (Area of D) · (1/N) Σ f(xᵢ, yᵢ)</div>
+  <p style="margin-top:4px">(xᵢ, yᵢ) ~ Uniform(D)，即从区域 D 内均匀随机采样。</p>
+</div>
+
+<div class="code-block"><span class="co">% mc2d.m — 二维 MC 积分：单位圆面积验证</span>
+<span class="co">% 单位圆面积 = π，精确值 ≈ 3.14159</span>
+N = <span class="num">100000</span>;
+<span class="co">% 策略：在 [-1,1]×[-1,1] 正方形中采样</span>
+x = <span class="num">2</span>*<span class="fn">rand</span>(<span class="num">1</span>, N) - <span class="num">1</span>;
+y = <span class="num">2</span>*<span class="fn">rand</span>(<span class="num">1</span>, N) - <span class="num">1</span>;
+inside = (x.^<span class="num">2</span> + y.^<span class="num">2</span>) &lt;= <span class="num">1</span>;     <span class="co">% 点在单位圆内的逻辑索引</span>
+count = <span class="fn">sum</span>(inside);
+area_est = <span class="num">4</span> * count / N;            <span class="co">% 正方形面积 4 × 命中率</span>
+<span class="fn">fprintf</span>(<span class="str">'MC 面积 ≈ %.6f, 实际 π ≈ %.6f\n'</span>, area_est, pi);</div>
+
+<h3>2.3 误差分析：MC vs 确定性格点法</h3>
+
+<table>
+  <tr><th>方法</th><th>一维误差阶</th><th>d 维误差阶</th><th>d=10, N=10⁶ 时误差</th></tr>
+  <tr><td><strong>Monte Carlo</strong></td><td>O(N⁻¹/²)</td><td>O(N⁻¹/²)</td><td>~10⁻³</td></tr>
+  <tr><td><strong>梯形法则</strong></td><td>O(N⁻²)</td><td>O(N⁻²/d)</td><td>~10⁻¹.² ≈ 0.06</td></tr>
+  <tr><td><strong>Simpson 法则</strong></td><td>O(N⁻⁴)</td><td>O(N⁻⁴/d)</td><td>~10⁻⁰.⁴ ≈ 0.4</td></tr>
+  <tr><td><strong>Gauss 求积</strong></td><td>指数收敛</td><td>随 d 急剧恶化</td><td>需 ≈10ᵈ 个节点</td></tr>
+</table>
+
+<div class="highlight">
+  <strong>关键洞察：</strong>确定性格点法在低维高效（一维 Simpson 用 100 个点可达机器精度），但误差随维度升高以 O(N⁻²/d) 的速率恶化——这就是著名的 <strong>"维度灾难"</strong>（curse of dimensionality）。MC 方法的收敛速率与维数无关，使其在高维数值积分中无可替代。
+</div>
+
+<h3>2.4 减方差技术概览</h3>
+
+<table>
+  <tr><th>技术</th><th>原理</th><th>适用场景</th></tr>
+  <tr><td><strong>重要性采样</strong></td><td>在被积函数大的区域以更高概率采样</td><td>被积函数有尖峰或奇点</td></tr>
+  <tr><td><strong>控制变量法</strong></td><td>减去一个已知积分值且与原函数相关的函数</td><td>存在已知解析积分的近似函数</td></tr>
+  <tr><td><strong>对偶变量法</strong></td><td>利用配对负相关样本抵消部分方差</td><td>被积函数单调时效果显著</td></tr>
+  <tr><td><strong>分层采样</strong></td><td>将定义域分层，每层分别采样保证覆盖均匀</td><td>区域可自然分层时</td></tr>
+  <tr><td><strong>拟蒙特卡洛 (QMC)</strong></td><td>用低差异序列（Halton、Sobol）替代伪随机数</td><td>一般情况，收敛速率可提升至 O(lnᵈN / N)</td></tr>
+</table>
+</div>
+
+<!-- 3. 经典案例 -->
+<div class="section">
+<h2>三、经典蒙特卡洛案例 <span class="tag-key">重点</span></h2>
+
+<h3>3.1 圆周率 π 的 MC 估计 <span class="tag-must">必须掌握</span></h3>
+
+<p>这是最经典的 MC 入门案例，也被称为"投针实验"的数字版本。利用单位正方形内接 1/4 圆的面积关系估算 π。</p>
+
+<div class="def-box">
+  <div class="def-title">原理</div>
+  <p>在单位正方形 [0,1] × [0,1] 内随机投点。<br>
+  1/4 单位圆面积 = π/4，正方形面积 = 1。<br>
+  点数落在 1/4 圆内的比例 ≈ π/4，因此：</p>
+  <div class="formula">π ≈ 4 × (圆内点数) / (总点数)</div>
+</div>
+
+<div class="code-block"><span class="co">% pi_mc.m — 蒙特卡洛估计 π</span>
+N = <span class="num">100000</span>;
+x = <span class="fn">rand</span>(<span class="num">1</span>, N);              <span class="co">% U(0,1) 随机点 x 坐标</span>
+y = <span class="fn">rand</span>(<span class="num">1</span>, N);              <span class="co">% U(0,1) 随机点 y 坐标</span>
+inside = (x.^<span class="num">2</span> + y.^<span class="num">2</span>) &lt;= <span class="num">1</span>;  <span class="co">% 判断是否在 1/4 圆内</span>
+pi_est = <span class="num">4</span> * <span class="fn">sum</span>(inside) / N;
+<span class="fn">fprintf</span>(<span class="str">'π ≈ %.6f, 误差 ≈ %.6e\n'</span>, pi_est, <span class="fn">abs</span>(pi_est - pi));
+
+<span class="co">% 可视化收敛过程</span>
+pi_cum = <span class="num">4</span> * <span class="fn">cumsum</span>(inside) ./ (<span class="num">1</span>:N);
+<span class="fn">plot</span>(<span class="num">1</span>:N, pi_cum); <span class="fn">hold</span> on
+<span class="fn">yline</span>(pi, <span class="str">'r--'</span>);             <span class="co">% 参考线 π ≈ 3.1416</span>
+<span class="fn">xlabel</span>(<span class="str">'样本数 N'</span>); <span class="fn">ylabel</span>(<span class="str">'π 估计值'</span>);
+<span class="fn">title</span>(<span class="str">'MC 估计 π — 收敛过程'</span>);</div>
+
+<h3>3.2 中子屏蔽模拟 <span class="tag-freq">竞赛常见</span></h3>
+
+<p>这是 MC 方法在核物理中的典型应用。考虑一个三层屏蔽板，中子顺序经过各层，每层可能发生<strong>反射</strong>、<strong>吸收</strong>或<strong>穿透</strong>。模拟大量中子的随机行踪，统计穿透概率和能量损失。</p>
+
+<div class="def-box">
+  <div class="def-title">三层屏蔽模型参数（示例）</div>
+  <table>
+    <tr><th>层</th><th>穿透概率 Pᵢ</th><th>反射概率 Rᵢ</th><th>吸收概率 Aᵢ</th></tr>
+    <tr><td>第1层（外层）</td><td>0.7</td><td>0.2</td><td>0.1</td></tr>
+    <tr><td>第2层（中层）</td><td>0.5</td><td>0.3</td><td>0.2</td></tr>
+    <tr><td>第3层（内层）</td><td>0.3</td><td>0.4</td><td>0.3</td></tr>
+  </table>
+  <p style="margin-top:4px">注意：Pᵢ + Rᵢ + Aᵢ = 1，每层为一个完备事件组。</p>
+</div>
+
+<div class="code-block"><span class="co">% neutron_shield.m — 中子屏蔽 MC 模拟</span>
+P = [<span class="num">0.7</span> <span class="num">0.5</span> <span class="num">0.3</span>];     <span class="co">% 各层穿透概率</span>
+R = [<span class="num">0.2</span> <span class="num">0.3</span> <span class="num">0.4</span>];     <span class="co">% 各层反射概率</span>
+<span class="co">% A = 1 - P - R (吸收概率，不显式写出)</span>
+N = <span class="num">100000</span>;                 <span class="co">% 模拟中子数</span>
+penetrate = <span class="num">0</span>;              <span class="co">% 穿透计数</span>
+absorb = <span class="num">0</span>;                 <span class="co">% 吸收计数</span>
+
+<span class="kw">for</span> i = <span class="num">1</span>:N
+    layer = <span class="num">1</span>;              <span class="co">% 从第1层开始</span>
+    <span class="kw">while</span> layer &gt;= <span class="num">1</span> &amp;&amp; layer &lt;= <span class="num">3</span>
+        r = <span class="fn">rand</span>();
+        <span class="kw">if</span> r &lt; P(layer)           <span class="co">% 穿透</span>
+            layer = layer + <span class="num">1</span>;
+        <span class="kw">elseif</span> r &lt; P(layer) + R(layer) <span class="co">% 反射</span>
+            layer = layer - <span class="num">1</span>;
+        <span class="kw">else</span>                       <span class="co">% 吸收</span>
+            absorb = absorb + <span class="num">1</span>;
+            <span class="kw">break</span>;
+        <span class="kw">end</span>
+    <span class="kw">end</span>
+    <span class="kw">if</span> layer &gt; <span class="num">3</span>
+        penetrate = penetrate + <span class="num">1</span>;
+    <span class="kw">end</span>
+<span class="kw">end</span>
+<span class="fn">fprintf</span>(<span class="str">'穿透率 = %.4f, 吸收率 = %.4f\n'</span>, ...
+    penetrate/N, absorb/N);</div>
+
+<div class="highlight">
+  <strong>算法要点：</strong>当一个中子在某一层反射后回退到上一层，它可能再次穿透回当前层——这形成了一个<strong>随机游走</strong>（random walk）。每步决策对应一个 [0,1] 均匀随机数与概率区间的比较。这种状态机式模拟是 MC 模拟复杂物理过程的范例。
+</div>
+
+<h3>3.3 不规则图形面积估计 — 叶片面积</h3>
+
+<p>将不规则叶片放入已知尺寸的矩形（包围盒）内，在矩形内均匀随机撒点，统计落入叶片内部的点数比例来估计面积。</p>
+
+<div class="def-box">
+  <div class="def-title">算法流程</div>
+  <ol>
+    <li>确定包围盒：[xmin, xmax] × [ymin, ymax]</li>
+    <li>生成 N 个随机点 (xᵢ, yᵢ) ~ Uniform(包围盒)</li>
+    <li>用 <strong>射线法</strong>（ray casting）判断每个点是否在叶片多边形内部</li>
+    <li>叶片面积 ≈ 包围盒面积 × (内部点数 / N)</li>
+  </ol>
+</div>
+
+<div class="code-block"><span class="co">% leaf_area.m — 叶片面积 MC 估计（核心逻辑）</span>
+<span class="co">% 假设 leaf_x, leaf_y 构成封闭多边形顶点坐标</span>
+xmin = <span class="fn">min</span>(leaf_x); xmax = <span class="fn">max</span>(leaf_x);
+ymin = <span class="fn">min</span>(leaf_y); ymax = <span class="fn">max</span>(leaf_y);
+box_area = (xmax - xmin) * (ymax - ymin);
+
+N = <span class="num">50000</span>;
+xp = xmin + (xmax - xmin) * <span class="fn">rand</span>(<span class="num">1</span>, N);
+yp = ymin + (ymax - ymin) * <span class="fn">rand</span>(<span class="num">1</span>, N);
+inside = <span class="fn">inpolygon</span>(xp, yp, leaf_x, leaf_y);  <span class="co">% MATLAB 内置</span>
+leaf_area = box_area * <span class="fn">sum</span>(inside) / N;
+<span class="fn">fprintf</span>(<span class="str">'叶片面积 ≈ %.4f (包围盒 = %.1f)\n'</span>, leaf_area, box_area);
+
+<span class="co">% 可视化</span>
+<span class="fn">plot</span>(leaf_x, leaf_y, <span class="str">'k-'</span>); <span class="fn">hold</span> on
+<span class="fn">scatter</span>(xp(inside), yp(inside), <span class="num">1</span>, <span class="str">'b.'</span>);   <span class="co">% 内部点蓝色</span>
+<span class="fn">scatter</span>(xp(~inside), yp(~inside), <span class="num">1</span>, <span class="str">'r.'</span>); <span class="co">% 外部点红色</span></div>
+
+<div class="highlight">
+  <strong>Point-in-Polygon 判断：</strong>最常用的是<strong>射线法</strong>（从测试点向右发射水平射线，计算与多边形边的交点数量——奇数个交点在内部，偶数个在外部）。MATLAB 内置函数 <code>inpolygon()</code> 封装了该算法，可直接调用。
+</div>
+
+<h3>3.4 高维积分示例</h3>
+
+<p>考虑一个 10 维单位超立方体上的积分，展示 MC 如何轻松处理维度灾难：</p>
+
+<div class="code-block"><span class="co">% mc_highdim.m — 10 维超球体积估计</span>
+d = <span class="num">10</span>;                             <span class="co">% 维度</span>
+N = <span class="num">100000</span>;
+points = <span class="fn">rand</span>(N, d);                 <span class="co">% N×d 矩阵，每行一个 d 维随机点</span>
+<span class="co">% 计算每个点到原点距离的平方</span>
+dist_sq = <span class="fn">sum</span>(points.^<span class="num">2</span>, <span class="num">2</span>);       <span class="co">% 按行求和</span>
+inside = dist_sq &lt;= <span class="num">1</span>;
+<span class="co">% 包含立方体体积为 2^d，半径 1 的超球内接于 [-1,1]^d</span>
+<span class="co">% 命中率 ≈ V_sphere / 2^d</span>
+volume_est = <span class="num">2</span>^d * <span class="fn">sum</span>(inside) / N;
+volume_true = pi^(d/<span class="num">2</span>) / <span class="fn">gamma</span>(d/<span class="num">2</span> + <span class="num">1</span>);  <span class="co">% d 维单位超球体积</span>
+<span class="fn">fprintf</span>(<span class="str">'MC 体积 ≈ %.6f, 精确值 ≈ %.6f\n'</span>, volume_est, volume_true);</div>
+</div>
+
+<!-- 4. 竞赛应用 -->
+<div class="section">
+<h2>四、数学建模竞赛中的应用 <span class="tag-freq">高频考点</span></h2>
+
+<h3>4.1 2010 CUMCM A 题：储油罐标定 <span class="tag-key">重点</span></h3>
+
+<p><strong>问题背景：</strong>加油站储油罐在使用中会发生变位（倾斜），需要通过油位高度和储油量的对应关系来标定罐容表。由于罐体几何形状不规则（两端为球冠封头），精确体积积分极为复杂。</p>
+
+<div class="highlight">
+  <strong>MC 方法解题思路：</strong><br>
+  ① 建立罐体的三维几何模型（圆柱体 + 两个球冠）<br>
+  ② 沿罐体表面及内部空间大量随机采样<br>
+  ③ 对每个采样点，结合变位参数（纵向倾斜角 α、横向偏转角 β），通过坐标变换计算该点在变位后的实际高度<br>
+  ④ 统计位于油面以下的点数比例 → 估算储油体积<br>
+  <strong>优势：</strong>几何建模困难时，MC 可以"暴力"绕过复杂的解析几何推导，直接给出数值结果。
+</div>
+
+<div class="code-block"><span class="co">% oiltank_mc_core.m — 储油罐 MC 标定核心逻辑</span>
+<span class="co">% 参数：L = 罐长, R = 半径, r = 球冠半径, alpha = 倾斜角</span>
+N = <span class="num">500000</span>;
+<span class="co">% 步骤1：在罐体包围盒内随机采样</span>
+x_p = <span class="fn">rand</span>(N,<span class="num">1</span>) * L;            <span class="co">% 沿罐长方向</span>
+y_p = (<span class="fn">rand</span>(N,<span class="num">1</span>)*<span class="num">2</span> - <span class="num">1</span>) * R;   <span class="co">% 径向</span>
+z_p = (<span class="fn">rand</span>(N,<span class="num">1</span>)*<span class="num">2</span> - <span class="num">1</span>) * R;
+
+<span class="co">% 步骤2：筛选在罐体内的点</span>
+in_tank = (y_p.^<span class="num">2</span> + z_p.^<span class="num">2</span>) &lt;= R^<span class="num">2</span>;
+
+<span class="co">% 步骤3：变位坐标变换（绕 y 轴倾斜 α）</span>
+x_new =  x_p * <span class="fn">cos</span>(alpha) + z_p * <span class="fn">sin</span>(alpha);
+z_new = -x_p * <span class="fn">sin</span>(alpha) + z_p * <span class="fn">cos</span>(alpha);
+
+<span class="co">% 步骤4：统计油面以下点数</span>
+<span class="co">% 假设油位高度为 h（从罐底算起）</span>
+below_oil = (z_new &lt;= h - R) &amp; in_tank;
+volume = <span class="num">2</span>*R * <span class="num">2</span>*R * L * <span class="fn">sum</span>(below_oil) / N;</div>
+
+<div class="highlight">
+  <strong>竞赛中 MC 的定位：</strong>当精确解析推导过于复杂（如 2010A 需要推导含球冠的变位体积公式，涉及繁杂的积分），MC 可作为数值验证工具。先用解析方法推导近似模型，再用 MC 数值验证模型的精度，是竞赛中非常稳妥的策略。
+</div>
+
+<h3>4.2 2005 CUMCM D 题：DVD 租赁优化</h3>
+
+<p><strong>问题背景：</strong>在线 DVD 租赁公司需要优化库存配置：购买多少张 DVD 才能以给定概率满足会员需求？会员按偏好排队，DVD 归还后可再借出。</p>
+
+<div class="highlight">
+  <strong>随机模拟思路：</strong><br>
+  ① 为每位会员生成随机偏好序列（按某种分布随机排列 DVD 编号）<br>
+  ② 按时间步进模拟租赁流程：分配 DVD → 会员使用 → 归还 → 再次入库<br>
+  ③ 多轮重复模拟（如 1000 次），统计每种库存配置下的满足率<br>
+  ④ 以满足率 ≥ 阈值（如 95%）为目标，反向搜索最优库存配置<br>
+  <strong>本质：</strong>这是一个<strong>随机库存系统</strong>的离散事件模拟（DES），MC 用于处理需求和归还的不确定性。
+</div>
+
+<h3>4.3 MC 方法与其他建模技术的结合</h3>
+
+<table>
+  <tr><th>场景</th><th>MC 作用</th><th>配合方法</th></tr>
+  <tr><td><strong>不确定性量化 (UQ)</strong></td><td>对模型输入参数进行随机采样，估计输出分布的均值和方差</td><td>偏微分方程求解器、代理模型</td></tr>
+  <tr><td><strong>随机优化</strong></td><td>在目标函数含噪声或难以求导时，用随机搜索寻找近似最优解</td><td>模拟退火、遗传算法</td></tr>
+  <tr><td><strong>贝叶斯推断</strong></td><td>MCMC (Markov Chain Monte Carlo) 从后验分布中采样</td><td>Metropolis-Hastings、Gibbs 采样</td></tr>
+  <tr><td><strong>排队论/库存论</strong></td><td>模拟顾客到达、服务时间、库存消耗等随机过程</td><td>离散事件模拟 (DES)</td></tr>
+  <tr><td><strong>可靠性分析</strong></td><td>估计复杂系统的故障概率（罕见事件采样）</td><td>重要采样 (Importance Sampling)</td></tr>
+</table>
+</div>
+
+<!-- 5. 自查练习 -->
+<div class="section">
+<h2>五、自查练习</h2>
+
+<div class="checkpoint">
+  <ol>
+    <li><strong>为什么 MC 误差按 1/√N 减小？</strong>这个衰减速率来自中心极限定理的哪一部分？将样本量增加 100 倍，精度大约提高多少？</li>
+    <li><strong>MC 方法最适合哪类问题？</strong>至少列举三个典型应用场景，并解释为什么确定性格点法在这些场景下失效。</li>
+    <li><strong>如何用 MC 估计一个 10 维空间中的积分？</strong>写出完整步骤，并对比与 Simpson 法则在该场景下的效率差异。</li>
+    <li><strong>在中子屏蔽模拟中，</strong>如果某一层的穿透概率很低（如 P = 0.05），MC 模拟会出现什么问题？可以用什么减方差技术来改善？</li>
+    <li><strong>储油罐标定问题中，</strong>MC 方法比解析推导有哪些优势和劣势？在竞赛时间有限的情况下如何权衡？</li>
+    <li><strong>拟蒙特卡洛 (QMC) 与普通 MC 的根本区别是什么？</strong>什么场景下 QMC 能显著优于 MC？</li>
+  </ol>
+</div>
+</div>
+
+<!-- Bottom Nav -->
+<div class="nav-links">
+  <a href="插值与拟合.html">← 插值与拟合</a>
+  <a href="index.html">⌂ 首页</a>
+  <a href="线性回归.html">线性回归 →</a>
+</div>
+
+</div><!-- .container -->
+
+<div class="footer"><p>📐 数学建模方法与算法 · 复习系统 &copy; 2026 Jacky</p></div>
+</div><!-- .main-wrap -->
+
+<!-- Back to Top -->
+<button class="back2top" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="回到顶部">↑</button>
+
+<!-- Chapter Nav Toggle + Panel -->
+<button class="chapter-nav-toggle" onclick="toggleChapterNav()" title="章节导航">📖 章节导航</button>
+<div class="chapter-nav-panel" id="chapterNav">
+  <div class="nav-header">📐 目录导航</div>
+  <div class="nav-section">核心方法</div>
+  <a href="插值与拟合.html"><span class="num">1</span>插值与拟合</a>
+  <a href="蒙特卡洛.html"><span class="num">2</span>蒙特卡洛方法</a>
+  <a href="线性回归.html"><span class="num">3</span>线性回归</a>
+  <div class="nav-section">综合专题</div>
+  <a href="AI与建模.html"><span class="num">4</span>AI与数学建模</a>
+  <a href="index.html" style="border-top:1px solid var(--sidebar-border);margin-top:6px;padding-top:10px"><span class="num">⌂</span>返回首页</a>
+</div>
+
+<!-- ===== JavaScript ===== -->
+<script>
+// Sidebar current-page highlight
+(function(){
+  var p = window.location.pathname.split('/').pop() || '蒙特卡洛.html';
+  document.querySelectorAll('.sidebar-nav a').forEach(function(a){
+    if(a.getAttribute('href') === p) a.classList.add('current');
+  });
+})();
+
+// Theme toggle
+(function(){
+  var d = localStorage.getItem('mathmodel-theme');
+  if(d === 'dark'){
+    document.body.classList.add('dark-mode');
+    document.querySelector('.theme-toggle').textContent = '☀️';
+  }
+})();
+function toggleTheme(){
+  var b = document.body; b.classList.toggle('dark-mode');
+  var btn = document.querySelector('.theme-toggle');
+  var isDark = b.classList.contains('dark-mode');
+  btn.textContent = isDark ? '☀️' : '🌙';
+  localStorage.setItem('mathmodel-theme', isDark ? 'dark' : 'light');
+}
+
+// Chapter nav panel
+function toggleChapterNav(){
+  var panel = document.getElementById('chapterNav');
+  panel.classList.toggle('open');
+}
+document.addEventListener('click', function(e){
+  var panel = document.getElementById('chapterNav');
+  var btn = document.querySelector('.chapter-nav-toggle');
+  if(panel && panel.classList.contains('open') && !panel.contains(e.target) && !btn.contains(e.target)){
+    panel.classList.remove('open');
+  }
+});
+document.addEventListener('DOMContentLoaded', function(){
+  var path = window.location.pathname.split('/').pop() || '蒙特卡洛.html';
+  var panel = document.getElementById('chapterNav');
+  if(!panel) return;
+  panel.querySelectorAll('a').forEach(function(a){
+    if(a.getAttribute('href') === path) a.classList.add('current');
+  });
+});
+</script>
+
+</body>
+</html>

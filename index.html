@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>数学建模复习系统 — 方法与算法</title>
+<style>
+/* ===== CSS Variables ===== */
+:root {
+  --paper: #f7f9fc;
+  --paper-dark: #edf1f7;
+  --ink: #1a2138;
+  --ink-light: #5a6380;
+  --accent: #0d7c9e;
+  --accent-hover: #086788;
+  --divider: #d0daea;
+  --card-bg: #ffffff;
+  --card-border: #e2e8f5;
+  --sidebar-bg: #f0f3fa;
+  --sidebar-border: #dce2f0;
+  --code-bg: #eef2f8;
+  --highlight-bg: #eaf6f9;
+  --highlight-border: #0d7c9e;
+  --highlight-strong: #065471;
+  --checkpoint-bg: #f0f4ff;
+  --checkpoint-border: #8eb8e5;
+  --checkpoint-color: #1e3f6f;
+  --tag-must-bg: #fde8e8; --tag-must-color: #b4343a;
+  --tag-key-bg: #fef7e3; --tag-key-color: #8a5a00;
+  --tag-freq-bg: #e3f0fd; --tag-freq-color: #1d6eb8;
+  --tag-info-bg: #e6f7ef; --tag-info-color: #1a6b42;
+  --heading-color: #0c2d48;
+  --code-text: #5c3d0a;
+  --radius: 8px;
+  --font: "Microsoft YaHei","PingFang SC","Noto Sans SC",sans-serif;
+}
+.dark-mode {
+  --paper: #0f172a; --paper-dark: #162239;
+  --ink: #e2e8f0; --ink-light: #8494b8;
+  --accent: #38b2ce; --accent-hover: #4fc3e0;
+  --divider: #223355;
+  --card-bg: #18243c; --card-border: #243555;
+  --sidebar-bg: #0f172a; --sidebar-border: #1e2d4a;
+  --code-bg: #1a2744;
+  --highlight-bg: #162a35; --highlight-border: #38b2ce; --highlight-strong: #6ad4ee;
+  --checkpoint-bg: #16223a; --checkpoint-border: #2a4070; --checkpoint-color: #6aa8e8;
+  --tag-must-bg: #3d1f1f; --tag-must-color: #f28b8b;
+  --tag-key-bg: #3d3018; --tag-key-color: #e0b860;
+  --tag-freq-bg: #1a2f4a; --tag-freq-color: #7ab8f0;
+  --tag-info-bg: #1a3a2a; --tag-info-color: #6ac090;
+  --heading-color: var(--ink);
+  --code-text: #c8b878;
+  background-color: var(--paper);
+}
+
+/* ===== Reset & Base ===== */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font);font-size:11pt;line-height:1.8;color:var(--ink);background:var(--paper);display:flex;min-height:100vh}
+a{color:var(--accent);text-decoration:none;transition:color .2s}
+a:hover{color:var(--accent-hover)}
+ul,ol{padding-left:1.5em}
+li{margin-bottom:.3em}
+table{border-collapse:collapse;width:100%;margin:12px 0;font-size:.95em}
+th,td{border:1px solid var(--card-border);padding:8px 12px;text-align:center}
+th{background:var(--paper-dark);font-weight:600}
+td{background:var(--card-bg)}
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-thumb{background:var(--ink-light);border-radius:3px}
+
+/* ===== Sidebar ===== */
+.sidebar{position:fixed;top:0;left:0;width:210px;height:100vh;background:var(--sidebar-bg);border-right:1px solid var(--sidebar-border);overflow-y:auto;z-index:100;padding:0 0 20px}
+.sidebar-header{padding:22px 16px 16px;border-bottom:1px solid var(--sidebar-border)}
+.sidebar-header .site-name{font-size:1.15em;font-weight:700;color:var(--accent)}
+.sidebar-header .site-sub{font-size:.75em;color:var(--ink-light);margin-top:2px}
+.sidebar-nav{padding:8px 0}
+.sidebar-nav .group-label{font-size:.7em;text-transform:uppercase;letter-spacing:1px;color:var(--ink-light);padding:12px 16px 4px;font-weight:600}
+.sidebar-nav a{display:flex;align-items:center;padding:7px 16px;font-size:.9em;color:var(--ink);gap:8px;border-left:3px solid transparent;transition:background .15s,border-color .15s}
+.sidebar-nav a:hover{background:var(--paper-dark);color:var(--accent)}
+.sidebar-nav a.current{background:var(--highlight-bg);border-left-color:var(--accent);color:var(--accent);font-weight:600}
+.sidebar-nav .tag{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:var(--paper-dark);font-size:.75em;font-weight:600;flex-shrink:0}
+.sidebar-nav a.current .tag{background:var(--accent);color:#fff}
+
+/* ===== Theme Toggle ===== */
+.theme-toggle{position:fixed;top:12px;right:20px;z-index:200;background:var(--card-bg);border:1px solid var(--card-border);border-radius:50%;width:38px;height:38px;font-size:1.1em;cursor:pointer;line-height:1;transition:transform .2s}
+.theme-toggle:hover{transform:scale(1.1)}
+
+/* ===== Main Area ===== */
+.main-wrap{flex:1;margin-left:210px;display:flex;flex-direction:column;min-height:100vh}
+
+/* ===== Header (Hero) ===== */
+.header{background:linear-gradient(135deg, #0d3b5c 0%, #0d7c9e 50%, #0a5f78 100%);padding:60px 20px 50px;text-align:center;color:#fff}
+.header h1{font-size:2em;margin-bottom:8px}
+.header .subtitle{opacity:.85;font-size:1.1em}
+
+/* ===== Container ===== */
+.container{max-width:1100px;margin:0 auto;padding:28px 28px 40px;width:100%}
+
+/* ===== Content Blocks ===== */
+.section{background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--radius);padding:24px 28px;margin-bottom:22px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.section h2{font-size:1.3em;color:var(--heading-color);margin-bottom:16px;padding-bottom:8px;border-bottom:2px solid var(--divider)}
+.section h3{font-size:1.08em;color:var(--accent);margin:20px 0 10px;padding-bottom:6px;border-bottom:1px dashed var(--divider)}
+.section h4{font-size:1em;color:var(--ink);font-weight:600;margin:14px 0 6px}
+.section p{margin-bottom:10px}
+
+.highlight{background:var(--highlight-bg);border-left:4px solid var(--highlight-border);padding:12px 16px;margin:14px 0;border-radius:0 6px 6px 0;font-size:.95em}
+.highlight strong{color:var(--highlight-strong)}
+
+.def-box{background:var(--code-bg);border:1px solid var(--card-border);border-radius:6px;padding:14px 18px;margin:12px 0}
+.def-box .def-title{font-weight:700;color:var(--accent);margin-bottom:4px;font-size:.92em}
+
+.formula{text-align:center;background:var(--code-bg);padding:12px 20px;margin:14px 0;border-radius:6px;font-family:"Cascadia Code","Consolas","Courier New",monospace;font-size:1em;color:var(--ink)}
+
+.code-block{background:var(--code-bg);border:1px solid var(--card-border);border-radius:6px;padding:16px 20px;margin:12px 0;overflow-x:auto;font-family:"Cascadia Code","Consolas","Courier New",monospace;font-size:.88em;line-height:1.65;color:var(--ink);white-space:pre}
+.code-block .kw{color:#0550ae;font-weight:600}
+.code-block .fn{color:#8250df}
+.code-block .str{color:#0a3069}
+.code-block .co{color:#6e7781;font-style:italic}
+.code-block .num{color:#0550ae}
+.dark-mode .code-block .kw{color:#79c0ff}
+.dark-mode .code-block .fn{color:#d2a8ff}
+.dark-mode .code-block .str{color:#a5d6ff}
+.dark-mode .code-block .co{color:#8b949e}
+.dark-mode .code-block .num{color:#79c0ff}
+
+.checkpoint{background:var(--checkpoint-bg);border:1px solid var(--checkpoint-border);border-radius:6px;padding:14px 18px;margin:14px 0}
+.checkpoint::before{content:"🧠 自查练习：";font-weight:700;color:var(--checkpoint-color);display:block;margin-bottom:6px}
+.checkpoint ol,.checkpoint ul{margin-bottom:0}
+
+.tag-must,.tag-key,.tag-freq,.tag-info{display:inline-block;padding:1px 8px;border-radius:3px;font-size:.8em;font-weight:600;margin:0 2px}
+.tag-must{background:var(--tag-must-bg);color:var(--tag-must-color)}
+.tag-key{background:var(--tag-key-bg);color:var(--tag-key-color)}
+.tag-freq{background:var(--tag-freq-bg);color:var(--tag-freq-color)}
+.tag-info{background:var(--tag-info-bg);color:var(--tag-info-color)}
+
+/* ===== Info Card (homepage section) ===== */
+.info-card{background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--radius);padding:24px 28px;margin-bottom:22px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.info-card h2{font-size:1.3em;color:var(--heading-color);margin-bottom:12px}
+.info-card p{color:var(--ink-light);font-size:.95em;line-height:1.7;margin-bottom:8px}
+
+/* ===== Chapter Grid (homepage module cards) ===== */
+.chapter-grid{display:grid;grid-template-columns:repeat(auto-fill, minmax(280px, 1fr));gap:18px;margin-top:6px}
+.chapter-grid .card{background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--radius);padding:20px 22px;transition:all .25s}
+.chapter-grid .card:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.08)}
+.chapter-grid .card h3{font-size:1.05em;margin-bottom:8px}
+.chapter-grid .card p{color:var(--ink-light);font-size:.92em;line-height:1.6;margin-bottom:10px}
+.chapter-grid .card .card-tag{display:inline-block;padding:2px 10px;border-radius:4px;font-size:.78em;font-weight:600}
+.chapter-grid .card:nth-child(1){border-left:4px solid #0d7c9e}
+.chapter-grid .card:nth-child(1) h3{color:#0d7c9e}
+.chapter-grid .card:nth-child(1) .card-tag{background:#e6f7ef;color:#0d7c9e}
+.chapter-grid .card:nth-child(2){border-left:4px solid #0891b2}
+.chapter-grid .card:nth-child(2) h3{color:#0891b2}
+.chapter-grid .card:nth-child(2) .card-tag{background:#e0f7fa;color:#0891b2}
+.chapter-grid .card:nth-child(3){border-left:4px solid #2563eb}
+.chapter-grid .card:nth-child(3) h3{color:#2563eb}
+.chapter-grid .card:nth-child(3) .card-tag{background:#e3f0fd;color:#2563eb}
+.chapter-grid .card:nth-child(4){border-left:4px solid #7c3aed}
+.chapter-grid .card:nth-child(4) h3{color:#7c3aed}
+.chapter-grid .card:nth-child(4) .card-tag{background:#ede9fe;color:#7c3aed}
+
+/* ===== Bottom Nav ===== */
+.nav-links{display:flex;justify-content:space-between;align-items:center;margin-top:30px;padding:16px 0}
+.nav-links a{padding:8px 18px;border:1px solid var(--card-border);border-radius:6px;background:var(--card-bg);font-size:.9em;transition:all .2s}
+.nav-links a:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+/* ===== Back to Top ===== */
+.back2top{position:fixed;right:24px;bottom:30px;z-index:90;width:42px;height:42px;background:var(--accent);color:#fff;border:none;border-radius:50%;font-size:1.2em;cursor:pointer;opacity:.7;transition:opacity .2s}
+.back2top:hover{opacity:1}
+
+/* ===== Chapter Nav Panel (right slide-in) ===== */
+.chapter-nav-toggle{position:fixed;right:0;top:50%;transform:translateY(-50%);z-index:95;background:var(--accent);color:#fff;border:none;border-radius:8px 0 0 8px;padding:14px 8px;font-size:1.1em;cursor:pointer;writing-mode:vertical-lr;letter-spacing:2px}
+.chapter-nav-panel{position:fixed;right:-260px;top:0;width:250px;height:100vh;z-index:150;background:var(--sidebar-bg);border-left:1px solid var(--sidebar-border);overflow-y:auto;transition:right .35s cubic-bezier(.4,0,.2,1);padding:20px 0}
+.chapter-nav-panel.open{right:0}
+.chapter-nav-panel .nav-header{padding:12px 20px 16px;border-bottom:1px solid var(--sidebar-border);font-weight:700;color:var(--accent);font-size:1.05em}
+.chapter-nav-panel .nav-section{padding:8px 20px 2px;font-size:.7em;text-transform:uppercase;letter-spacing:1px;color:var(--ink-light);font-weight:600}
+.chapter-nav-panel a{display:flex;align-items:center;padding:7px 20px;font-size:.9em;color:var(--ink);gap:8px;transition:background .15s}
+.chapter-nav-panel a:hover{background:var(--paper-dark);color:var(--accent)}
+.chapter-nav-panel a.current{color:var(--accent);font-weight:600}
+.chapter-nav-panel .num{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:var(--paper-dark);font-size:.75em;font-weight:600;flex-shrink:0}
+
+/* ===== Footer ===== */
+.footer{text-align:center;padding:20px;color:var(--ink-light);font-size:.82em;border-top:1px solid var(--divider);margin-top:auto}
+
+/* ===== Responsive ===== */
+@media(max-width:768px){
+  .sidebar{display:none}
+  .main-wrap{margin-left:0}
+  body{font-size:10.5pt}
+  .header{padding:40px 16px 32px}
+  .header h1{font-size:1.5em}
+}
+@media(max-width:640px){
+  .section,.info-card{padding:18px 16px}
+  .chapter-grid{grid-template-columns:1fr}
+  .chapter-nav-panel{width:200px}
+  table{font-size:.85em}
+  th,td{padding:5px 8px}
+  .back2top{right:10px;bottom:20px;width:38px;height:38px}
+  .container{padding:16px 12px 30px}
+}
+
+/* ===== Print ===== */
+@media print{.sidebar,.header,.theme-toggle,.chapter-nav-toggle,.chapter-nav-panel,.back2top,.nav-links,.footer{display:none}.main-wrap{margin-left:0}}
+</style>
+</head>
+<body>
+
+<!-- ===== Sidebar ===== -->
+<nav class="sidebar">
+  <div class="sidebar-header">
+    <div class="site-name">📐 数学建模</div>
+    <div class="site-sub">方法与算法 · 复习系统</div>
+  </div>
+  <div class="sidebar-nav">
+    <div class="group-label">核心方法</div>
+    <a href="插值与拟合.html"><span class="tag">1</span>插值与拟合</a>
+    <a href="蒙特卡洛.html"><span class="tag">2</span>蒙特卡洛方法</a>
+    <a href="线性回归.html"><span class="tag">3</span>线性回归</a>
+    <div class="group-label">综合专题</div>
+    <a href="AI与建模.html"><span class="tag">4</span>AI与数学建模</a>
+    <a href="index.html" style="margin-top:6px;border-top:1px solid var(--sidebar-border);padding-top:8px"><span class="tag">⌂</span>返回首页</a>
+  </div>
+</nav>
+
+<!-- ===== Theme Toggle ===== -->
+<button class="theme-toggle no-print" onclick="toggleTheme()" title="切换暗黑模式">🌙</button>
+
+<!-- ===== Main ===== -->
+<div class="main-wrap">
+
+<!-- Header (Hero) -->
+<div class="header">
+  <h1>📐 数学建模复习系统</h1>
+  <p class="subtitle">方法与算法 — 从基础到竞赛</p>
+</div>
+
+<!-- Content -->
+<div class="container">
+
+<!-- Info Card -->
+<div class="info-card">
+  <h2>📚 学习模块</h2>
+  <p>共 4 个模块，涵盖数学建模核心方法与竞赛策略。从最基础的 <strong>插值与拟合</strong> 方法开始，逐步深入到 <strong>蒙特卡洛随机模拟</strong> 和 <strong>线性回归统计建模</strong>，最后通过 <strong>AI 与数学建模</strong> 专题掌握竞赛实战技巧，包括 AI 工具使用规则、提示工程框架、团队分工与论文写作策略。</p>
+</div>
+
+<!-- Chapter Grid -->
+<div class="chapter-grid">
+
+  <!-- Card 1: 插值与拟合 -->
+  <a href="插值与拟合.html" class="card">
+    <h3>1. 插值与拟合</h3>
+    <p>MATLAB绘图基础、一维/二维插值方法（Lagrange/Spline/PCHIP）、最小二乘拟合与非线性拟合</p>
+    <span class="card-tag">核心方法</span>
+  </a>
+
+  <!-- Card 2: 蒙特卡洛方法 -->
+  <a href="蒙特卡洛.html" class="card">
+    <h3>2. 蒙特卡洛方法</h3>
+    <p>随机模拟原理、MC积分与误差分析、经典应用案例（π估计/中子屏蔽）、竞赛实战</p>
+    <span class="card-tag">随机模拟</span>
+  </a>
+
+  <!-- Card 3: 线性回归 -->
+  <a href="线性回归.html" class="card">
+    <h3>3. 线性回归</h3>
+    <p>一元/多元回归、Logistic回归、逐步回归、多重共线性诊断、灰色预测GM(1,1)</p>
+    <span class="card-tag">统计分析</span>
+  </a>
+
+  <!-- Card 4: AI与数学建模 -->
+  <a href="AI与建模.html" class="card">
+    <h3>4. AI与数学建模</h3>
+    <p>竞赛AI规则解读、四阶段提示工程框架、团队分工与备赛策略、论文写作技巧</p>
+    <span class="card-tag">竞赛策略</span>
+  </a>
+
+</div>
+
+</div><!-- .container -->
+
+<div class="footer"><p>📐 数学建模方法与算法 · 复习系统 &copy; 2026 Jacky</p></div>
+</div><!-- .main-wrap -->
+
+<!-- Back to Top -->
+<button class="back2top" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="回到顶部">↑</button>
+
+<!-- Chapter Nav Toggle + Panel -->
+<button class="chapter-nav-toggle" onclick="toggleChapterNav()" title="章节导航">📖 章节导航</button>
+<div class="chapter-nav-panel" id="chapterNav">
+  <div class="nav-header">📐 目录导航</div>
+  <div class="nav-section">核心方法</div>
+  <a href="插值与拟合.html"><span class="num">1</span>插值与拟合</a>
+  <a href="蒙特卡洛.html"><span class="num">2</span>蒙特卡洛方法</a>
+  <a href="线性回归.html"><span class="num">3</span>线性回归</a>
+  <div class="nav-section">综合专题</div>
+  <a href="AI与建模.html"><span class="num">4</span>AI与数学建模</a>
+  <a href="index.html" style="border-top:1px solid var(--sidebar-border);margin-top:6px;padding-top:10px"><span class="num">⌂</span>返回首页</a>
+</div>
+
+<!-- ===== JavaScript ===== -->
+<script>
+// Sidebar current-page highlight
+(function(){
+  var p = window.location.pathname.split('/').pop() || 'index.html';
+  document.querySelectorAll('.sidebar-nav a').forEach(function(a){
+    if(a.getAttribute('href') === p) a.classList.add('current');
+  });
+})();
+
+// Theme toggle
+(function(){
+  var d = localStorage.getItem('mathmodel-theme');
+  if(d === 'dark'){
+    document.body.classList.add('dark-mode');
+    document.querySelector('.theme-toggle').textContent = '☀️';
+  }
+})();
+function toggleTheme(){
+  var b = document.body; b.classList.toggle('dark-mode');
+  var btn = document.querySelector('.theme-toggle');
+  var isDark = b.classList.contains('dark-mode');
+  btn.textContent = isDark ? '☀️' : '🌙';
+  localStorage.setItem('mathmodel-theme', isDark ? 'dark' : 'light');
+}
+
+// Chapter nav panel
+function toggleChapterNav(){
+  var panel = document.getElementById('chapterNav');
+  panel.classList.toggle('open');
+}
+document.addEventListener('click', function(e){
+  var panel = document.getElementById('chapterNav');
+  var btn = document.querySelector('.chapter-nav-toggle');
+  if(panel && panel.classList.contains('open') && !panel.contains(e.target) && !btn.contains(e.target)){
+    panel.classList.remove('open');
+  }
+});
+document.addEventListener('DOMContentLoaded', function(){
+  var path = window.location.pathname.split('/').pop() || 'index.html';
+  var panel = document.getElementById('chapterNav');
+  if(!panel) return;
+  panel.querySelectorAll('a').forEach(function(a){
+    if(a.getAttribute('href') === path) a.classList.add('current');
+  });
+});
+</script>
+
+</body>
+</html>

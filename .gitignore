@@ -11,3 +11,17 @@ generated_videos/
 ~$*
 .DS_Store
 Thumbs.db
+
+# PPT and courseware archives (don't upload to GitHub)
+*.pptx
+*.ppt
+*.7z
+*.rar
+*.zip
+*.doc
+*.docx
+
+# Audio recordings
+*.m4a
+*.mp3
+*.wav

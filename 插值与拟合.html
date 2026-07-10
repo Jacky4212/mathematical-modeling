@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>插值与拟合 — 数学建模复习系统</title>
+<style>
+/* ===== CSS Variables ===== */
+:root {
+  --paper: #f7f9fc;
+  --paper-dark: #edf1f7;
+  --ink: #1a2138;
+  --ink-light: #5a6380;
+  --accent: #0d7c9e;
+  --accent-hover: #086788;
+  --divider: #d0daea;
+  --card-bg: #ffffff;
+  --card-border: #e2e8f5;
+  --sidebar-bg: #f0f3fa;
+  --sidebar-border: #dce2f0;
+  --code-bg: #eef2f8;
+  --highlight-bg: #eaf6f9;
+  --highlight-border: #0d7c9e;
+  --highlight-strong: #065471;
+  --checkpoint-bg: #f0f4ff;
+  --checkpoint-border: #8eb8e5;
+  --checkpoint-color: #1e3f6f;
+  --tag-must-bg: #fde8e8; --tag-must-color: #b4343a;
+  --tag-key-bg: #fef7e3; --tag-key-color: #8a5a00;
+  --tag-freq-bg: #e3f0fd; --tag-freq-color: #1d6eb8;
+  --tag-info-bg: #e6f7ef; --tag-info-color: #1a6b42;
+  --heading-color: #0c2d48;
+  --code-text: #5c3d0a;
+  --radius: 8px;
+  --font: "Microsoft YaHei","PingFang SC","Noto Sans SC",sans-serif;
+}
+.dark-mode {
+  --paper: #0f172a; --paper-dark: #162239;
+  --ink: #e2e8f0; --ink-light: #8494b8;
+  --accent: #38b2ce; --accent-hover: #4fc3e0;
+  --divider: #223355;
+  --card-bg: #18243c; --card-border: #243555;
+  --sidebar-bg: #0f172a; --sidebar-border: #1e2d4a;
+  --code-bg: #1a2744;
+  --highlight-bg: #162a35; --highlight-border: #38b2ce; --highlight-strong: #6ad4ee;
+  --checkpoint-bg: #16223a; --checkpoint-border: #2a4070; --checkpoint-color: #6aa8e8;
+  --tag-must-bg: #3d1f1f; --tag-must-color: #f28b8b;
+  --tag-key-bg: #3d3018; --tag-key-color: #e0b860;
+  --tag-freq-bg: #1a2f4a; --tag-freq-color: #7ab8f0;
+  --tag-info-bg: #1a3a2a; --tag-info-color: #6ac090;
+  --heading-color: var(--ink);
+  --code-text: #c8b878;
+  background-color: var(--paper);
+}
+
+/* ===== Reset & Base ===== */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font);font-size:11pt;line-height:1.8;color:var(--ink);background:var(--paper);display:flex;min-height:100vh}
+a{color:var(--accent);text-decoration:none;transition:color .2s}
+a:hover{color:var(--accent-hover)}
+ul,ol{padding-left:1.5em}
+li{margin-bottom:.3em}
+table{border-collapse:collapse;width:100%;margin:12px 0;font-size:.95em}
+th,td{border:1px solid var(--card-border);padding:8px 12px;text-align:center}
+th{background:var(--paper-dark);font-weight:600}
+td{background:var(--card-bg)}
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-thumb{background:var(--ink-light);border-radius:3px}
+
+/* ===== Sidebar ===== */
+.sidebar{position:fixed;top:0;left:0;width:210px;height:100vh;background:var(--sidebar-bg);border-right:1px solid var(--sidebar-border);overflow-y:auto;z-index:100;padding:0 0 20px}
+.sidebar-header{padding:22px 16px 16px;border-bottom:1px solid var(--sidebar-border)}
+.sidebar-header .site-name{font-size:1.15em;font-weight:700;color:var(--accent)}
+.sidebar-header .site-sub{font-size:.75em;color:var(--ink-light);margin-top:2px}
+.sidebar-nav{padding:8px 0}
+.sidebar-nav .group-label{font-size:.7em;text-transform:uppercase;letter-spacing:1px;color:var(--ink-light);padding:12px 16px 4px;font-weight:600}
+.sidebar-nav a{display:flex;align-items:center;padding:7px 16px;font-size:.9em;color:var(--ink);gap:8px;border-left:3px solid transparent;transition:background .15s,border-color .15s}
+.sidebar-nav a:hover{background:var(--paper-dark);color:var(--accent)}
+.sidebar-nav a.current{background:var(--highlight-bg);border-left-color:var(--accent);color:var(--accent);font-weight:600}
+.sidebar-nav .tag{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:var(--paper-dark);font-size:.75em;font-weight:600;flex-shrink:0}
+.sidebar-nav a.current .tag{background:var(--accent);color:#fff}
+
+/* ===== Theme Toggle ===== */
+.theme-toggle{position:fixed;top:12px;right:20px;z-index:200;background:var(--card-bg);border:1px solid var(--card-border);border-radius:50%;width:38px;height:38px;font-size:1.1em;cursor:pointer;line-height:1;transition:transform .2s}
+.theme-toggle:hover{transform:scale(1.1)}
+
+/* ===== Main Area ===== */
+.main-wrap{flex:1;margin-left:210px;display:flex;flex-direction:column;min-height:100vh}
+
+/* ===== Topbar ===== */
+.topbar{position:sticky;top:0;z-index:90;background:linear-gradient(135deg, #0d3b5c 0%, #0d7c9e 100%);padding:0}
+.topbar-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:14px 28px}
+.topbar-inner h2{color:#fff;font-size:1.15em;font-weight:600}
+.topbar-inner a{color:rgba(255,255,255,.85);font-size:.9em;padding:5px 12px;border-radius:4px;transition:background .2s}
+.topbar-inner a:hover{background:rgba(255,255,255,.15);color:#fff}
+
+/* ===== Container ===== */
+.container{max-width:1100px;margin:0 auto;padding:28px 28px 40px;width:100%}
+
+/* ===== Content Blocks ===== */
+.section{background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--radius);padding:24px 28px;margin-bottom:22px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.section h2{font-size:1.3em;color:var(--heading-color);margin-bottom:16px;padding-bottom:8px;border-bottom:2px solid var(--divider)}
+.section h3{font-size:1.08em;color:var(--accent);margin:20px 0 10px;padding-bottom:6px;border-bottom:1px dashed var(--divider)}
+.section h4{font-size:1em;color:var(--ink);font-weight:600;margin:14px 0 6px}
+.section p{margin-bottom:10px}
+
+.highlight{background:var(--highlight-bg);border-left:4px solid var(--highlight-border);padding:12px 16px;margin:14px 0;border-radius:0 6px 6px 0;font-size:.95em}
+.highlight strong{color:var(--highlight-strong)}
+
+.def-box{background:var(--code-bg);border:1px solid var(--card-border);border-radius:6px;padding:14px 18px;margin:12px 0}
+.def-box .def-title{font-weight:700;color:var(--accent);margin-bottom:4px;font-size:.92em}
+
+.formula{text-align:center;background:var(--code-bg);padding:12px 20px;margin:14px 0;border-radius:6px;font-family:"Cascadia Code","Consolas","Courier New",monospace;font-size:1em;color:var(--ink)}
+
+.code-block{background:var(--code-bg);border:1px solid var(--card-border);border-radius:6px;padding:16px 20px;margin:12px 0;overflow-x:auto;font-family:"Cascadia Code","Consolas","Courier New",monospace;font-size:.88em;line-height:1.65;color:var(--ink);white-space:pre}
+.code-block .kw{color:#0550ae;font-weight:600}
+.code-block .fn{color:#8250df}
+.code-block .str{color:#0a3069}
+.code-block .co{color:#6e7781;font-style:italic}
+.code-block .num{color:#0550ae}
+.dark-mode .code-block .kw{color:#79c0ff}
+.dark-mode .code-block .fn{color:#d2a8ff}
+.dark-mode .code-block .str{color:#a5d6ff}
+.dark-mode .code-block .co{color:#8b949e}
+.dark-mode .code-block .num{color:#79c0ff}
+
+.checkpoint{background:var(--checkpoint-bg);border:1px solid var(--checkpoint-border);border-radius:6px;padding:14px 18px;margin:14px 0}
+.checkpoint::before{content:"🧠 自查练习：";font-weight:700;color:var(--checkpoint-color);display:block;margin-bottom:6px}
+.checkpoint ol,.checkpoint ul{margin-bottom:0}
+
+.tag-must,.tag-key,.tag-freq,.tag-info{display:inline-block;padding:1px 8px;border-radius:3px;font-size:.8em;font-weight:600;margin:0 2px}
+.tag-must{background:var(--tag-must-bg);color:var(--tag-must-color)}
+.tag-key{background:var(--tag-key-bg);color:var(--tag-key-color)}
+.tag-freq{background:var(--tag-freq-bg);color:var(--tag-freq-color)}
+.tag-info{background:var(--tag-info-bg);color:var(--tag-info-color)}
+
+/* ===== Bottom Nav ===== */
+.nav-links{display:flex;justify-content:space-between;align-items:center;margin-top:30px;padding:16px 0}
+.nav-links a{padding:8px 18px;border:1px solid var(--card-border);border-radius:6px;background:var(--card-bg);font-size:.9em;transition:all .2s}
+.nav-links a:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+/* ===== Back to Top ===== */
+.back2top{position:fixed;right:24px;bottom:30px;z-index:90;width:42px;height:42px;background:var(--accent);color:#fff;border:none;border-radius:50%;font-size:1.2em;cursor:pointer;opacity:.7;transition:opacity .2s}
+.back2top:hover{opacity:1}
+
+/* ===== Chapter Nav Panel (right slide-in) ===== */
+.chapter-nav-toggle{position:fixed;right:0;top:50%;transform:translateY(-50%);z-index:95;background:var(--accent);color:#fff;border:none;border-radius:8px 0 0 8px;padding:14px 8px;font-size:1.1em;cursor:pointer;writing-mode:vertical-lr;letter-spacing:2px}
+.chapter-nav-panel{position:fixed;right:-260px;top:0;width:250px;height:100vh;z-index:150;background:var(--sidebar-bg);border-left:1px solid var(--sidebar-border);overflow-y:auto;transition:right .35s cubic-bezier(.4,0,.2,1);padding:20px 0}
+.chapter-nav-panel.open{right:0}
+.chapter-nav-panel .nav-header{padding:12px 20px 16px;border-bottom:1px solid var(--sidebar-border);font-weight:700;color:var(--accent);font-size:1.05em}
+.chapter-nav-panel .nav-section{padding:8px 20px 2px;font-size:.7em;text-transform:uppercase;letter-spacing:1px;color:var(--ink-light);font-weight:600}
+.chapter-nav-panel a{display:flex;align-items:center;padding:7px 20px;font-size:.9em;color:var(--ink);gap:8px;transition:background .15s}
+.chapter-nav-panel a:hover{background:var(--paper-dark);color:var(--accent)}
+.chapter-nav-panel a.current{color:var(--accent);font-weight:600}
+.chapter-nav-panel .num{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:var(--paper-dark);font-size:.75em;font-weight:600;flex-shrink:0}
+
+/* ===== Footer ===== */
+.footer{text-align:center;padding:20px;color:var(--ink-light);font-size:.82em;border-top:1px solid var(--divider);margin-top:auto}
+
+/* ===== Responsive ===== */
+@media(max-width:768px){
+  .sidebar{display:none}
+  .main-wrap{margin-left:0}
+  body{font-size:10.5pt}
+}
+@media(max-width:640px){
+  .section{padding:18px 16px}
+  .topbar-inner h2{font-size:1em}
+  .topbar-inner{padding:10px 14px}
+  .chapter-nav-panel{width:200px}
+  table{font-size:.85em}
+  th,td{padding:5px 8px}
+  .back2top{right:10px;bottom:20px;width:38px;height:38px}
+  .container{padding:16px 12px 30px}
+}
+
+/* ===== Print ===== */
+@media print{.sidebar,.topbar,.theme-toggle,.chapter-nav-toggle,.chapter-nav-panel,.back2top,.nav-links,.footer{display:none}.main-wrap{margin-left:0}}
+</style>
+</head>
+<body>
+
+<!-- ===== Sidebar ===== -->
+<nav class="sidebar">
+  <div class="sidebar-header">
+    <div class="site-name">📐 数学建模</div>
+    <div class="site-sub">方法与算法 · 复习系统</div>
+  </div>
+  <div class="sidebar-nav">
+    <div class="group-label">核心方法</div>
+    <a href="插值与拟合.html"><span class="tag">1</span>插值与拟合</a>
+    <a href="蒙特卡洛.html"><span class="tag">2</span>蒙特卡洛方法</a>
+    <a href="线性回归.html"><span class="tag">3</span>线性回归</a>
+    <div class="group-label">综合专题</div>
+    <a href="AI与建模.html"><span class="tag">4</span>AI与数学建模</a>
+    <a href="index.html" style="margin-top:6px;border-top:1px solid var(--sidebar-border);padding-top:8px"><span class="tag">⌂</span>返回首页</a>
+  </div>
+</nav>
+
+<!-- ===== Theme Toggle ===== -->
+<button class="theme-toggle no-print" onclick="toggleTheme()" title="切换暗黑模式">🌙</button>
+
+<!-- ===== Main ===== -->
+<div class="main-wrap">
+
+<!-- Topbar -->
+<div class="topbar">
+  <div class="topbar-inner">
+    <a href="index.html">← 返回首页</a>
+    <h2>1. 插值与拟合</h2>
+    <a href="蒙特卡洛.html">蒙特卡洛方法 →</a>
+  </div>
+</div>
+
+<!-- Content -->
+<div class="container">
+
+<!-- 1. MATLAB绘图基础 -->
+<div class="section">
+<h2>一、MATLAB 绘图基础</h2>
+
+<h3>1.1 二维绘图 <span class="tag-must">必须掌握</span></h3>
+<p>MATLAB 中最基本的绘图命令是 <code>plot()</code>，用于绘制二维线图。</p>
+
+<div class="def-box">
+  <div class="def-title">基本语法</div>
+  <code>plot(x, y, '线型颜色标记')</code>
+  <p style="margin-top:6px">其中 <code>x</code> 和 <code>y</code> 是相同长度的向量，分别存储横坐标和纵坐标数据。</p>
+</div>
+
+<div class="highlight">
+  <strong>常用线型选项：</strong>实线 <code>'-'</code>、虚线 <code>'--'</code>、点线 <code>':'</code>、点划线 <code>'-.'</code><br>
+  <strong>颜色选项：</strong>红 <code>'r'</code>、绿 <code>'g'</code>、蓝 <code>'b'</code>、黑 <code>'k'</code>、白 <code>'w'</code><br>
+  <strong>标记选项：</strong>星号 <code>'*'</code>、圆圈 <code>'o'</code>、加号 <code>'+'</code>、点 <code>'.'</code>
+</div>
+
+<h3>1.2 图形标注</h3>
+<table>
+  <tr><th>函数</th><th>作用</th></tr>
+  <tr><td><code>title('文本')</code></td><td>添加图形标题</td></tr>
+  <tr><td><code>xlabel('文本')</code></td><td>添加 x 轴标签</td></tr>
+  <tr><td><code>ylabel('文本')</code></td><td>添加 y 轴标签</td></tr>
+  <tr><td><code>text(x, y, '文本')</code></td><td>在指定坐标添加文字</td></tr>
+  <tr><td><code>legend('曲线1','曲线2')</code></td><td>添加图例</td></tr>
+  <tr><td><code>grid on / off</code></td><td>添加/取消网格线</td></tr>
+  <tr><td><code>hold on / off</code></td><td>保持/覆盖当前图形</td></tr>
+  <tr><td><code>subplot(m,n,p)</code></td><td>将图形窗口分成 m×n 个子图，当前为第 p 个</td></tr>
+</table>
+
+<h3>1.3 三维绘图</h3>
+
+<div class="def-box">
+  <div class="def-title">三维曲线：plot3</div>
+  <code>plot3(x, y, z, '选项')</code> — 绘制三维空间曲线
+</div>
+
+<div class="def-box">
+  <div class="def-title">三维曲面：mesh / surf</div>
+  <p>绘制三维曲面的标准流程：</p>
+  <ol>
+    <li>定义 x、y 的取值范围</li>
+    <li>用 <code>[X, Y] = meshgrid(x, y)</code> 生成网格点矩阵</li>
+    <li>计算 <code>Z = f(X, Y)</code></li>
+    <li>用 <code>mesh(X,Y,Z)</code>（网格图）或 <code>surf(X,Y,Z)</code>（着色表面图）绘制</li>
+  </ol>
+</div>
+
+<table>
+  <tr><th>函数</th><th>效果</th></tr>
+  <tr><td><code>mesh(X,Y,Z)</code></td><td>三维网格曲面（连线着色）</td></tr>
+  <tr><td><code>surf(X,Y,Z)</code></td><td>三维着色曲面</td></tr>
+  <tr><td><code>meshc(X,Y,Z)</code></td><td>网格 + 底部等高线</td></tr>
+  <tr><td><code>meshz(X,Y,Z)</code></td><td>网格 + 底部幕帘</td></tr>
+  <tr><td><code>surfc(X,Y,Z)</code></td><td>着色曲面 + 底部等高线</td></tr>
+  <tr><td><code>surfl(X,Y,Z)</code></td><td>带光照效果的着色曲面</td></tr>
+</table>
+</div>
+
+<!-- 2. 插值方法 -->
+<div class="section">
+<h2>二、插值方法（Interpolation）</h2>
+
+<h3>2.1 什么是插值 <span class="tag-key">重点</span></h3>
+<p><strong>插值</strong>是根据已知离散数据点，构造一个连续函数来估算未知点的函数值。插值函数 <strong>必须严格经过所有已知数据点</strong>。</p>
+
+<div class="highlight">
+  <strong>插值 vs 拟合：</strong>插值要求曲线经过每个已知点；拟合不要求经过所有点，而是追求整体误差最小。<br>
+  <strong>选型原则：</strong>数据精确无噪声 → 插值；数据含噪声或规律待发现 → 拟合。
+</div>
+
+<h3>2.2 常用插值方法</h3>
+
+<table>
+  <tr><th>方法</th><th>原理</th><th>优点</th><th>缺点</th></tr>
+  <tr>
+    <td><strong>最近邻插值</strong><br><span class="tag-info">nearest</span></td>
+    <td>取最近已知点的值</td>
+    <td>速度最快</td>
+    <td>不连续，阶梯状</td>
+  </tr>
+  <tr>
+    <td><strong>线性插值</strong><br><span class="tag-info">linear</span></td>
+    <td>相邻两点连线取中间值</td>
+    <td>简单快速，连续</td>
+    <td>在节点处不可导</td>
+  </tr>
+  <tr>
+    <td><strong>三次样条插值</strong><br><span class="tag-freq">spline</span></td>
+    <td>分段三次多项式，C²连续</td>
+    <td>非常光滑，二阶连续</td>
+    <td>可能产生过冲振荡</td>
+  </tr>
+  <tr>
+    <td><strong>保形分段三次插值</strong><br><span class="tag-freq">pchip</span></td>
+    <td>分段三次 Hermite 插值</td>
+    <td>保持单调性，无振荡</td>
+    <td>光滑度略低于 spline</td>
+  </tr>
+  <tr>
+    <td><strong>Lagrange 插值</strong></td>
+    <td>构造 n 次多项式经过所有点</td>
+    <td>理论简洁优美</td>
+    <td>高次多项式 Runge 现象</td>
+  </tr>
+</table>
+
+<div class="highlight">
+  <strong>Runge 现象：</strong>使用高次（如 ≥ 7 次）多项式插值等距节点时，在区间两端会产生剧烈振荡，插值误差反而增大。解决方法是使用分段低次插值（样条/Hermite）或选择 Chebyshev 节点。
+</div>
+
+<h3>2.3 Lagrange 插值公式</h3>
+<div class="formula">L(x) = Σ y<sub>k</sub> · l<sub>k</sub>(x)，其中 l<sub>k</sub>(x) = Π (x - x<sub>j</sub>) / (x<sub>k</sub> - x<sub>j</sub>)，j ≠ k</div>
+
+<div class="code-block"><span class="co">% lagrange.m — 自定义 Lagrange 插值函数</span>
+<span class="kw">function</span> y = lagrange(x0, y0, x)
+    n = <span class="fn">length</span>(x0); m = <span class="fn">length</span>(x);
+    <span class="kw">for</span> i = <span class="num">1</span>:m
+        z = x(i); s = <span class="num">0.0</span>;
+        <span class="kw">for</span> k = <span class="num">1</span>:n
+            p = <span class="num">1.0</span>;
+            <span class="kw">for</span> j = <span class="num">1</span>:n
+                <span class="kw">if</span> j ~= k
+                    p = p * (z - x0(j)) / (x0(k) - x0(j));
+                <span class="kw">end</span>
+            <span class="kw">end</span>
+            s = p * y0(k) + s;
+        <span class="kw">end</span>
+        y(i) = s;
+    <span class="kw">end</span>
+<span class="kw">end</span></div>
+</div>
+
+<!-- 3. 一维插值 -->
+<div class="section">
+<h2>三、一维插值 — interp1 <span class="tag-freq">高频考点</span></h2>
+
+<div class="def-box">
+  <div class="def-title">interp1 语法</div>
+  <code>yi = interp1(x, y, xi, 'method')</code>
+  <p style="margin-top:4px"><code>x</code>：已知点横坐标（向量）&emsp;<code>y</code>：已知点纵坐标（向量）<br>
+  <code>xi</code>：待插值点的横坐标&emsp;<code>method</code>：插值方法</p>
+</div>
+
+<p><strong>method 可选值：</strong></p>
+<table>
+  <tr><th>选项</th><th>含义</th></tr>
+  <tr><td><code>'nearest'</code></td><td>最近邻插值</td></tr>
+  <tr><td><code>'linear'</code></td><td>线性插值（默认）</td></tr>
+  <tr><td><code>'spline'</code></td><td>三次样条插值</td></tr>
+  <tr><td><code>'pchip'</code> / <code>'cubic'</code></td><td>保形分段三次 Hermite 插值</td></tr>
+</table>
+
+<h3>示例 1：比较五种插值方法</h3>
+<p>已知 12 小时整点温度数据，估算每 0.1 小时的温度，比较五种方法的效果。</p>
+
+<div class="code-block"><span class="co">% example1.m — 五种插值方法对比</span>
+t = <span class="num">1</span>:<span class="num">12</span>;
+temp = [<span class="num">5</span>,<span class="num">8</span>,<span class="num">9</span>,<span class="num">15</span>,<span class="num">25</span>,<span class="num">29</span>,<span class="num">31</span>,<span class="num">30</span>,<span class="num">22</span>,<span class="num">25</span>,<span class="num">27</span>,<span class="num">24</span>];
+t0 = <span class="num">1</span>:<span class="num">0.1</span>:<span class="num">12</span>;
+y_nearest = <span class="fn">interp1</span>(t, temp, t0, <span class="str">'nearest'</span>);
+y_linear  = <span class="fn">interp1</span>(t, temp, t0, <span class="str">'linear'</span>);
+y_spline  = <span class="fn">interp1</span>(t, temp, t0, <span class="str">'spline'</span>);
+y_pchip   = <span class="fn">interp1</span>(t, temp, t0, <span class="str">'pchip'</span>);
+y_lagrange = <span class="fn">lagrange</span>(t, temp, t0);
+<span class="fn">subplot</span>(<span class="num">2</span>,<span class="num">3</span>,<span class="num">1</span>), <span class="fn">plot</span>(t, temp, <span class="str">'r*'</span>);
+<span class="fn">subplot</span>(<span class="num">2</span>,<span class="num">3</span>,<span class="num">2</span>), <span class="fn">plot</span>(t0, y_nearest, <span class="str">'r'</span>);
+<span class="fn">subplot</span>(<span class="num">2</span>,<span class="num">3</span>,<span class="num">3</span>), <span class="fn">plot</span>(t0, y_linear, <span class="str">'r'</span>);
+<span class="fn">subplot</span>(<span class="num">2</span>,<span class="num">3</span>,<span class="num">4</span>), <span class="fn">plot</span>(t0, y_spline, <span class="str">'r'</span>);
+<span class="fn">subplot</span>(<span class="num">2</span>,<span class="num">3</span>,<span class="num">5</span>), <span class="fn">plot</span>(t0, y_pchip, <span class="str">'r'</span>);
+<span class="fn">subplot</span>(<span class="num">2</span>,<span class="num">3</span>,<span class="num">6</span>), <span class="fn">plot</span>(t0, y_lagrange, <span class="str">'r'</span>);</div>
+
+<h3>示例 2：Spline vs PCHIP — 振荡对比</h3>
+<div class="code-block"><span class="co">% example2.m — Spline 与 PCHIP 差异</span>
+x = <span class="num">0</span>:<span class="num">0.3</span>:<span class="num">3</span>;
+y = (x.^<span class="num">2</span> - <span class="num">4</span>*x + <span class="num">2</span>) .* <span class="fn">sin</span>(x);
+x0 = <span class="num">0</span>:<span class="num">0.01</span>:<span class="num">3</span>;
+y_spline = <span class="fn">interp1</span>(x, y, x0, <span class="str">'spline'</span>);
+y_pchip  = <span class="fn">interp1</span>(x, y, x0, <span class="str">'pchip'</span>);
+<span class="fn">plot</span>(x, y, <span class="str">'o'</span>); <span class="fn">hold</span> on
+<span class="fn">plot</span>(x0, y_spline, <span class="str">'r'</span>);
+<span class="fn">plot</span>(x0, y_pchip, <span class="str">'b'</span>);</div>
+
+<div class="highlight">
+  <strong>关键区别：</strong>Spline 追求最大光滑性（C² 连续），但可能在数据突变处产生过冲振荡。PCHIP 牺牲部分光滑性来保持数据的单调性，不会产生额外振荡。
+  <strong>竞赛建议：</strong>数据变化平缓 → Spline；数据有突变 → PCHIP。
+</div>
+</div>
+
+<!-- 4. 二维插值 -->
+<div class="section">
+<h2>四、二维插值</h2>
+
+<h3>4.1 网格数据：interp2 <span class="tag-key">重点</span></h3>
+
+<div class="def-box">
+  <div class="def-title">interp2 语法</div>
+  <code>ZI = interp2(X, Y, Z, XI, YI, 'method')</code>
+  <p style="margin-top:4px"><code>X, Y</code>：已知网格点坐标（可用 meshgrid 生成）&emsp;<code>Z</code>：已知函数值矩阵<br>
+  <code>XI, YI</code>：待插值网格&emsp;<code>method</code>：<code>'nearest'</code> | <code>'linear'</code>(默认) | <code>'cubic'</code> | <code>'spline'</code></p>
+</div>
+
+<h3>示例 3：二维网格插值</h3>
+<div class="code-block"><span class="co">% example3.m — 二维温度数据插值</span>
+x = <span class="num">1</span>:<span class="num">5</span>;  y = <span class="num">1</span>:<span class="num">3</span>;
+z = [<span class="num">82</span> <span class="num">81</span> <span class="num">80</span> <span class="num">82</span> <span class="num">84</span>;
+     <span class="num">79</span> <span class="num">63</span> <span class="num">61</span> <span class="num">65</span> <span class="num">81</span>;
+     <span class="num">84</span> <span class="num">84</span> <span class="num">82</span> <span class="num">85</span> <span class="num">86</span>];
+x0 = <span class="num">1</span>:<span class="num">0.1</span>:<span class="num">5</span>; y0 = <span class="num">1</span>:<span class="num">0.1</span>:<span class="num">3</span>;
+z_cubic = <span class="fn">interp2</span>(x, y, z, x0', y0, <span class="str">'cubic'</span>);
+<span class="fn">mesh</span>(x0, y0, z_cubic);</div>
+
+<h3>4.2 散点数据：griddata <span class="tag-freq">竞赛常用</span></h3>
+
+<div class="def-box">
+  <div class="def-title">griddata 语法</div>
+  <code>ZI = griddata(x, y, z, XI, YI, 'method')</code>
+  <p style="margin-top:4px">用于<strong>不规则散点</strong>的二维插值。method：<code>'linear'</code> | <code>'cubic'</code> | <code>'nearest'</code> | <code>'v4'</code></p>
+</div>
+
+<h3>示例 5：散点水深数据插值</h3>
+<div class="code-block"><span class="co">% example5.m — 散点水深数据网格化</span>
+x = [<span class="num">129</span> <span class="num">140</span> <span class="num">103.5</span> <span class="num">88</span> <span class="num">185.5</span> <span class="num">195</span> <span class="num">105</span> <span class="num">157.5</span> <span class="num">107.5</span> <span class="num">77</span> <span class="num">81</span> <span class="num">62</span> <span class="num">162</span> <span class="num">117.5</span>];
+y = [<span class="num">7.5</span> <span class="num">141.5</span> <span class="num">23</span> <span class="num">147</span> <span class="num">22.5</span> <span class="num">137.5</span> <span class="num">85.5</span> -<span class="num">6.5</span> -<span class="num">81</span> <span class="num">3</span> <span class="num">56.5</span> -<span class="num">66.5</span> <span class="num">84</span> -<span class="num">33.5</span>];
+h = -[<span class="num">4</span> <span class="num">8</span> <span class="num">6</span> <span class="num">8</span> <span class="num">6</span> <span class="num">8</span> <span class="num">8</span> <span class="num">9</span> <span class="num">9</span> <span class="num">8</span> <span class="num">8</span> <span class="num">9</span> <span class="num">4</span> <span class="num">9</span>];
+x0 = <span class="num">75</span>:<span class="num">1</span>:<span class="num">200</span>; y0 = -<span class="num">50</span>:<span class="num">1</span>:<span class="num">125</span>;
+z = <span class="fn">griddata</span>(x, y, h, x0', y0, <span class="str">'cubic'</span>);
+<span class="fn">mesh</span>(x0, y0, z);</div>
+</div>
+
+<!-- 5. 数据拟合 -->
+<div class="section">
+<h2>五、数据拟合（Curve Fitting）<span class="tag-freq">高频考点</span></h2>
+
+<h3>5.1 最小二乘法原理</h3>
+<p><strong>最小二乘法</strong>的目标是找到函数 <code>f(x)</code>，使所有数据点的残差平方和最小：</p>
+<div class="formula">min Σ [y<sub>i</sub> - f(x<sub>i</sub>)]²</div>
+
+<div class="highlight">
+  <strong>与插值的区别：</strong>拟合不要求曲线经过已知点，而是追求整体趋势的最佳逼近。数据含噪声或测量误差时，拟合优于插值。
+</div>
+
+<h3>5.2 多项式拟合：polyfit / polyval <span class="tag-must">必须掌握</span></h3>
+
+<div class="def-box">
+  <div class="def-title">polyfit 语法</div>
+  <code>p = polyfit(x, y, n)</code> — 用 n 次多项式拟合数据<br>
+  <code>y_fit = polyval(p, x)</code> — 计算拟合多项式在 x 处的值
+</div>
+
+<h3>示例 6：不同次数多项式拟合对比</h3>
+<div class="code-block"><span class="co">% example6.m — 1/2/3 次多项式拟合对比</span>
+x = [<span class="num">0.3</span> <span class="num">0.4</span> <span class="num">0.7</span> <span class="num">0.9</span> <span class="num">1.2</span> <span class="num">1.9</span> <span class="num">2.8</span> <span class="num">3.2</span> <span class="num">3.7</span> <span class="num">4.5</span>];
+y = [<span class="num">1</span> <span class="num">2</span> <span class="num">3</span> <span class="num">4</span> <span class="num">2</span> <span class="num">6</span> <span class="num">9</span> <span class="num">2</span> <span class="num">7</span> <span class="num">8</span>];
+a1 = <span class="fn">polyfit</span>(x, y, <span class="num">1</span>);  <span class="co">% 一次拟合</span>
+a2 = <span class="fn">polyfit</span>(x, y, <span class="num">2</span>);  <span class="co">% 二次拟合</span>
+a3 = <span class="fn">polyfit</span>(x, y, <span class="num">3</span>);  <span class="co">% 三次拟合</span>
+z1 = <span class="fn">polyval</span>(a1, x);
+z2 = <span class="fn">polyval</span>(a2, x);
+z3 = <span class="fn">polyval</span>(a3, x);
+<span class="fn">plot</span>(x, y, <span class="str">'+'</span>); <span class="fn">hold</span> on
+<span class="fn">plot</span>(x, z1, <span class="str">'r'</span>, x, z2, <span class="str">'b'</span>, x, z3, <span class="str">'g'</span>);</div>
+
+<div class="highlight">
+  <strong>如何选择多项式次数？</strong>次数太低 → 欠拟合（偏差大）；次数太高 → 过拟合（方差大，对新数据泛化差）。可使用交叉验证或 AIC/BIC 准则选最优次数。
+</div>
+
+<h3>5.3 超定方程组求解</h3>
+<p>多项式拟合也可以用超定方程组直接求解：</p>
+<div class="formula">A = [x<sup>n</sup> ... x 1]，系数 = A \ y</div>
+<p>即求解 <code>β = (AᵀA)⁻¹Aᵀy</code>，MATLAB 中直接使用反斜杠运算符 <code>A \ y</code>。</p>
+
+<h3>5.4 非线性拟合 <span class="tag-key">重点</span></h3>
+
+<table>
+  <tr><th>函数</th><th>语法</th><th>适用场景</th></tr>
+  <tr><td><code>lsqcurvefit</code></td><td><code>x = lsqcurvefit(@fun, x0, xdata, ydata)</code></td><td>非线性最小二乘曲线拟合</td></tr>
+  <tr><td><code>nlinfit</code></td><td><code>beta = nlinfit(x, y, @fun, beta0)</code></td><td>非线性回归</td></tr>
+  <tr><td><code>lsqnonlin</code></td><td><code>x = lsqnonlin(@fun, x0)</code></td><td>非线性最小二乘（残差形式）</td></tr>
+</table>
+
+<h3>示例 8：指数衰减模型拟合</h3>
+<div class="code-block"><span class="co">% fun1.m — 拟合目标函数</span>
+<span class="kw">function</span> f = fun1(x, tdata)
+    f = x(<span class="num">1</span>) + x(<span class="num">2</span>) * <span class="fn">exp</span>(-<span class="num">0.02</span> * x(<span class="num">3</span>) * tdata);
+<span class="kw">end</span>
+
+<span class="co">% example8.m — 非线性拟合</span>
+tdata = <span class="num">100</span>:<span class="num">100</span>:<span class="num">1000</span>;
+cdata = <span class="num">0.001</span> * [<span class="num">4.54</span> <span class="num">4.99</span> <span class="num">5.35</span> <span class="num">5.65</span> <span class="num">5.90</span> <span class="num">6.10</span> <span class="num">6.26</span> <span class="num">6.39</span> <span class="num">6.50</span> <span class="num">6.59</span>];
+x0 = [<span class="num">0.1</span> <span class="num">0.1</span> <span class="num">0.1</span>];           <span class="co">% 初始猜测值</span>
+x = <span class="fn">lsqcurvefit</span>(<span class="str">'fun1'</span>, x0, tdata, cdata);
+f = fun1(x, tdata);
+<span class="fn">plot</span>(tdata, cdata, <span class="str">'*'</span>, tdata, f);
+
+<span class="co">% 或用 nlinfit</span>
+betafit = <span class="fn">nlinfit</span>(tdata, cdata, <span class="str">'fun1'</span>, x0);</div>
+
+<div class="highlight">
+  <strong>初值选择：</strong>非线性拟合需要提供<strong>初始猜测值 x0</strong>，不同的初值可能收敛到不同的局部最优解。<br>
+  <strong>竞赛技巧：</strong>先用线性化方法（取对数、变量变换等）得到粗略估计作为初值，再用非线性拟合精化。
+</div>
+</div>
+
+<!-- 6. 自查练习 -->
+<div class="section">
+<h2>六、自查练习</h2>
+
+<div class="checkpoint">
+  <ol>
+    <li>插值和拟合的根本区别是什么？什么场景下该用插值、什么场景下该用拟合？</li>
+    <li>什么是 Runge 现象？如何避免？</li>
+    <li>Spline 和 PCHIP 各有什么优缺点？竞赛中如何选择？</li>
+    <li><code>interp2</code> 和 <code>griddata</code> 分别适用于什么场景？</li>
+    <li>如何判断多项式拟合的合适次数？过拟合和欠拟合如何识别？</li>
+    <li>非线性拟合中初值 <code>x0</code> 如何选取？初值选错会有什么后果？</li>
+  </ol>
+</div>
+</div>
+
+<!-- Bottom Nav -->
+<div class="nav-links">
+  <a href="index.html">← 返回首页</a>
+  <a href="index.html">⌂ 首页</a>
+  <a href="蒙特卡洛.html">蒙特卡洛方法 →</a>
+</div>
+
+</div><!-- .container -->
+
+<div class="footer"><p>📐 数学建模方法与算法 · 复习系统 &copy; 2026 Jacky</p></div>
+</div><!-- .main-wrap -->
+
+<!-- Back to Top -->
+<button class="back2top" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="回到顶部">↑</button>
+
+<!-- Chapter Nav Toggle + Panel -->
+<button class="chapter-nav-toggle" onclick="toggleChapterNav()" title="章节导航">📖 章节导航</button>
+<div class="chapter-nav-panel" id="chapterNav">
+  <div class="nav-header">📐 目录导航</div>
+  <div class="nav-section">核心方法</div>
+  <a href="插值与拟合.html"><span class="num">1</span>插值与拟合</a>
+  <a href="蒙特卡洛.html"><span class="num">2</span>蒙特卡洛方法</a>
+  <a href="线性回归.html"><span class="num">3</span>线性回归</a>
+  <div class="nav-section">综合专题</div>
+  <a href="AI与建模.html"><span class="num">4</span>AI与数学建模</a>
+  <a href="index.html" style="border-top:1px solid var(--sidebar-border);margin-top:6px;padding-top:10px"><span class="num">⌂</span>返回首页</a>
+</div>
+
+<!-- ===== JavaScript ===== -->
+<script>
+// Sidebar current-page highlight
+(function(){
+  var p = window.location.pathname.split('/').pop() || '插值与拟合.html';
+  document.querySelectorAll('.sidebar-nav a').forEach(function(a){
+    if(a.getAttribute('href') === p) a.classList.add('current');
+  });
+})();
+
+// Theme toggle
+(function(){
+  var d = localStorage.getItem('mathmodel-theme');
+  if(d === 'dark'){
+    document.body.classList.add('dark-mode');
+    document.querySelector('.theme-toggle').textContent = '☀️';
+  }
+})();
+function toggleTheme(){
+  var b = document.body; b.classList.toggle('dark-mode');
+  var btn = document.querySelector('.theme-toggle');
+  var isDark = b.classList.contains('dark-mode');
+  btn.textContent = isDark ? '☀️' : '🌙';
+  localStorage.setItem('mathmodel-theme', isDark ? 'dark' : 'light');
+}
+
+// Chapter nav panel
+function toggleChapterNav(){
+  var panel = document.getElementById('chapterNav');
+  panel.classList.toggle('open');
+}
+document.addEventListener('click', function(e){
+  var panel = document.getElementById('chapterNav');
+  var btn = document.querySelector('.chapter-nav-toggle');
+  if(panel && panel.classList.contains('open') && !panel.contains(e.target) && !btn.contains(e.target)){
+    panel.classList.remove('open');
+  }
+});
+document.addEventListener('DOMContentLoaded', function(){
+  var path = window.location.pathname.split('/').pop() || '插值与拟合.html';
+  var panel = document.getElementById('chapterNav');
+  if(!panel) return;
+  panel.querySelectorAll('a').forEach(function(a){
+    if(a.getAttribute('href') === path) a.classList.add('current');
+  });
+});
+</script>
+
+</body>
+</html>

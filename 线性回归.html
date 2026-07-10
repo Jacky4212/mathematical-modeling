@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>线性回归 — 数学建模复习系统</title>
+<style>
+/* ===== CSS Variables ===== */
+:root {
+  --paper: #f7f9fc;
+  --paper-dark: #edf1f7;
+  --ink: #1a2138;
+  --ink-light: #5a6380;
+  --accent: #0d7c9e;
+  --accent-hover: #086788;
+  --divider: #d0daea;
+  --card-bg: #ffffff;
+  --card-border: #e2e8f5;
+  --sidebar-bg: #f0f3fa;
+  --sidebar-border: #dce2f0;
+  --code-bg: #eef2f8;
+  --highlight-bg: #eaf6f9;
+  --highlight-border: #0d7c9e;
+  --highlight-strong: #065471;
+  --checkpoint-bg: #f0f4ff;
+  --checkpoint-border: #8eb8e5;
+  --checkpoint-color: #1e3f6f;
+  --tag-must-bg: #fde8e8; --tag-must-color: #b4343a;
+  --tag-key-bg: #fef7e3; --tag-key-color: #8a5a00;
+  --tag-freq-bg: #e3f0fd; --tag-freq-color: #1d6eb8;
+  --tag-info-bg: #e6f7ef; --tag-info-color: #1a6b42;
+  --heading-color: #0c2d48;
+  --code-text: #5c3d0a;
+  --radius: 8px;
+  --font: "Microsoft YaHei","PingFang SC","Noto Sans SC",sans-serif;
+}
+.dark-mode {
+  --paper: #0f172a; --paper-dark: #162239;
+  --ink: #e2e8f0; --ink-light: #8494b8;
+  --accent: #38b2ce; --accent-hover: #4fc3e0;
+  --divider: #223355;
+  --card-bg: #18243c; --card-border: #243555;
+  --sidebar-bg: #0f172a; --sidebar-border: #1e2d4a;
+  --code-bg: #1a2744;
+  --highlight-bg: #162a35; --highlight-border: #38b2ce; --highlight-strong: #6ad4ee;
+  --checkpoint-bg: #16223a; --checkpoint-border: #2a4070; --checkpoint-color: #6aa8e8;
+  --tag-must-bg: #3d1f1f; --tag-must-color: #f28b8b;
+  --tag-key-bg: #3d3018; --tag-key-color: #e0b860;
+  --tag-freq-bg: #1a2f4a; --tag-freq-color: #7ab8f0;
+  --tag-info-bg: #1a3a2a; --tag-info-color: #6ac090;
+  --heading-color: var(--ink);
+  --code-text: #c8b878;
+  background-color: var(--paper);
+}
+
+/* ===== Reset & Base ===== */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font);font-size:11pt;line-height:1.8;color:var(--ink);background:var(--paper);display:flex;min-height:100vh}
+a{color:var(--accent);text-decoration:none;transition:color .2s}
+a:hover{color:var(--accent-hover)}
+ul,ol{padding-left:1.5em}
+li{margin-bottom:.3em}
+table{border-collapse:collapse;width:100%;margin:12px 0;font-size:.95em}
+th,td{border:1px solid var(--card-border);padding:8px 12px;text-align:center}
+th{background:var(--paper-dark);font-weight:600}
+td{background:var(--card-bg)}
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-thumb{background:var(--ink-light);border-radius:3px}
+
+/* ===== Sidebar ===== */
+.sidebar{position:fixed;top:0;left:0;width:210px;height:100vh;background:var(--sidebar-bg);border-right:1px solid var(--sidebar-border);overflow-y:auto;z-index:100;padding:0 0 20px}
+.sidebar-header{padding:22px 16px 16px;border-bottom:1px solid var(--sidebar-border)}
+.sidebar-header .site-name{font-size:1.15em;font-weight:700;color:var(--accent)}
+.sidebar-header .site-sub{font-size:.75em;color:var(--ink-light);margin-top:2px}
+.sidebar-nav{padding:8px 0}
+.sidebar-nav .group-label{font-size:.7em;text-transform:uppercase;letter-spacing:1px;color:var(--ink-light);padding:12px 16px 4px;font-weight:600}
+.sidebar-nav a{display:flex;align-items:center;padding:7px 16px;font-size:.9em;color:var(--ink);gap:8px;border-left:3px solid transparent;transition:background .15s,border-color .15s}
+.sidebar-nav a:hover{background:var(--paper-dark);color:var(--accent)}
+.sidebar-nav a.current{background:var(--highlight-bg);border-left-color:var(--accent);color:var(--accent);font-weight:600}
+.sidebar-nav .tag{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:var(--paper-dark);font-size:.75em;font-weight:600;flex-shrink:0}
+.sidebar-nav a.current .tag{background:var(--accent);color:#fff}
+
+/* ===== Theme Toggle ===== */
+.theme-toggle{position:fixed;top:12px;right:20px;z-index:200;background:var(--card-bg);border:1px solid var(--card-border);border-radius:50%;width:38px;height:38px;font-size:1.1em;cursor:pointer;line-height:1;transition:transform .2s}
+.theme-toggle:hover{transform:scale(1.1)}
+
+/* ===== Main Area ===== */
+.main-wrap{flex:1;margin-left:210px;display:flex;flex-direction:column;min-height:100vh}
+
+/* ===== Topbar ===== */
+.topbar{position:sticky;top:0;z-index:90;background:linear-gradient(135deg, #0d3b5c 0%, #0d7c9e 100%);padding:0}
+.topbar-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:14px 28px}
+.topbar-inner h2{color:#fff;font-size:1.15em;font-weight:600}
+.topbar-inner a{color:rgba(255,255,255,.85);font-size:.9em;padding:5px 12px;border-radius:4px;transition:background .2s}
+.topbar-inner a:hover{background:rgba(255,255,255,.15);color:#fff}
+
+/* ===== Container ===== */
+.container{max-width:1100px;margin:0 auto;padding:28px 28px 40px;width:100%}
+
+/* ===== Content Blocks ===== */
+.section{background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--radius);padding:24px 28px;margin-bottom:22px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.section h2{font-size:1.3em;color:var(--heading-color);margin-bottom:16px;padding-bottom:8px;border-bottom:2px solid var(--divider)}
+.section h3{font-size:1.08em;color:var(--accent);margin:20px 0 10px;padding-bottom:6px;border-bottom:1px dashed var(--divider)}
+.section h4{font-size:1em;color:var(--ink);font-weight:600;margin:14px 0 6px}
+.section p{margin-bottom:10px}
+
+.highlight{background:var(--highlight-bg);border-left:4px solid var(--highlight-border);padding:12px 16px;margin:14px 0;border-radius:0 6px 6px 0;font-size:.95em}
+.highlight strong{color:var(--highlight-strong)}
+
+.def-box{background:var(--code-bg);border:1px solid var(--card-border);border-radius:6px;padding:14px 18px;margin:12px 0}
+.def-box .def-title{font-weight:700;color:var(--accent);margin-bottom:4px;font-size:.92em}
+
+.formula{text-align:center;background:var(--code-bg);padding:12px 20px;margin:14px 0;border-radius:6px;font-family:"Cascadia Code","Consolas","Courier New",monospace;font-size:1em;color:var(--ink)}
+
+.code-block{background:var(--code-bg);border:1px solid var(--card-border);border-radius:6px;padding:16px 20px;margin:12px 0;overflow-x:auto;font-family:"Cascadia Code","Consolas","Courier New",monospace;font-size:.88em;line-height:1.65;color:var(--ink);white-space:pre}
+.code-block .kw{color:#0550ae;font-weight:600}
+.code-block .fn{color:#8250df}
+.code-block .str{color:#0a3069}
+.code-block .co{color:#6e7781;font-style:italic}
+.code-block .num{color:#0550ae}
+.dark-mode .code-block .kw{color:#79c0ff}
+.dark-mode .code-block .fn{color:#d2a8ff}
+.dark-mode .code-block .str{color:#a5d6ff}
+.dark-mode .code-block .co{color:#8b949e}
+.dark-mode .code-block .num{color:#79c0ff}
+
+.checkpoint{background:var(--checkpoint-bg);border:1px solid var(--checkpoint-border);border-radius:6px;padding:14px 18px;margin:14px 0}
+.checkpoint::before{content:"🧠 自查练习：";font-weight:700;color:var(--checkpoint-color);display:block;margin-bottom:6px}
+.checkpoint ol,.checkpoint ul{margin-bottom:0}
+
+.tag-must,.tag-key,.tag-freq,.tag-info{display:inline-block;padding:1px 8px;border-radius:3px;font-size:.8em;font-weight:600;margin:0 2px}
+.tag-must{background:var(--tag-must-bg);color:var(--tag-must-color)}
+.tag-key{background:var(--tag-key-bg);color:var(--tag-key-color)}
+.tag-freq{background:var(--tag-freq-bg);color:var(--tag-freq-color)}
+.tag-info{background:var(--tag-info-bg);color:var(--tag-info-color)}
+
+/* ===== Bottom Nav ===== */
+.nav-links{display:flex;justify-content:space-between;align-items:center;margin-top:30px;padding:16px 0}
+.nav-links a{padding:8px 18px;border:1px solid var(--card-border);border-radius:6px;background:var(--card-bg);font-size:.9em;transition:all .2s}
+.nav-links a:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+/* ===== Back to Top ===== */
+.back2top{position:fixed;right:24px;bottom:30px;z-index:90;width:42px;height:42px;background:var(--accent);color:#fff;border:none;border-radius:50%;font-size:1.2em;cursor:pointer;opacity:.7;transition:opacity .2s}
+.back2top:hover{opacity:1}
+
+/* ===== Chapter Nav Panel (right slide-in) ===== */
+.chapter-nav-toggle{position:fixed;right:0;top:50%;transform:translateY(-50%);z-index:95;background:var(--accent);color:#fff;border:none;border-radius:8px 0 0 8px;padding:14px 8px;font-size:1.1em;cursor:pointer;writing-mode:vertical-lr;letter-spacing:2px}
+.chapter-nav-panel{position:fixed;right:-260px;top:0;width:250px;height:100vh;z-index:150;background:var(--sidebar-bg);border-left:1px solid var(--sidebar-border);overflow-y:auto;transition:right .35s cubic-bezier(.4,0,.2,1);padding:20px 0}
+.chapter-nav-panel.open{right:0}
+.chapter-nav-panel .nav-header{padding:12px 20px 16px;border-bottom:1px solid var(--sidebar-border);font-weight:700;color:var(--accent);font-size:1.05em}
+.chapter-nav-panel .nav-section{padding:8px 20px 2px;font-size:.7em;text-transform:uppercase;letter-spacing:1px;color:var(--ink-light);font-weight:600}
+.chapter-nav-panel a{display:flex;align-items:center;padding:7px 20px;font-size:.9em;color:var(--ink);gap:8px;transition:background .15s}
+.chapter-nav-panel a:hover{background:var(--paper-dark);color:var(--accent)}
+.chapter-nav-panel a.current{color:var(--accent);font-weight:600}
+.chapter-nav-panel .num{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:var(--paper-dark);font-size:.75em;font-weight:600;flex-shrink:0}
+
+/* ===== Footer ===== */
+.footer{text-align:center;padding:20px;color:var(--ink-light);font-size:.82em;border-top:1px solid var(--divider);margin-top:auto}
+
+/* ===== Responsive ===== */
+@media(max-width:768px){
+  .sidebar{display:none}
+  .main-wrap{margin-left:0}
+  body{font-size:10.5pt}
+}
+@media(max-width:640px){
+  .section{padding:18px 16px}
+  .topbar-inner h2{font-size:1em}
+  .topbar-inner{padding:10px 14px}
+  .chapter-nav-panel{width:200px}
+  table{font-size:.85em}
+  th,td{padding:5px 8px}
+  .back2top{right:10px;bottom:20px;width:38px;height:38px}
+  .container{padding:16px 12px 30px}
+}
+
+/* ===== Print ===== */
+@media print{.sidebar,.topbar,.theme-toggle,.chapter-nav-toggle,.chapter-nav-panel,.back2top,.nav-links,.footer{display:none}.main-wrap{margin-left:0}}
+</style>
+</head>
+<body>
+
+<!-- ===== Sidebar ===== -->
+<nav class="sidebar">
+  <div class="sidebar-header">
+    <div class="site-name">📐 数学建模</div>
+    <div class="site-sub">方法与算法 · 复习系统</div>
+  </div>
+  <div class="sidebar-nav">
+    <div class="group-label">核心方法</div>
+    <a href="插值与拟合.html"><span class="tag">1</span>插值与拟合</a>
+    <a href="蒙特卡洛.html"><span class="tag">2</span>蒙特卡洛方法</a>
+    <a href="线性回归.html"><span class="tag">3</span>线性回归</a>
+    <div class="group-label">综合专题</div>
+    <a href="AI与建模.html"><span class="tag">4</span>AI与数学建模</a>
+    <a href="index.html" style="margin-top:6px;border-top:1px solid var(--sidebar-border);padding-top:8px"><span class="tag">⌂</span>返回首页</a>
+  </div>
+</nav>
+
+<!-- ===== Theme Toggle ===== -->
+<button class="theme-toggle no-print" onclick="toggleTheme()" title="切换暗黑模式">🌙</button>
+
+<!-- ===== Main ===== -->
+<div class="main-wrap">
+
+<!-- Topbar -->
+<div class="topbar">
+  <div class="topbar-inner">
+    <a href="蒙特卡洛.html">← 蒙特卡洛方法</a>
+    <h2>3. 线性回归</h2>
+    <a href="AI与建模.html">AI与数学建模 →</a>
+  </div>
+</div>
+
+<!-- Content -->
+<div class="container">
+
+<!-- 1. 一元线性回归 -->
+<div class="section">
+<h2>一、一元线性回归</h2>
+
+<h3>1.1 模型形式 <span class="tag-must">必须掌握</span></h3>
+<p><strong>一元线性回归</strong>研究一个自变量 x 和一个因变量 y 之间的线性关系：</p>
+
+<div class="formula">y = a + b·x + ε，&emsp;ε ~ N(0, σ²)</div>
+
+<p>其中 <code>a</code> 为截距（intercept），<code>b</code> 为斜率（slope），<code>ε</code> 为随机误差项。核心假设：误差服从正态分布且等方差。</p>
+
+<h3>1.2 最小二乘估计 <span class="tag-key">重点</span></h3>
+<p>最小二乘法（OLS, Ordinary Least Squares）通过最小化残差平方和 RSS = Σ(yᵢ - a - b·xᵢ)² 来估计参数：</p>
+
+<div class="formula">
+b = S<sub>xy</sub> / S<sub>xx</sub>，&emsp;a = ȳ - b·x̄
+</div>
+
+<p>其中：</p>
+
+<div class="formula">
+S<sub>xx</sub> = Σ(xᵢ - x̄)²，&emsp;S<sub>xy</sub> = Σ(xᵢ - x̄)(yᵢ - ȳ)，&emsp;S<sub>yy</sub> = Σ(yᵢ - ȳ)²
+</div>
+
+<div class="def-box">
+  <div class="def-title">求和符号速记</div>
+  <p style="margin-top:4px"><code>Sxx = sum((x - mean(x)).^2)</code> — x 的离差平方和<br>
+  <code>Sxy = sum((x - mean(x)) .* (y - mean(y)))</code> — 协方差分子</p>
+</div>
+
+<h3>1.3 拟合优度 R²</h3>
+<p>R²（决定系数）衡量回归模型解释的变异比例：</p>
+
+<div class="formula">
+R² = SSR / SST = 1 - SSE / SST
+</div>
+
+<p>其中 SST = S<sub>yy</sub>（总变异），SSR = b·S<sub>xy</sub>（回归解释的变异），SSE = SST - SSR（残差变异）。</p>
+
+<div class="highlight">
+  <strong>R² 取值范围 [0, 1]：</strong>R² = 1 表示完美拟合，R² = 0 表示模型不优于用均值预测。<br>
+  <strong>注意：</strong>R² 随自变量数量增加而单调增大，不能用于比较不同数量的自变量模型（应使用调整 R²）。
+</div>
+
+<h3>1.4 假设检验</h3>
+
+<h4>t 检验 — 检验单个系数显著性</h4>
+<div class="formula">H₀: b = 0（x 对 y 无线性影响） vs H₁: b ≠ 0</div>
+<p>检验统计量：t = b / SE(b)，其中 SE(b) 为斜率的标准误。当 |t| > t<sub>α/2</sub>(n-2) 时拒绝 H₀。</p>
+
+<h4>F 检验 — 检验模型整体显著性</h4>
+<div class="formula">H₀: b = 0（模型不显著） vs H₁: b ≠ 0</div>
+<p>检验统计量：F = MSR / MSE = SSR / (SSE/(n-2))。对一元回归，F = t²。</p>
+
+<h3>1.5 MATLAB 实现 <span class="tag-freq">高频考点</span></h3>
+
+<div class="def-box">
+  <div class="def-title">regress 函数</div>
+  <code>[b, bint, r, rint, stats] = regress(y, [ones(n,1), x])</code>
+  <p style="margin-top:4px"><code>b</code>：回归系数&emsp;<code>bint</code>：系数置信区间&emsp;<code>r</code>：残差<br>
+  <code>rint</code>：残差置信区间&emsp;<code>stats</code>：[R², F值, P值, 误差方差]</p>
+</div>
+
+<div class="code-block"><span class="co">% 一元线性回归示例</span>
+x = [<span class="num">1</span> <span class="num">2</span> <span class="num">3</span> <span class="num">4</span> <span class="num">5</span> <span class="num">6</span> <span class="num">7</span> <span class="num">8</span> <span class="num">9</span> <span class="num">10</span>]';
+y = [<span class="num">2.1</span> <span class="num">4.0</span> <span class="num">5.8</span> <span class="num">8.1</span> <span class="num">9.9</span> <span class="num">12.3</span> <span class="num">13.8</span> <span class="num">16.2</span> <span class="num">18.1</span> <span class="num">19.8</span>]';
+X = [<span class="fn">ones</span>(<span class="fn">length</span>(x),<span class="num">1</span>), x];
+[b,bint,r,rint,stats] = <span class="fn">regress</span>(y, X);
+<span class="fn">fprintf</span>(<span class="str">'y = %.4f + %.4f*x\n'</span>, b(<span class="num">1</span>), b(<span class="num">2</span>));
+<span class="fn">fprintf</span>(<span class="str">'R^2 = %.4f, F = %.4f, p = %.6f\n'</span>, stats(<span class="num">1</span>), stats(<span class="num">2</span>), stats(<span class="num">3</span>));
+
+<span class="co">% 或用 fitlm (Statistics and Machine Learning Toolbox)</span>
+mdl = <span class="fn">fitlm</span>(x, y);
+<span class="fn">disp</span>(mdl);
+<span class="fn">plot</span>(mdl);           <span class="co">% 诊断图：残差图、QQ图等</span></div>
+
+<div class="highlight">
+  <strong>regress vs fitlm：</strong>regress 是基础函数，需手动添加全1列。fitlm 更高级，自动处理截距，直接给出详细的回归诊断信息和可视化。竞赛中两者皆可，但 fitlm 的自动诊断报告更省时间。
+</div>
+
+<h3>1.6 残差分析</h3>
+<p>拟合后必须检验残差假设是否满足：</p>
+<ul>
+  <li><strong>正态性：</strong>残差应近似正态分布，可用 QQ 图检验（<code>qqplot(r)</code>）</li>
+  <li><strong>等方差性：</strong>残差不应随拟合值变化而呈现规律性（用残差-拟合值散点图）</li>
+  <li><strong>独立性：</strong>残差之间不应有自相关（Durbin-Watson 检验）</li>
+  <li><strong>异常值：</strong>标准化残差 |r| > 2（或 3）为可疑异常值</li>
+</ul>
+</div>
+
+<!-- 2. 多元线性回归 -->
+<div class="section">
+<h2>二、多元线性回归</h2>
+
+<h3>2.1 矩阵形式 <span class="tag-must">必须掌握</span></h3>
+
+<div class="formula">
+y = Xβ + ε，&emsp;ε ~ N(0, σ²I)
+</div>
+
+<p>其中 <code>y</code> 为 n×1 响应向量，<code>X</code> 为 n×(p+1) 设计矩阵（第一列全1为截距），<code>β</code> 为 (p+1)×1 参数向量。</p>
+
+<h3>2.2 最小二乘解</h3>
+
+<div class="formula">
+β̂ = (XᵀX)⁻¹ Xᵀ y
+</div>
+
+<div class="def-box">
+  <div class="def-title">MATLAB 中的求解方式</div>
+  <code>beta = (X'*X) \ (X'*y)</code> 或直接 <code>beta = X \ y</code><br>
+  反斜杠运算符 <code>\</code> 使用 QR 分解，数值更稳定。
+</div>
+
+<div class="highlight">
+  <strong>矩阵可逆条件：</strong>(XᵀX) 可逆等价于 X 列满秩，即自变量之间不存在完全多重共线性。若 X 列不满秩，MATLAB 的 <code>\</code> 仍会给出一个解（最小范数解），但结果不可靠。
+</div>
+
+<h3>2.3 调整 R² vs R²</h3>
+
+<div class="formula">
+R²<sub>adj</sub> = 1 - (1 - R²) · (n - 1) / (n - p - 1)
+</div>
+
+<p>其中 n 为样本数，p 为自变量个数。</p>
+
+<table>
+  <tr><th>指标</th><th>公式思想</th><th>特点</th></tr>
+  <tr><td>R²</td><td>SSR / SST</td><td>随 p 增加单调递增，高估模型解释力</td></tr>
+  <tr><td>R²<sub>adj</sub></td><td>惩罚复杂度</td><td>增加不重要的变量反而降低其值，可用于模型选择</td></tr>
+  <tr><td>AIC</td><td>n·ln(SSE/n) + 2p</td><td>越小越好，平衡拟合与复杂度</td></tr>
+  <tr><td>BIC</td><td>n·ln(SSE/n) + p·ln(n)</td><td>对复杂模型惩罚更重，倾向选择更简单的模型</td></tr>
+</table>
+
+<h3>2.4 变量选择方法 <span class="tag-freq">竞赛常用</span></h3>
+
+<table>
+  <tr><th>方法</th><th>策略</th><th>优点</th><th>缺点</th></tr>
+  <tr>
+    <td><strong>前向选择</strong><br><span class="tag-info">forward</span></td>
+    <td>从空模型开始，逐次加入最显著的变量</td>
+    <td>计算量小，适合 p 大的场景</td>
+    <td>可能遗漏最优组合；变量一旦加入不会删除</td>
+  </tr>
+  <tr>
+    <td><strong>后向消去</strong><br><span class="tag-info">backward</span></td>
+    <td>从全模型开始，逐次删除最不显著的变量</td>
+    <td>考虑了全部变量的协同效应</td>
+    <td>n < p 时无法使用；变量一旦删除不会加回</td>
+  </tr>
+  <tr>
+    <td><strong>逐步回归</strong><br><span class="tag-freq">stepwise</span></td>
+    <td>结合前向+后向，每步可加可删</td>
+    <td>更灵活，可修正早期错误选择</td>
+    <td>可能过度拟合，不稳定</td>
+  </tr>
+</table>
+
+<h3>2.5 MATLAB 示例</h3>
+<div class="code-block"><span class="co">% 多元线性回归 + 逐步回归示例</span>
+<span class="fn">load</span> hald;               <span class="co">% 水泥硬化数据集 (13×4)</span>
+X = ingredients; y = heat;
+
+<span class="co">% 方法1: 全模型 regress</span>
+[b,~,~,~,stats] = <span class="fn">regress</span>(y, [<span class="fn">ones</span>(<span class="fn">size</span>(X,<span class="num">1</span>),<span class="num">1</span>), X]);
+<span class="fn">fprintf</span>(<span class="str">'全模型 R^2 = %.4f\n'</span>, stats(<span class="num">1</span>));
+
+<span class="co">% 方法2: fitlm</span>
+mdl_full = <span class="fn">fitlm</span>(X, y);
+<span class="fn">disp</span>(mdl_full);
+
+<span class="co">% 方法3: 逐步回归</span>
+mdl_step = <span class="fn">stepwiselm</span>(X, y, <span class="str">'linear'</span>, ...
+    <span class="str">'PEnter'</span>,<span class="num">0.05</span>, <span class="str">'PRemove'</span>,<span class="num">0.10</span>);
+<span class="fn">disp</span>(mdl_step.Formula);</div>
+
+<h3>2.6 回归诊断要点</h3>
+
+<div class="highlight">
+  <strong>竞赛中多元回归的完整流程：</strong><br>
+  1. 数据预处理（标准化、缺失值处理）<br>
+  2. 变量选择（逐步/AIC）<br>
+  3. 拟合模型 → 检查 R²<sub>adj</sub> 和整体 F 检验<br>
+  4. 残差诊断（正态性、等方差、独立性）<br>
+  5. 检查多重共线性（VIF）<br>
+  6. 模型解释与预测
+</div>
+</div>
+
+<!-- 3. Logistic回归 -->
+<div class="section">
+<h2>三、Logistic 回归</h2>
+
+<h3>3.1 为什么需要 Logistic 回归 <span class="tag-key">重点</span></h3>
+<p>当因变量 y 为<strong>二分类</strong>（y = 0 或 1）时，线性回归不再适用：</p>
+<ul>
+  <li>线性回归的输出是连续值 (−∞, +∞)，但概率必须在 [0, 1] 之间</li>
+  <li>y 的分布是二项分布而非正态分布</li>
+  <li>异方差问题：Var(ε) = p(1-p)，方差随 p 变化</li>
+</ul>
+
+<div class="highlight">
+  <strong>选型原则：</strong>y 连续 → 线性回归；y 为 0/1 二分类 → Logistic 回归；y 为多分类 → 多项 Logistic 或判别分析。
+</div>
+
+<h3>3.2 Sigmoid 函数</h3>
+<p>Logistic 回归通过 Sigmoid 函数将线性组合映射到 (0, 1)：</p>
+
+<div class="formula">
+p = P(y=1|x) = 1 / (1 + e<sup>−z</sup>)，&emsp;其中 z = β₀ + β₁x₁ + ... + βₚxₚ
+</div>
+
+<p>Sigmoid 函数的特点：单调递增，z → −∞ 时 p → 0，z → +∞ 时 p → 1，z = 0 时 p = 0.5。</p>
+
+<h3>3.3 几率（Odds）与对数几率（Logit）</h3>
+
+<div class="formula">
+Odds = p / (1 − p)，&emsp;Logit(p) = ln(p / (1 − p)) = z = β₀ + Σ βⱼxⱼ
+</div>
+
+<p><strong>优势比（Odds Ratio）：</strong>变量 xⱼ 每增加一个单位，几率的倍数为 e<sup>βⱼ</sup>。</p>
+<p>例如：若 e<sup>β₁</sup> = 2，则 x₁ 增加 1 时，事件发生几率翻倍。</p>
+
+<h3>3.4 参数估计：最大似然估计（MLE）</h3>
+<p>与线性回归的 OLS 不同，Logistic 回归使用<strong>最大似然估计</strong>。似然函数为：</p>
+
+<div class="formula">
+L(β) = Π pᵢ<sup>yᵢ</sup> · (1 − pᵢ)<sup>1−yᵢ</sup>
+</div>
+
+<p>取负对数似然后，用 Newton-Raphson 或 IRLS 迭代求解（无闭式解）。MATLAB 的 <code>fitglm</code> 自动完成。</p>
+
+<h3>3.5 分类决策</h3>
+<p>默认阈值：p ≥ 0.5 → 预测为类别 1，否则类别 0。可根据具体场景调整阈值（ROC 曲线 + Youden 指数）。</p>
+
+<h3>3.6 MATLAB 实现 <span class="tag-freq">竞赛常用</span></h3>
+
+<div class="code-block"><span class="co">% Logistic 回归示例：根据考试成绩预测录取</span>
+<span class="fn">load</span> examgrades;               <span class="co">% 或使用自定义数据</span>
+x = [randn(<span class="num">50</span>,<span class="num">2</span>)+<span class="num">2</span>; randn(<span class="num">50</span>,<span class="num">2</span>)-<span class="num">2</span>];  <span class="co">% 两类数据</span>
+y = [<span class="fn">ones</span>(<span class="num">50</span>,<span class="num">1</span>); <span class="fn">zeros</span>(<span class="num">50</span>,<span class="num">1</span>)];
+
+mdl = <span class="fn">fitglm</span>(x, y, <span class="str">'Distribution'</span>, <span class="str">'binomial'</span>, <span class="str">'Link'</span>, <span class="str">'logit'</span>);
+<span class="fn">disp</span>(mdl);
+
+<span class="co">% 预测新样本的概率</span>
+x_new = [<span class="num">1.5</span> <span class="num">0.8</span>; -<span class="num">1.2</span> -<span class="num">0.5</span>];
+prob = <span class="fn">predict</span>(mdl, x_new);    <span class="co">% 返回概率值</span>
+pred_class = prob >= <span class="num">0.5</span>;     <span class="co">% 转为类别</span>
+
+<span class="co">% ROC 曲线评估</span>
+[~,~,~,AUC] = <span class="fn">perfcurve</span>(y, <span class="fn">predict</span>(mdl, x), <span class="num">1</span>);
+<span class="fn">fprintf</span>(<span class="str">'AUC = %.4f\n'</span>, AUC);</div>
+
+<h3>3.7 模型评估指标</h3>
+
+<table>
+  <tr><th>指标</th><th>公式</th><th>含义</th></tr>
+  <tr><td>准确率 Accuracy</td><td>(TP+TN) / Total</td><td>整体预测正确率</td></tr>
+  <tr><td>精确率 Precision</td><td>TP / (TP+FP)</td><td>预测为正例中真正例的比例</td></tr>
+  <tr><td>召回率 Recall</td><td>TP / (TP+FN)</td><td>真实正例中被正确找出的比例</td></tr>
+  <tr><td>F1 分数</td><td>2·P·R / (P+R)</td><td>精确率与召回率的调和平均</td></tr>
+  <tr><td>AUC</td><td>ROC 曲线下面积</td><td>模型整体区分能力（0.5=随机，1=完美）</td></tr>
+</table>
+</div>
+
+<!-- 4. 逐步回归 -->
+<div class="section">
+<h2>四、逐步回归</h2>
+
+<h3>4.1 三种策略详解 <span class="tag-key">重点</span></h3>
+
+<h4>前向选择（Forward Selection）</h4>
+<ol>
+  <li>从仅含截距的模型开始</li>
+  <li>每次从未入模的变量中选择使 F 统计量最大（或 p 值最小）的变量加入</li>
+  <li>当所有未入模变量的 p 值 > α<sub>enter</sub>（如 0.05）时停止</li>
+</ol>
+
+<h4>后向消去（Backward Elimination）</h4>
+<ol>
+  <li>从包含所有候选变量的全模型开始</li>
+  <li>每次删除 p 值最大且 > α<sub>remove</sub>（如 0.10）的变量</li>
+  <li>当所有在模变量的 p 值 < α<sub>remove</sub> 时停止</li>
+  <li><strong>前提条件：</strong>n > p（样本数大于变量数）</li>
+</ol>
+
+<h4>逐步回归 / 双向消去（Stepwise / Bidirectional）</h4>
+<ol>
+  <li>与前向选择类似，从空模型开始</li>
+  <li>每步加入后，立即检查是否可删去某些已入模变量</li>
+  <li>比单纯前向或后向更灵活，是两者的结合</li>
+</ol>
+
+<div class="highlight">
+  <strong>α<sub>enter</sub> 与 α<sub>remove</sub> 的关系：</strong>通常 α<sub>enter</sub> < α<sub>remove</sub>（如 0.05 与 0.10），避免变量反复进出的振荡。
+</div>
+
+<h3>4.2 MATLAB 实现</h3>
+
+<div class="def-box">
+  <div class="def-title">stepwiselm 语法</div>
+  <code>mdl = stepwiselm(X, y, 'linear', 'PEnter', 0.05, 'PRemove', 0.10)</code>
+  <p style="margin-top:4px">或指定起始模型：<code>stepwiselm(X, y, 'constant', 'Upper', 'linear', ...)</code><br>
+  或指定终止准则：<code>'Criterion', 'aic'</code>（使用 AIC 而非 p 值）</p>
+</div>
+
+<div class="code-block"><span class="co">% 逐步回归完整示例</span>
+<span class="fn">load</span> hald;
+X = ingredients; y = heat;
+
+<span class="co">% 基于 p 值的逐步回归</span>
+mdl1 = <span class="fn">stepwiselm</span>(X, y, <span class="str">'linear'</span>, ...
+    <span class="str">'PEnter'</span>, <span class="num">0.05</span>, <span class="str">'PRemove'</span>, <span class="num">0.10</span>);
+<span class="fn">disp</span>(mdl1.Formula);
+<span class="fn">disp</span>(mdl1.Rsquared);
+
+<span class="co">% 基于 AIC 的逐步回归 (更推荐)</span>
+mdl2 = <span class="fn">stepwiselm</span>(X, y, <span class="str">'constant'</span>, ...
+    <span class="str">'Upper'</span>, <span class="str">'linear'</span>, <span class="str">'Criterion'</span>, <span class="str">'aic'</span>);
+<span class="fn">disp</span>(mdl2.Formula);
+
+<span class="co">% 前向选择 (指定起始为常数模型)</span>
+mdl_fwd = <span class="fn">stepwiselm</span>(X, y, <span class="str">'constant'</span>, ...
+    <span class="str">'Upper'</span>, <span class="str">'linear'</span>, <span class="str">'PRemove'</span>, <span class="num">0</span>);
+<span class="co">% PRemove=0 确保变量只进不出 → 纯前向选择</span></div>
+
+<h3>4.3 逐步回归的局限性 <span class="tag-key">重点</span></h3>
+
+<div class="highlight">
+  <strong>逐步回归的争议与风险：</strong><br>
+  1. <strong>过度拟合：</strong>逐步搜索经过大量假设检验，p 值被低估<br>
+  2. <strong>模型不稳定：</strong>数据微小变化可能导致选择完全不同的一组变量<br>
+  3. <strong>多重检验问题：</strong>每一步都在做多个比较，却未做多重检验校正<br>
+  4. <strong>忽视变量间的结构关系：</strong>纯统计准则可能违背领域知识<br>
+  <strong>缓解措施：</strong>交叉验证、LASSO/弹性网正则化、Bootstrap 稳定性选择、领域知识约束
+</div>
+</div>
+
+<!-- 5. 多重共线性 -->
+<div class="section">
+<h2>五、多重共线性</h2>
+
+<h3>5.1 什么是多重共线性 <span class="tag-key">重点</span></h3>
+
+<div class="def-box">
+  <div class="def-title">定义</div>
+  <p>当回归模型中的<strong>两个或多个自变量高度相关</strong>时，称为多重共线性（Multicollinearity）。</p>
+</div>
+
+<p>多重共线性不违反 OLS 的任何理论假设（估计量仍然无偏），但会使系数的<strong>方差膨胀</strong>，导致：</p>
+<ul>
+  <li>系数估计不稳定，符号可能与预期相反</li>
+  <li>系数的标准误很大，t 检验不显著，即使整体 F 检验显著</li>
+  <li>模型对数据的微小变化过度敏感</li>
+</ul>
+
+<h3>5.2 检测方法</h3>
+
+<h4>方法一：方差膨胀因子 VIF</h4>
+<div class="formula">
+VIFⱼ = 1 / (1 − Rⱼ²)
+</div>
+<p>其中 Rⱼ² 是将 xⱼ 作为因变量、其余自变量作为预测变量的回归 R²。</p>
+
+<table>
+  <tr><th>VIF 值</th><th>判断</th></tr>
+  <tr><td>VIF = 1</td><td>无共线性</td></tr>
+  <tr><td>1 < VIF < 5</td><td>中等共线性，一般可容忍</td></tr>
+  <tr><td>5 < VIF < 10</td><td>较强共线性，需关注</td></tr>
+  <tr><td>VIF > 10</td><td>严重共线性，必须处理</td></tr>
+</table>
+
+<h4>方法二：条件数（Condition Number）</h4>
+<div class="formula">
+κ = λ<sub>max</sub> / λ<sub>min</sub>
+</div>
+<p>λ 为 XᵀX 矩阵的特征值。κ < 100 可接受，κ > 1000 严重。</p>
+
+<h4>方法三：相关系数矩阵</h4>
+<p>计算自变量间的相关系数矩阵。两两相关系数 |r| > 0.8 是共线性的预警信号。</p>
+
+<h3>5.3 MATLAB 检测代码</h3>
+
+<div class="code-block"><span class="co">% VIF 计算函数</span>
+<span class="kw">function</span> vif_vals = calc_vif(X)
+    <span class="co">% X 不包含截距列（不含全1列）</span>
+    [~, p] = <span class="fn">size</span>(X);
+    vif_vals = <span class="fn">zeros</span>(p, <span class="num">1</span>);
+    <span class="kw">for</span> j = <span class="num">1</span>:p
+        X_j = X(:, j);
+        X_other = X(:, [<span class="num">1</span>:j-<span class="num">1</span>, j+<span class="num">1</span>:p]);
+        R2 = <span class="fn">corrcoef</span>([X_j, X_other]);
+        <span class="co">% 计算 R_j^2: 以 X_j 为因变量回归</span>
+        mdl = <span class="fn">fitlm</span>(X_other, X_j);
+        R2_j = mdl.Rsquared.Ordinary;
+        vif_vals(j) = <span class="num">1</span> / (<span class="num">1</span> - R2_j);
+    <span class="kw">end</span>
+<span class="kw">end</span>
+
+<span class="co">% 条件数计算</span>
+X_std = <span class="fn">zscore</span>(X);              <span class="co">% 标准化</span>
+s = <span class="fn">svd</span>(X_std);                  <span class="co">% 奇异值分解</span>
+cond_num = <span class="fn">max</span>(s) / <span class="fn">min</span>(s);
+<span class="fn">fprintf</span>(<span class="str">'条件数 = %.2f\n'</span>, cond_num);</div>
+
+<h3>5.4 处理多重共线性的方法</h3>
+
+<table>
+  <tr><th>方法</th><th>原理</th><th>适用场景</th></tr>
+  <tr>
+    <td><strong>删除冗余变量</strong></td>
+    <td>保留解释力最强的变量，删除高度相关的其他变量</td>
+    <td>变量数量不多，且删除的变量在业务上可解释</td>
+  </tr>
+  <tr>
+    <td><strong>岭回归（Ridge Regression）</strong></td>
+    <td>β̂<sub>ridge</sub> = (XᵀX + λI)⁻¹Xᵀy，添加 L2 惩罚</td>
+    <td>所有变量都重要，但需要收缩系数以减少方差</td>
+  </tr>
+  <tr>
+    <td><strong>LASSO 回归</strong></td>
+    <td>L1 惩罚，自动将不重要的系数压缩为 0</td>
+    <td>需要在收缩系数的同时进行变量选择</td>
+  </tr>
+  <tr>
+    <td><strong>PCA 回归</strong></td>
+    <td>先提取主成分（正交），再用主成分做回归</td>
+    <td>变量极多且高度相关，可接受牺牲可解释性</td>
+  </tr>
+  <tr>
+    <td><strong>偏最小二乘 PLS</strong></td>
+    <td>类似 PCA 但同时也考虑与 y 的相关性</td>
+    <td>变量数接近或超过样本数的场景</td>
+  </tr>
+</table>
+
+<div class="highlight">
+  <strong>竞赛建议：</strong>优先检查 VIF 并删除高 VIF 变量。如需保留全部变量，使用岭回归（MATLAB: <code>ridge(y, X, lambda)</code>）或 LASSO（<code>lasso(X, y)</code>）。PCA 回归会失去原始变量的可解释性，仅在变量极多且解释不重要时使用。
+</div>
+</div>
+
+<!-- 6. 灰色预测 GM(1,1) -->
+<div class="section">
+<h2>六、灰色预测 GM(1,1)</h2>
+
+<h3>6.1 灰色系统理论概述</h3>
+
+<div class="def-box">
+  <div class="def-title">灰色系统</div>
+  <p>介于<strong>白色系统</strong>（信息完全已知）和<strong>黑色系统</strong>（信息完全未知）之间，指部分信息已知、部分信息未知的不确定系统。</p>
+</div>
+
+<p>GM(1,1) 是灰色预测中最基础的模型：</p>
+<ul>
+  <li><strong>G</strong>：Grey（灰色）&emsp;<strong>M</strong>：Model（模型）</li>
+  <li><strong>(1,1)</strong>：1 阶微分方程，1 个变量</li>
+  <li><strong>核心思想：</strong>通过对原始数据序列做累加生成（AGO），削弱随机性，发现内在规律</li>
+</ul>
+
+<h3>6.2 建模步骤 <span class="tag-freq">竞赛常用</span></h3>
+
+<h4>Step 1：原始序列</h4>
+<div class="formula">
+x⁽⁰⁾ = {x⁽⁰⁾(1), x⁽⁰⁾(2), ..., x⁽⁰⁾(n)}，&emsp;x⁽⁰⁾(k) ≥ 0
+</div>
+
+<h4>Step 2：一次累加生成（1-AGO）</h4>
+<div class="formula">
+x⁽¹⁾(k) = Σᵢ₌₁ᵏ x⁽⁰⁾(i)，&emsp;k = 1, 2, ..., n
+</div>
+<p>累加操作将非负的波动序列转化为单调递增序列，平滑了随机波动。</p>
+
+<h4>Step 3：紧邻均值生成</h4>
+<div class="formula">
+z⁽¹⁾(k) = 0.5·x⁽¹⁾(k) + 0.5·x⁽¹⁾(k-1)，&emsp;k = 2, 3, ..., n
+</div>
+
+<h4>Step 4：建立灰微分方程与白化方程</h4>
+<p>灰微分方程：<code>x⁽⁰⁾(k) + a·z⁽¹⁾(k) = b</code></p>
+<p>白化方程（微分形式）：</p>
+<div class="formula">
+dx⁽¹⁾ / dt + a·x⁽¹⁾ = b
+</div>
+
+<h4>Step 5：最小二乘求参数</h4>
+<div class="formula">
+[a, b]ᵀ = (BᵀB)⁻¹ Bᵀ Y
+</div>
+<p>其中：</p>
+<div class="formula">
+Y = [x⁽⁰⁾(2), x⁽⁰⁾(3), ..., x⁽⁰⁾(n)]ᵀ，&emsp;B = [−z⁽¹⁾(2) 1; −z⁽¹⁾(3) 1; ...; −z⁽¹⁾(n) 1]
+</div>
+
+<div class="highlight">
+  <strong>参数含义：</strong><code>a</code> 为<strong>发展系数</strong>（development coefficient），反映序列发展趋势；<code>b</code> 为<strong>灰作用量</strong>（grey action quantity），反映外部影响。|a| 越小，模型预测能力越好（一般要求 |a| < 0.3 用于中长期预测）。
+</div>
+
+<h4>Step 6：求解白化方程 & 还原</h4>
+<div class="formula">
+x̂⁽¹⁾(k+1) = [x⁽⁰⁾(1) − b/a] · e<sup>−a·k</sup> + b/a
+</div>
+<p>将累加序列还原为原始序列（IAGO）：</p>
+<div class="formula">
+x̂⁽⁰⁾(k+1) = x̂⁽¹⁾(k+1) − x̂⁽¹⁾(k)
+</div>
+
+<h3>6.3 MATLAB 实现</h3>
+
+<div class="code-block"><span class="co">% gm11.m — GM(1,1) 灰色预测</span>
+<span class="kw">function</span> [predict, a, b, err] = gm11(x0, m)
+    <span class="co">% x0: 原始序列 (行向量)</span>
+    <span class="co">% m:  预测步数</span>
+    <span class="co">% predict: 预测值 (包括原始数据的拟合 + 未来 m 步预测)</span>
+
+    n = <span class="fn">length</span>(x0);
+    <span class="co">% 1. 累加生成 AGO</span>
+    x1 = <span class="fn">cumsum</span>(x0);
+
+    <span class="co">% 2. 紧邻均值生成</span>
+    z = <span class="num">0.5</span> * (x1(<span class="num">1</span>:n-<span class="num">1</span>) + x1(<span class="num">2</span>:n));
+
+    <span class="co">% 3. 构造 B 和 Y</span>
+    Y = x0(<span class="num">2</span>:n)';
+    B = [-z', <span class="fn">ones</span>(n-<span class="num">1</span>, <span class="num">1</span>)];
+
+    <span class="co">% 4. 最小二乘求 a, b</span>
+    param = B \ Y;
+    a = param(<span class="num">1</span>); b = param(<span class="num">2</span>);
+
+    <span class="co">% 5. 预测累加序列</span>
+    total = n + m;
+    x1_pred = <span class="fn">zeros</span>(<span class="num">1</span>, total);
+    <span class="kw">for</span> k = <span class="num">0</span>:total-<span class="num">1</span>
+        x1_pred(k+<span class="num">1</span>) = (x0(<span class="num">1</span>) - b/a) * <span class="fn">exp</span>(-a*k) + b/a;
+    <span class="kw">end</span>
+
+    <span class="co">% 6. 累减还原 IAGO</span>
+    x0_pred = <span class="fn">zeros</span>(<span class="num">1</span>, total);
+    x0_pred(<span class="num">1</span>) = x0(<span class="num">1</span>);
+    x0_pred(<span class="num">2</span>:total) = x1_pred(<span class="num">2</span>:total) - x1_pred(<span class="num">1</span>:total-<span class="num">1</span>);
+
+    predict = x0_pred;
+
+    <span class="co">% 7. 残差检验</span>
+    pred_fit = x0_pred(<span class="num">1</span>:n);
+    err = <span class="fn">abs</span>(x0 - pred_fit) ./ x0;  <span class="co">% 相对误差</span>
+    <span class="fn">fprintf</span>(<span class="str">'平均相对误差 = %.4f\n'</span>, <span class="fn">mean</span>(err));
+<span class="kw">end</span>
+
+<span class="co">% 使用示例</span>
+x0 = [<span class="num">2.874</span>, <span class="num">3.278</span>, <span class="num">3.337</span>, <span class="num">3.390</span>, <span class="num">3.679</span>];
+[pred, a, b, err] = <span class="fn">gm11</span>(x0, <span class="num">3</span>);
+<span class="fn">fprintf</span>(<span class="str">'a = %.4f, b = %.4f\n'</span>, a, b);
+<span class="fn">fprintf</span>(<span class="str">'后3步预测: %.4f, %.4f, %.4f\n'</span>, pred(<span class="kw">end</span>-<span class="num">2</span>:<span class="kw">end</span>));</div>
+
+<h3>6.4 模型检验标准</h3>
+
+<table>
+  <tr><th>等级</th><th>相对误差</th><th>均方差比值 C</th><th>小误差概率 p</th></tr>
+  <tr><td>一级（优）</td><td>< 0.01</td><td>< 0.35</td><td>> 0.95</td></tr>
+  <tr><td>二级（良）</td><td>< 0.05</td><td>< 0.50</td><td>> 0.80</td></tr>
+  <tr><td>三级（合格）</td><td>< 0.10</td><td>< 0.65</td><td>> 0.70</td></tr>
+  <tr><td>四级（不合格）</td><td>≥ 0.20</td><td>≥ 0.80</td><td>≤ 0.60</td></tr>
+</table>
+
+<p>通常相对误差 < 0.1 可以认为拟合良好，可用于预测。</p>
+
+<h3>6.5 GM(1,1) 的适用条件与局限性</h3>
+
+<div class="highlight">
+  <strong>适用条件：</strong><br>
+  • 数据量小（通常 4-10 个数据点即可建模）<br>
+  • 原始数据非负且呈<strong>指数型增长或衰减</strong><br>
+  • 序列光滑度高（级比 σ(k) = x⁽⁰⁾(k-1)/x⁽⁰⁾(k) 落在可行区间内）<br>
+  • 适合<strong>短期预测</strong>（1-3 步），长期预测误差急剧增大<br><br>
+  <strong>主要局限性：</strong><br>
+  • 仅适用于单调变化序列，对振荡序列预测效果差<br>
+  • 对数据光滑度要求高，异常值会严重影响预测<br>
+  • 原始数据必须非负<br>
+  • 预测区间随步长增长呈扇形扩大，长期预测不可靠<br>
+  • |a| ≥ 2 时模型无意义
+</div>
+
+<h3>6.6 改进的灰色模型</h3>
+<table>
+  <tr><th>模型</th><th>改进点</th></tr>
+  <tr><td>GM(1,1) 残差修正</td><td>对残差再建 GM(1,1) 修正原始预测</td></tr>
+  <tr><td>GM(1,N)</td><td>引入 N 个相关影响因子</td></tr>
+  <tr><td>新陈代谢 GM(1,1)</td><td>不断加入新数据、移除旧数据，动态建模</td></tr>
+  <tr><td>灰色 Verhulst 模型</td><td>S 型曲线，适合饱和增长（替代 Logistic）</td></tr>
+</table>
+</div>
+
+<!-- 7. 自查练习 -->
+<div class="section">
+<h2>七、自查练习</h2>
+
+<div class="checkpoint">
+  <ol>
+    <li>如果回归模型的自变量高度相关（多重共线性），会发生什么问题？有哪些检测方法（至少说出两种）？如何修复？</li>
+    <li>什么情况下应该使用 Logistic 回归而不是线性回归？Logistic 回归的参数估计方法与线性回归有何本质区别？</li>
+    <li>R² 和调整 R² 的本质区别是什么？为什么在多元回归中调整 R² 比 R² 更适合做模型选择？</li>
+    <li>逐步回归为什么存在争议？有哪些更可靠的替代方法？</li>
+    <li>灰色预测 GM(1,1) 的核心假设是什么（数据应满足什么特征）？它在什么情况下会失效？</li>
+  </ol>
+</div>
+</div>
+
+<!-- Bottom Nav -->
+<div class="nav-links">
+  <a href="蒙特卡洛.html">← 蒙特卡洛方法</a>
+  <a href="index.html">⌂ 首页</a>
+  <a href="AI与建模.html">AI与数学建模 →</a>
+</div>
+
+</div><!-- .container -->
+
+<div class="footer"><p>📐 数学建模方法与算法 · 复习系统 &copy; 2026 Jacky</p></div>
+</div><!-- .main-wrap -->
+
+<!-- Back to Top -->
+<button class="back2top" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="回到顶部">↑</button>
+
+<!-- Chapter Nav Toggle + Panel -->
+<button class="chapter-nav-toggle" onclick="toggleChapterNav()" title="章节导航">📖 章节导航</button>
+<div class="chapter-nav-panel" id="chapterNav">
+  <div class="nav-header">📐 目录导航</div>
+  <div class="nav-section">核心方法</div>
+  <a href="插值与拟合.html"><span class="num">1</span>插值与拟合</a>
+  <a href="蒙特卡洛.html"><span class="num">2</span>蒙特卡洛方法</a>
+  <a href="线性回归.html"><span class="num">3</span>线性回归</a>
+  <div class="nav-section">综合专题</div>
+  <a href="AI与建模.html"><span class="num">4</span>AI与数学建模</a>
+  <a href="index.html" style="border-top:1px solid var(--sidebar-border);margin-top:6px;padding-top:10px"><span class="num">⌂</span>返回首页</a>
+</div>
+
+<!-- ===== JavaScript ===== -->
+<script>
+// Sidebar current-page highlight
+(function(){
+  var p = window.location.pathname.split('/').pop() || '线性回归.html';
+  document.querySelectorAll('.sidebar-nav a').forEach(function(a){
+    if(a.getAttribute('href') === p) a.classList.add('current');
+  });
+})();
+
+// Theme toggle
+(function(){
+  var d = localStorage.getItem('mathmodel-theme');
+  if(d === 'dark'){
+    document.body.classList.add('dark-mode');
+    document.querySelector('.theme-toggle').textContent = '☀️';
+  }
+})();
+function toggleTheme(){
+  var b = document.body; b.classList.toggle('dark-mode');
+  var btn = document.querySelector('.theme-toggle');
+  var isDark = b.classList.contains('dark-mode');
+  btn.textContent = isDark ? '☀️' : '🌙';
+  localStorage.setItem('mathmodel-theme', isDark ? 'dark' : 'light');
+}
+
+// Chapter nav panel
+function toggleChapterNav(){
+  var panel = document.getElementById('chapterNav');
+  panel.classList.toggle('open');
+}
+document.addEventListener('click', function(e){
+  var panel = document.getElementById('chapterNav');
+  var btn = document.querySelector('.chapter-nav-toggle');
+  if(panel && panel.classList.contains('open') && !panel.contains(e.target) && !btn.contains(e.target)){
+    panel.classList.remove('open');
+  }
+});
+document.addEventListener('DOMContentLoaded', function(){
+  var path = window.location.pathname.split('/').pop() || '线性回归.html';
+  var panel = document.getElementById('chapterNav');
+  if(!panel) return;
+  panel.querySelectorAll('a').forEach(function(a){
+    if(a.getAttribute('href') === path) a.classList.add('current');
+  });
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI与数学建模 — 数学建模复习系统</title>
+<style>
+/* ===== CSS Variables ===== */
+:root {
+  --paper: #f7f9fc;
+  --paper-dark: #edf1f7;
+  --ink: #1a2138;
+  --ink-light: #5a6380;
+  --accent: #0d7c9e;
+  --accent-hover: #086788;
+  --divider: #d0daea;
+  --card-bg: #ffffff;
+  --card-border: #e2e8f5;
+  --sidebar-bg: #f0f3fa;
+  --sidebar-border: #dce2f0;
+  --code-bg: #eef2f8;
+  --highlight-bg: #eaf6f9;
+  --highlight-border: #0d7c9e;
+  --highlight-strong: #065471;
+  --checkpoint-bg: #f0f4ff;
+  --checkpoint-border: #8eb8e5;
+  --checkpoint-color: #1e3f6f;
+  --tag-must-bg: #fde8e8; --tag-must-color: #b4343a;
+  --tag-key-bg: #fef7e3; --tag-key-color: #8a5a00;
+  --tag-freq-bg: #e3f0fd; --tag-freq-color: #1d6eb8;
+  --tag-info-bg: #e6f7ef; --tag-info-color: #1a6b42;
+  --heading-color: #0c2d48;
+  --code-text: #5c3d0a;
+  --radius: 8px;
+  --font: "Microsoft YaHei","PingFang SC","Noto Sans SC",sans-serif;
+}
+.dark-mode {
+  --paper: #0f172a; --paper-dark: #162239;
+  --ink: #e2e8f0; --ink-light: #8494b8;
+  --accent: #38b2ce; --accent-hover: #4fc3e0;
+  --divider: #223355;
+  --card-bg: #18243c; --card-border: #243555;
+  --sidebar-bg: #0f172a; --sidebar-border: #1e2d4a;
+  --code-bg: #1a2744;
+  --highlight-bg: #162a35; --highlight-border: #38b2ce; --highlight-strong: #6ad4ee;
+  --checkpoint-bg: #16223a; --checkpoint-border: #2a4070; --checkpoint-color: #6aa8e8;
+  --tag-must-bg: #3d1f1f; --tag-must-color: #f28b8b;
+  --tag-key-bg: #3d3018; --tag-key-color: #e0b860;
+  --tag-freq-bg: #1a2f4a; --tag-freq-color: #7ab8f0;
+  --tag-info-bg: #1a3a2a; --tag-info-color: #6ac090;
+  --heading-color: var(--ink);
+  --code-text: #c8b878;
+  background-color: var(--paper);
+}
+
+/* ===== Reset & Base ===== */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font);font-size:11pt;line-height:1.8;color:var(--ink);background:var(--paper);display:flex;min-height:100vh}
+a{color:var(--accent);text-decoration:none;transition:color .2s}
+a:hover{color:var(--accent-hover)}
+ul,ol{padding-left:1.5em}
+li{margin-bottom:.3em}
+table{border-collapse:collapse;width:100%;margin:12px 0;font-size:.95em}
+th,td{border:1px solid var(--card-border);padding:8px 12px;text-align:center}
+th{background:var(--paper-dark);font-weight:600}
+td{background:var(--card-bg)}
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-thumb{background:var(--ink-light);border-radius:3px}
+
+/* ===== Sidebar ===== */
+.sidebar{position:fixed;top:0;left:0;width:210px;height:100vh;background:var(--sidebar-bg);border-right:1px solid var(--sidebar-border);overflow-y:auto;z-index:100;padding:0 0 20px}
+.sidebar-header{padding:22px 16px 16px;border-bottom:1px solid var(--sidebar-border)}
+.sidebar-header .site-name{font-size:1.15em;font-weight:700;color:var(--accent)}
+.sidebar-header .site-sub{font-size:.75em;color:var(--ink-light);margin-top:2px}
+.sidebar-nav{padding:8px 0}
+.sidebar-nav .group-label{font-size:.7em;text-transform:uppercase;letter-spacing:1px;color:var(--ink-light);padding:12px 16px 4px;font-weight:600}
+.sidebar-nav a{display:flex;align-items:center;padding:7px 16px;font-size:.9em;color:var(--ink);gap:8px;border-left:3px solid transparent;transition:background .15s,border-color .15s}
+.sidebar-nav a:hover{background:var(--paper-dark);color:var(--accent)}
+.sidebar-nav a.current{background:var(--highlight-bg);border-left-color:var(--accent);color:var(--accent);font-weight:600}
+.sidebar-nav .tag{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:var(--paper-dark);font-size:.75em;font-weight:600;flex-shrink:0}
+.sidebar-nav a.current .tag{background:var(--accent);color:#fff}
+
+/* ===== Theme Toggle ===== */
+.theme-toggle{position:fixed;top:12px;right:20px;z-index:200;background:var(--card-bg);border:1px solid var(--card-border);border-radius:50%;width:38px;height:38px;font-size:1.1em;cursor:pointer;line-height:1;transition:transform .2s}
+.theme-toggle:hover{transform:scale(1.1)}
+
+/* ===== Main Area ===== */
+.main-wrap{flex:1;margin-left:210px;display:flex;flex-direction:column;min-height:100vh}
+
+/* ===== Topbar ===== */
+.topbar{position:sticky;top:0;z-index:90;background:linear-gradient(135deg, #0d3b5c 0%, #0d7c9e 100%);padding:0}
+.topbar-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:14px 28px}
+.topbar-inner h2{color:#fff;font-size:1.15em;font-weight:600}
+.topbar-inner a{color:rgba(255,255,255,.85);font-size:.9em;padding:5px 12px;border-radius:4px;transition:background .2s}
+.topbar-inner a:hover{background:rgba(255,255,255,.15);color:#fff}
+
+/* ===== Container ===== */
+.container{max-width:1100px;margin:0 auto;padding:28px 28px 40px;width:100%}
+
+/* ===== Content Blocks ===== */
+.section{background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--radius);padding:24px 28px;margin-bottom:22px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.section h2{font-size:1.3em;color:var(--heading-color);margin-bottom:16px;padding-bottom:8px;border-bottom:2px solid var(--divider)}
+.section h3{font-size:1.08em;color:var(--accent);margin:20px 0 10px;padding-bottom:6px;border-bottom:1px dashed var(--divider)}
+.section h4{font-size:1em;color:var(--ink);font-weight:600;margin:14px 0 6px}
+.section p{margin-bottom:10px}
+
+.highlight{background:var(--highlight-bg);border-left:4px solid var(--highlight-border);padding:12px 16px;margin:14px 0;border-radius:0 6px 6px 0;font-size:.95em}
+.highlight strong{color:var(--highlight-strong)}
+
+.def-box{background:var(--code-bg);border:1px solid var(--card-border);border-radius:6px;padding:14px 18px;margin:12px 0}
+.def-box .def-title{font-weight:700;color:var(--accent);margin-bottom:4px;font-size:.92em}
+
+.formula{text-align:center;background:var(--code-bg);padding:12px 20px;margin:14px 0;border-radius:6px;font-family:"Cascadia Code","Consolas","Courier New",monospace;font-size:1em;color:var(--ink)}
+
+.code-block{background:var(--code-bg);border:1px solid var(--card-border);border-radius:6px;padding:16px 20px;margin:12px 0;overflow-x:auto;font-family:"Cascadia Code","Consolas","Courier New",monospace;font-size:.88em;line-height:1.65;color:var(--ink);white-space:pre}
+.code-block .kw{color:#0550ae;font-weight:600}
+.code-block .fn{color:#8250df}
+.code-block .str{color:#0a3069}
+.code-block .co{color:#6e7781;font-style:italic}
+.code-block .num{color:#0550ae}
+.dark-mode .code-block .kw{color:#79c0ff}
+.dark-mode .code-block .fn{color:#d2a8ff}
+.dark-mode .code-block .str{color:#a5d6ff}
+.dark-mode .code-block .co{color:#8b949e}
+.dark-mode .code-block .num{color:#79c0ff}
+
+.checkpoint{background:var(--checkpoint-bg);border:1px solid var(--checkpoint-border);border-radius:6px;padding:14px 18px;margin:14px 0}
+.checkpoint::before{content:"🧠 自查练习：";font-weight:700;color:var(--checkpoint-color);display:block;margin-bottom:6px}
+.checkpoint ol,.checkpoint ul{margin-bottom:0}
+
+.tag-must,.tag-key,.tag-freq,.tag-info{display:inline-block;padding:1px 8px;border-radius:3px;font-size:.8em;font-weight:600;margin:0 2px}
+.tag-must{background:var(--tag-must-bg);color:var(--tag-must-color)}
+.tag-key{background:var(--tag-key-bg);color:var(--tag-key-color)}
+.tag-freq{background:var(--tag-freq-bg);color:var(--tag-freq-color)}
+.tag-info{background:var(--tag-info-bg);color:var(--tag-info-color)}
+
+/* ===== Bottom Nav ===== */
+.nav-links{display:flex;justify-content:space-between;align-items:center;margin-top:30px;padding:16px 0}
+.nav-links a{padding:8px 18px;border:1px solid var(--card-border);border-radius:6px;background:var(--card-bg);font-size:.9em;transition:all .2s}
+.nav-links a:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+/* ===== Back to Top ===== */
+.back2top{position:fixed;right:24px;bottom:30px;z-index:90;width:42px;height:42px;background:var(--accent);color:#fff;border:none;border-radius:50%;font-size:1.2em;cursor:pointer;opacity:.7;transition:opacity .2s}
+.back2top:hover{opacity:1}
+
+/* ===== Chapter Nav Panel (right slide-in) ===== */
+.chapter-nav-toggle{position:fixed;right:0;top:50%;transform:translateY(-50%);z-index:95;background:var(--accent);color:#fff;border:none;border-radius:8px 0 0 8px;padding:14px 8px;font-size:1.1em;cursor:pointer;writing-mode:vertical-lr;letter-spacing:2px}
+.chapter-nav-panel{position:fixed;right:-260px;top:0;width:250px;height:100vh;z-index:150;background:var(--sidebar-bg);border-left:1px solid var(--sidebar-border);overflow-y:auto;transition:right .35s cubic-bezier(.4,0,.2,1);padding:20px 0}
+.chapter-nav-panel.open{right:0}
+.chapter-nav-panel .nav-header{padding:12px 20px 16px;border-bottom:1px solid var(--sidebar-border);font-weight:700;color:var(--accent);font-size:1.05em}
+.chapter-nav-panel .nav-section{padding:8px 20px 2px;font-size:.7em;text-transform:uppercase;letter-spacing:1px;color:var(--ink-light);font-weight:600}
+.chapter-nav-panel a{display:flex;align-items:center;padding:7px 20px;font-size:.9em;color:var(--ink);gap:8px;transition:background .15s}
+.chapter-nav-panel a:hover{background:var(--paper-dark);color:var(--accent)}
+.chapter-nav-panel a.current{color:var(--accent);font-weight:600}
+.chapter-nav-panel .num{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:var(--paper-dark);font-size:.75em;font-weight:600;flex-shrink:0}
+
+/* ===== Footer ===== */
+.footer{text-align:center;padding:20px;color:var(--ink-light);font-size:.82em;border-top:1px solid var(--divider);margin-top:auto}
+
+/* ===== Responsive ===== */
+@media(max-width:768px){
+  .sidebar{display:none}
+  .main-wrap{margin-left:0}
+  body{font-size:10.5pt}
+}
+@media(max-width:640px){
+  .section{padding:18px 16px}
+  .topbar-inner h2{font-size:1em}
+  .topbar-inner{padding:10px 14px}
+  .chapter-nav-panel{width:200px}
+  table{font-size:.85em}
+  th,td{padding:5px 8px}
+  .back2top{right:10px;bottom:20px;width:38px;height:38px}
+  .container{padding:16px 12px 30px}
+}
+
+/* ===== Print ===== */
+@media print{.sidebar,.topbar,.theme-toggle,.chapter-nav-toggle,.chapter-nav-panel,.back2top,.nav-links,.footer{display:none}.main-wrap{margin-left:0}}
+</style>
+</head>
+<body>
+
+<!-- ===== Sidebar ===== -->
+<nav class="sidebar">
+  <div class="sidebar-header">
+    <div class="site-name">📐 数学建模</div>
+    <div class="site-sub">方法与算法 · 复习系统</div>
+  </div>
+  <div class="sidebar-nav">
+    <div class="group-label">核心方法</div>
+    <a href="插值与拟合.html"><span class="tag">1</span>插值与拟合</a>
+    <a href="蒙特卡洛.html"><span class="tag">2</span>蒙特卡洛方法</a>
+    <a href="线性回归.html"><span class="tag">3</span>线性回归</a>
+    <div class="group-label">综合专题</div>
+    <a href="AI与建模.html"><span class="tag">4</span>AI与数学建模</a>
+    <a href="index.html" style="margin-top:6px;border-top:1px solid var(--sidebar-border);padding-top:8px"><span class="tag">⌂</span>返回首页</a>
+  </div>
+</nav>
+
+<!-- ===== Theme Toggle ===== -->
+<button class="theme-toggle no-print" onclick="toggleTheme()" title="切换暗黑模式">🌙</button>
+
+<!-- ===== Main ===== -->
+<div class="main-wrap">
+
+<!-- Topbar -->
+<div class="topbar">
+  <div class="topbar-inner">
+    <a href="线性回归.html">← 线性回归</a>
+    <h2>4. AI与数学建模</h2>
+    <a href="index.html">返回首页 →</a>
+  </div>
+</div>
+
+<!-- Content -->
+<div class="container">
+
+<!-- 1. 竞赛AI规则解读 -->
+<div class="section">
+<h2>一、竞赛AI规则解读 <span class="tag-must">必须掌握</span></h2>
+
+<h3>1.1 2025 CUMCM 首次 AI 使用规范化</h3>
+<p>2025年全国大学生数学建模竞赛（CUMCM）首次正式发布了关于AI工具使用的规范文件，标志着竞赛对AI时代的正式回应。这是数学建模竞赛史上的一个重要里程碑。</p>
+
+<div class="highlight">
+  <strong>核心原则："透明、人为主导"</strong> — AI是辅助工具，不是替代工具。建模过程中的核心思路设计、模型创新、结果分析与判断必须由参赛队员独立完成，AI只能作为效率提升的辅助手段。
+</div>
+
+<h3>1.2 三条核心规则</h3>
+
+<table>
+  <tr><th>规则</th><th>内容</th><th>解释</th></tr>
+  <tr>
+    <td><span class="tag-must">规则一</span></td>
+    <td><strong>核心建模必须独立完成</strong></td>
+    <td>数学模型的建立、改进与创新必须由队员主导，不可直接让AI代劳</td>
+  </tr>
+  <tr>
+    <td><span class="tag-must">规则二</span></td>
+    <td><strong>所有AI使用必须标注</strong></td>
+    <td>凡使用AI工具辅助的部分（思路启发、代码生成、文献检索、文本润色等），必须在论文和AI使用文件中明确标注</td>
+  </tr>
+  <tr>
+    <td><span class="tag-must">规则三</span></td>
+    <td><strong>未使用AI必须声明</strong></td>
+    <td>如果全程未使用任何AI工具，也必须在提交材料中明确声明"未使用AI"</td>
+  </tr>
+</table>
+
+<h3>1.3 AI使用文件要求</h3>
+
+<div class="def-box">
+  <div class="def-title">AI使用文件（PDF格式）</div>
+  <p>参赛队需在提交材料中包含一份PDF格式的AI使用说明文件，内容包括：</p>
+  <ul>
+    <li><strong>使用的AI工具名称与版本</strong>（如 ChatGPT-4o、Claude 3.5 Sonnet、DeepSeek-V3 等）</li>
+    <li><strong>每次使用的具体提示词（Prompt）</strong> — 必须完整记录向AI提出的问题或指令</li>
+    <li><strong>AI的原始回复</strong> — 截取关键部分或完整记录</li>
+    <li><strong>队员对AI输出的修改与采纳说明</strong> — 说明哪些部分被采用、哪些被修改、如何修改</li>
+    <li><strong>使用的阶段与目的</strong> — 注明在建模的哪个阶段、出于什么目的使用了AI</li>
+  </ul>
+</div>
+
+<h3>1.4 竞赛允许使用的AI工具</h3>
+
+<div class="highlight">
+  <strong>常见可用的AI工具列表：</strong><br>
+  <strong>通用对话型：</strong>ChatGPT (OpenAI)、Claude (Anthropic)、DeepSeek、Kimi、文心一言、通义千问、豆包<br>
+  <strong>代码辅助型：</strong>GitHub Copilot、Cursor、通义灵码、CodeGeeX<br>
+  <strong>文献检索型：</strong>Semantic Scholar (AI)、Elicit、Consensus、Scite<br>
+  <strong>数学计算型：</strong>Wolfram Alpha、MATLAB AI助手、Maple AI<br>
+  <strong>注意：</strong>最终以当年竞赛组委会发布的《AI工具使用规范》为准。
+</div>
+
+<div class="highlight">
+  <strong>违规后果：</strong>未如实报告AI使用情况、或用AI替代核心建模工作，将被视为学术不端行为，可能导致取消获奖资格甚至通报批评。
+</div>
+</div>
+
+<!-- 2. 四阶段提示工程框架 -->
+<div class="section">
+<h2>二、四阶段提示工程框架 <span class="tag-key">核心方法论</span></h2>
+
+<h3>2.1 框架总览</h3>
+<p>系统性的AI辅助数学建模需要结构化的提示工程（Prompt Engineering）策略。以下四阶段框架将建模流程与AI能力深度结合，帮助参赛队高效、规范地利用AI工具。</p>
+
+<table>
+  <tr><th>阶段</th><th>核心任务</th><th>AI角色</th><th>产出</th></tr>
+  <tr>
+    <td><span class="tag-info">Stage 1</span></td>
+    <td>问题深度结构化分析</td>
+    <td>问题分解、背景知识检索、子问题识别</td>
+    <td>问题思维导图、子问题列表</td>
+  </tr>
+  <tr>
+    <td><span class="tag-info">Stage 2</span></td>
+    <td>模型构建与创新设计</td>
+    <td>经典模型推荐、创新方案头脑风暴、模型对比</td>
+    <td>候选模型池、融合方案</td>
+  </tr>
+  <tr>
+    <td><span class="tag-info">Stage 3</span></td>
+    <td>自动化数据处理</td>
+    <td>数据清洗、异常值检测、特征工程</td>
+    <td>干净数据集、特征矩阵</td>
+  </tr>
+  <tr>
+    <td><span class="tag-info">Stage 4</span></td>
+    <td>模型求解与深度分析</td>
+    <td>代码生成、敏感性分析、鲁棒性检验</td>
+    <td>求解结果、分析报告</td>
+  </tr>
+</table>
+
+<h3>2.2 Stage 1：问题深度结构化分析</h3>
+
+<p>拿到赛题后，不要急于建模。首先借助AI进行问题的深度拆解。</p>
+
+<div class="def-box">
+  <div class="def-title">Stage 1 提示词模板</div>
+</div>
+
+<div class="code-block"><span class="co">## 提示词模板：问题结构化分析</span>
+
+你是一位数学建模竞赛指导专家。我是一名参加全国数学建模竞赛的选手。请帮我分析以下赛题：
+
+【将赛题全文粘贴在此】
+
+请完成以下任务：
+1. 用思维导图的形式拆解题干中的关键信息，
+   识别出3-5个核心子问题
+2. 分析每个子问题中涉及的变量、约束条件和优化目标
+3. 指出解题需要的关键数据（哪些题目给出、
+   哪些需要自行查找或合理假设）
+4. 推荐3-5个可能适用的经典数学模型，
+   并说明每个模型与问题的匹配度（高/中/低）
+5. 列出需要查阅的关键背景知识和参考文献方向
+
+请使用中文回答，格式清晰，便于团队讨论。</div>
+
+<h3>2.3 Stage 2：模型构建与创新设计</h3>
+
+<p>在明确了子问题后，利用AI进行模型方案的设计与创新融合。</p>
+
+<div class="def-box">
+  <div class="def-title">Stage 2 提示词模板</div>
+</div>
+
+<div class="code-block"><span class="co">## 提示词模板：模型构建与创新</span>
+
+我们正在解决以下子问题：
+【描述子问题和已有数据】
+
+初步考虑的模型方案：
+【列出正在考虑的模型】
+
+请帮助我们：
+1. 对比分析上述模型的优缺点（准确度、计算复杂度、
+   可解释性、数据需求）
+2. 提出2-3个创新融合方案（例如：将A模型的输出
+   作为B模型的输入，或对C模型的关键参数用
+   D算法优化）
+3. 给出模型创新点的理论可行性论证
+4. 指出每个方案可能存在的隐藏假设和风险点
+
+注意：不要直接给出最终答案，而是要引导我们思考，
+帮助我们发现创新的切入点。</div>
+
+<h3>2.4 Stage 3：自动化数据处理</h3>
+
+<p>数据处理是建模的基础，AI可以大幅提升效率。</p>
+
+<div class="def-box">
+  <div class="def-title">Stage 3 提示词模板</div>
+</div>
+
+<div class="code-block"><span class="co">## 提示词模板：数据处理</span>
+
+我有一份数据，需要为数学建模做准备。数据格式如下：
+【描述数据格式、字段含义、样本量】
+
+请帮我设计Python/MATLAB代码完成以下任务：
+1. 检查缺失值并给出处理建议（删除/插补/EM算法）
+2. 使用IQR方法检测异常值，输出异常值列表
+3. 数据归一化/标准化（Min-Max、Z-score，
+   根据数据特征推荐合适方法）
+4. 特征工程建议：是否需要构造组合特征、
+   多项式特征、对数变换？
+5. 如果需要降维，推荐PCA还是t-SNE？为什么？
+
+代码要求：有详细注释，每个步骤输出中间结果
+便于检查。</div>
+
+<h3>2.5 Stage 4：模型求解与深度分析</h3>
+
+<p>这是将模型转化为具体结果的关键阶段。</p>
+
+<div class="def-box">
+  <div class="def-title">Stage 4 提示词模板</div>
+</div>
+
+<div class="code-block"><span class="co">## 提示词模板：模型求解与分析</span>
+
+我们已建立了如下数学模型：
+【描述模型结构、变量、参数、目标函数、约束条件】
+
+使用的求解环境：Python 3.10 + scipy.optimize
+
+请帮我们：
+1. 编写完整的求解代码（包含注释）
+2. 解释每一步的计算逻辑
+3. 设计敏感性分析方案：
+   - 识别3-5个关键参数
+   - 对每个参数设计±10%、±20%的变动方案
+   - 编写敏感性分析的自动化脚本
+4. 模型鲁棒性检验方案：
+   - 设计3种数据扰动方案（如添加噪声、
+     随机删除5%数据、改变初始条件）
+   - 比较扰动前后的结果稳定性
+5. 如果有备选模型，设计对比实验方案
+
+所有代码需要输出可视化的分析图表。</div>
+
+<h3>2.6 提示工程实用技巧</h3>
+
+<div class="highlight">
+  <strong>高效提示的黄金法则：</strong><br>
+  <strong>1. 具体明确：</strong>不要说"帮我解题"，要说"帮我分析这个微分方程的解的稳定性"<br>
+  <strong>2. 提供上下文：</strong>说明你的身份、背景知识水平、使用的工具环境<br>
+  <strong>3. 分解任务：</strong>一个复杂问题拆成多个小问题逐步提问<br>
+  <strong>4. 迭代优化：</strong>第一次回复不满意时，追问"能不能更简洁/更数学化/换个角度"<br>
+  <strong>5. 角色设定：</strong>用"你是一位数学建模专家"开头，可以显著提升回答质量<br>
+  <strong>6. 验证输出：</strong>永远不要直接使用AI生成的代码和公式，必须先验证
+</div>
+</div>
+
+<!-- 3. AI辅助建模优势 -->
+<div class="section">
+<h2>三、AI辅助建模的优势与局限 <span class="tag-key">备考重点</span></h2>
+
+<h3>3.1 核心优势</h3>
+
+<table>
+  <tr><th>维度</th><th>优势</th><th>实例</th></tr>
+  <tr>
+    <td><strong>速度（Speed）</strong></td>
+    <td>快速原型验证多种方案</td>
+    <td>1小时内让AI生成3种模型的Python代码框架，快速判断可行性</td>
+  </tr>
+  <tr>
+    <td><strong>广度（Breadth）</strong></td>
+    <td>探索更广阔的解空间</td>
+    <td>AI可能建议你未曾考虑的模型（如遗传算法、模拟退火），拓宽思路</td>
+  </tr>
+  <tr>
+    <td><strong>质量（Quality）</strong></td>
+    <td>错误检查、代码审查</td>
+    <td>AI可以快速发现代码中的索引错误、逻辑漏洞、边界条件遗漏</td>
+  </tr>
+  <tr>
+    <td><strong>文档（Documentation）</strong></td>
+    <td>自动生成模型说明</td>
+    <td>AI可以协助生成规范的LaTeX数学公式、模型流程图描述</td>
+  </tr>
+</table>
+
+<h3>3.2 重要局限性 <span class="tag-must">必须了解</span></h3>
+
+<div class="highlight">
+  <strong>AI在数学建模中的局限性：</strong><br>
+  <strong>1. 幻觉问题：</strong>AI可能生成看似合理但实际错误的数学推导或代码，特别是涉及复杂数值计算时<br>
+  <strong>2. 缺乏深度理解：</strong>AI不真正"理解"你的具体问题背景，它的回答基于模式匹配而非推理<br>
+  <strong>3. 过度依赖风险：</strong>如果全程依赖AI，你将失去对模型的掌控力和真正的理解，答辩时无法自圆其说<br>
+  <strong>4. 数学严谨性不足：</strong>AI可能在推导中跳步、忽略边界条件或使用不成立的假设<br>
+  <strong>5. 隐私问题：</strong>上传竞赛数据到公有AI平台可能违反数据保密要求
+</div>
+
+<div class="highlight">
+  <strong>黄金法则：AI的输出永远是"草案"，不是"答案"。</strong><br>
+  每一个AI生成的公式，你都要手算验证；每一段AI生成的代码，你都要运行测试；每一个AI给出的结论，你都要逻辑审视。AI可以加速你的建模过程，但最终判断必须由你来下。
+</div>
+</div>
+
+<!-- 4. 团队分工与备赛策略 -->
+<div class="section">
+<h2>四、团队分工与备赛策略 <span class="tag-freq">实战指导</span></h2>
+
+<h3>4.1 三人团队标准分工</h3>
+
+<table>
+  <tr><th>角色</th><th>核心职责</th><th>所需技能</th><th>AI工具使用重点</th></tr>
+  <tr>
+    <td><strong>建模手</strong><br><span class="tag-must">Modeler</span></td>
+    <td>问题分析、模型建立、假设设定、创新设计</td>
+    <td>数学基础扎实、思维严谨、知识面广</td>
+    <td>文献综述、模型头脑风暴、假设检验推导、参数含义解释</td>
+  </tr>
+  <tr>
+    <td><strong>编程手</strong><br><span class="tag-must">Programmer</span></td>
+    <td>算法实现、数据清洗、数值求解、可视化</td>
+    <td>Python/MATLAB熟练、调试能力强、效率高</td>
+    <td>代码生成与调试、算法优化、数据预处理脚本、自动化测试</td>
+  </tr>
+  <tr>
+    <td><strong>写作手</strong><br><span class="tag-must">Writer</span></td>
+    <td>论文撰写、图表制作、格式排版、摘要打磨</td>
+    <td>表达能力强、LaTeX/Word熟练、审美在线</td>
+    <td>摘要润色、语法检查、公式排版、段落结构优化</td>
+  </tr>
+</table>
+
+<h3>4.2 AI融入各角色的方式</h3>
+
+<h4>建模手的AI策略</h4>
+<ul>
+  <li>用AI做<strong>文献综述</strong>：快速了解某类模型的最新应用和变体</li>
+  <li>用AI做<strong>模型头脑风暴</strong>：输入问题描述，让AI列出10种可能的建模思路</li>
+  <li>用AI做<strong>假设合理性检验</strong>：让AI从多个角度挑战你的模型假设</li>
+  <li><strong>但不要</strong>让AI直接给出"最佳模型"——这个判断必须由你来做</li>
+</ul>
+
+<h4>编程手的AI策略</h4>
+<ul>
+  <li>用AI生成代码<strong>框架和模板</strong>，然后手动修改和优化</li>
+  <li>用AI做<strong>代码调试</strong>：粘贴报错信息，让AI帮助定位问题</li>
+  <li>用AI做<strong>代码审查</strong>：让AI检查代码的效率和潜在bug</li>
+  <li>用AI生成<strong>可视化图表的基础代码</strong>，手动调整配色和标注</li>
+  <li><strong>但不要</strong>直接运行AI生成的代码而不理解其逻辑</li>
+</ul>
+
+<h4>写作手的AI策略</h4>
+<ul>
+  <li>用AI做<strong>语言润色</strong>：将草稿输入AI，获取更流畅的表达建议</li>
+  <li>用AI做<strong>语法和拼写检查</strong>：特别是英语摘要部分</li>
+  <li>用AI做<strong>结构优化</strong>：让AI检查论文逻辑是否连贯、是否需要补充过渡段</li>
+  <li>用AI生成<strong>图表的LaTeX/tikz代码</strong></li>
+  <li><strong>但不要</strong>让AI完全代写论文段落——评审能识别出AI生成的模板化文字</li>
+</ul>
+
+<h3>4.3 三天竞赛时间分配</h3>
+
+<table>
+  <tr><th>时间段</th><th>任务</th><th>建模手</th><th>编程手</th><th>写作手</th></tr>
+  <tr><td><strong>Day 1</strong><br>上午</td><td>选题、问题分析</td><td>主导问题拆解</td><td>协助检索文献</td><td>整理问题重述</td></tr>
+  <tr><td><strong>Day 1</strong><br>下午</td><td>模型方案设计</td><td>主导建模方案</td><td>验证原型可行性</td><td>撰写假设与符号</td></tr>
+  <tr><td><strong>Day 1</strong><br>晚上</td><td>数据准备</td><td>协助假设检验</td><td>数据清洗与预处理</td><td>整理数据说明</td></tr>
+  <tr><td><strong>Day 2</strong><br>上午</td><td>模型求解</td><td>监督求解过程</td><td>编写求解代码</td><td>撰写模型章节</td></tr>
+  <tr><td><strong>Day 2</strong><br>下午</td><td>结果分析</td><td>结果合理性检验</td><td>敏感性分析</td><td>整理分析图表</td></tr>
+  <tr><td><strong>Day 2</strong><br>晚上</td><td>模型评价</td><td>模型优缺点</td><td>鲁棒性检验</td><td>撰写评价章节</td></tr>
+  <tr><td><strong>Day 3</strong><br>上午</td><td>论文撰写</td><td>审校数学内容</td><td>完善附录代码</td><td>主导全文撰写</td></tr>
+  <tr><td><strong>Day 3</strong><br>下午</td><td>修订完善</td><td>通读全文把关</td><td>终测代码可复现</td><td>终审定稿排版</td></tr>
+  <tr><td><strong>Day 3</strong><br>晚上</td><td>提交</td><td>签字提交材料</td><td>检查文件完整性</td><td>确认格式合规</td></tr>
+</table>
+
+<div class="highlight">
+  <strong>时间管理要点：</strong>比赛共74小时（不含提交时间），<strong>前48小时必须完成模型求解</strong>，留足24-26小时给论文撰写和修改。第一天的模型选择至关重要，选错模型后期很难弥补。A/B题至少留1小时讨论后再做决定。
+</div>
+
+<h3>4.4 赛前准备清单</h3>
+
+<div class="def-box">
+  <div class="def-title">赛前必备准备项</div>
+  <table>
+    <tr><th>类别</th><th>准备项</th><th>完成状态</th></tr>
+    <tr><td>知识储备</td><td>熟练掌握3-5种经典模型（优化、预测、分类、评价、图论）</td><td>☐</td></tr>
+    <tr><td>知识储备</td><td>熟悉CUMCM AI使用规范全文</td><td>☐</td></tr>
+    <tr><td>知识储备</td><td>阅读近3年优秀论文（至少6篇）</td><td>☐</td></tr>
+    <tr><td>工具准备</td><td>Python环境 + Jupyter/VS Code + 常用库（numpy, scipy, matplotlib, pandas, sklearn）</td><td>☐</td></tr>
+    <tr><td>工具准备</td><td>MATLAB + 常用工具箱（Optimization, Statistics）</td><td>☐</td></tr>
+    <tr><td>工具准备</td><td>注册好至少2个AI平台账号，确认额度充足</td><td>☐</td></tr>
+    <tr><td>工具准备</td><td>LaTeX模板（或Word模板）已测试可用</td><td>☐</td></tr>
+    <tr><td>协作准备</td><td>建立Git仓库 + 共享文件系统</td><td>☐</td></tr>
+    <tr><td>协作准备</td><td>明确AI使用文件的记录分工（谁来记、何时记）</td><td>☐</td></tr>
+    <tr><td>协作准备</td><td>约定代码规范、变量命名规则、注释语言</td><td>☐</td></tr>
+    <tr><td>后勤准备</td><td>比赛场地（安静、网络稳定、双屏）</td><td>☐</td></tr>
+    <tr><td>后勤准备</td><td>食物饮料储备、休息安排</td><td>☐</td></tr>
+  </table>
+</div>
+</div>
+
+<!-- 5. 论文写作技巧 -->
+<div class="section">
+<h2>五、论文写作技巧 <span class="tag-freq">高分关键</span></h2>
+
+<h3>5.1 标准论文结构</h3>
+
+<p>数学建模论文应按照以下结构组织，每个部分承担不同的功能：</p>
+
+<table>
+  <tr><th>序号</th><th>部分</th><th>核心功能</th><th>篇幅建议</th></tr>
+  <tr><td>1</td><td><strong>摘要（Abstract）</strong></td><td>全文缩影，决定评审第一印象</td><td>800-1000字</td></tr>
+  <tr><td>2</td><td><strong>问题重述（Problem Restatement）</strong></td><td>用自己的话解释题目，展示理解深度</td><td>300-500字</td></tr>
+  <tr><td>3</td><td><strong>模型假设（Assumptions）</strong></td><td>列出建模的前提条件，说明合理性</td><td>200-400字</td></tr>
+  <tr><td>4</td><td><strong>符号说明（Notation）</strong></td><td>统一定义全文中使用的数学符号</td><td>表格形式</td></tr>
+  <tr><td>5</td><td><strong>模型建立与求解（Model & Solution）</strong></td><td>论文核心，展示建模过程与结果</td><td>正文的50%-60%</td></tr>
+  <tr><td>6</td><td><strong>结果分析（Results & Analysis）</strong></td><td>解读模型输出，回答题目中的问题</td><td>正文的15%-20%</td></tr>
+  <tr><td>7</td><td><strong>模型评价与改进（Evaluation）</strong></td><td>客观分析模型的优缺点与改进方向</td><td>300-600字</td></tr>
+  <tr><td>8</td><td><strong>参考文献（References）</strong></td><td>列出引用的文献、数据来源</td><td>5-15条</td></tr>
+  <tr><td>9</td><td><strong>附录（Appendix）</strong></td><td>核心代码、详细数据表格</td><td>不限</td></tr>
+</table>
+
+<h3>5.2 摘要写法 <span class="tag-must">重中之重</span></h3>
+
+<div class="highlight">
+  <strong>摘要 = 论文的门面。评审第一眼就看摘要，摘要不好，正文再精彩也可能被埋没。</strong>
+</div>
+
+<div class="def-box">
+  <div class="def-title">摘要"四段式"黄金结构</div>
+  <p><strong>1. 背景（Background）</strong> — 1-2句话说明问题背景和研究意义<br>
+  <strong>2. 方法（Methods）</strong> — 简要描述使用的模型、算法和关键技术（2-3句话）<br>
+  <strong>3. 结果（Results）</strong> — 给出关键数值结果，这是摘要最有分量的部分（3-5句话）<br>
+  <strong>4. 结论（Conclusions）</strong> — 总结模型效果、创新点和实际价值（1-2句话）</p>
+</div>
+
+<div class="def-box">
+  <div class="def-title">摘要关键词</div>
+  <p>正文结束后列出3-5个关键词，帮助评审快速判断论文方向。关键词应涵盖：问题领域 + 核心模型 + 关键技术。</p>
+</div>
+
+<div class="highlight">
+  <strong>摘要写作禁忌：</strong><br>
+  - 不要写"我们将…"、"我们计划…"之类的未来时态——用过去时或现在时<br>
+  - 不要只描述做了什么而不写结果——没有数据的摘要是无效摘要<br>
+  - 不要过长或过短——控制在800-1000字<br>
+  - 不要把摘要写成目录或提纲<br>
+  - 不要出现图表引用（如"见图1"）
+</div>
+
+<h3>5.3 图表规范</h3>
+
+<table>
+  <tr><th>规范项</th><th>要求</th></tr>
+  <tr><td>分辨率</td><td>不低于300 DPI，确保打印清晰</td></tr>
+  <tr><td>标注</td><td>所有坐标轴必须有标签和单位，图例清晰可读</td></tr>
+  <tr><td>编号与标题</td><td>按出现顺序编号（图1、图2... 表1、表2...），标题在图表下方</td></tr>
+  <tr><td>配色</td><td>使用对比度高的配色方案，考虑灰度打印效果</td></tr>
+  <tr><td>风格统一</td><td>全文图表的字体、字号、线宽保持一致</td></tr>
+  <tr><td>引用</td><td>正文中必须引用每个图表，不可出现孤立的图表</td></tr>
+</table>
+
+<h3>5.4 常见写作错误</h3>
+
+<div class="def-box">
+  <div class="def-title">数学建模论文十大常见错误</div>
+  <ol>
+    <li><strong>摘要空洞无物</strong>：只有定性描述，没有定量结果</li>
+    <li><strong>模型描述模糊</strong>：读者看不清楚你到底用的是什么模型</li>
+    <li><strong>假设缺论证</strong>：列出假设但不说明为什么合理</li>
+    <li><strong>分析深度不够</strong>：只输出结果不做解读</li>
+    <li><strong>缺乏模型对比</strong>：没有说明为什么选这个模型而不是其他</li>
+    <li><strong>敏感性分析走过场</strong>：随意改变一两个参数就得出结论</li>
+    <li><strong>符号混乱</strong>：同一个变量在不同地方用不同符号表示</li>
+    <li><strong>图表质量低</strong>：截图模糊、颜色难辨、缺少标注</li>
+    <li><strong>忽略局限性</strong>：论文只讲优点，不讨论模型的缺陷和适用范围</li>
+    <li><strong>AI痕迹明显</strong>：大段文字风格割裂，措辞模板化</li>
+  </ol>
+</div>
+
+<h3>5.5 AI辅助论文写作</h3>
+
+<p>可以合理使用AI协助论文写作，但需注意方式方法：</p>
+
+<div class="highlight">
+  <strong>推荐用法：</strong><br>
+  - 将草稿段落发给AI，要求"保持原意但让表达更流畅、更学术"<br>
+  - 让AI检查摘要是否符合"背景-方法-结果-结论"结构<br>
+  - 请AI核对全文中数学符号的使用是否一致<br>
+  - 用AI检查是否存在语法和拼写错误（尤其是英文摘要）<br>
+  <strong>不推荐用法：</strong><br>
+  - 直接将整段AI生成的文字原封不动地粘贴到论文中<br>
+  - 使用明显带有ChatGPT风格的模板化表达（如大量使用"Furthermore"、"In conclusion"等连接词堆砌）<br>
+  - 让AI完全代写任何章节
+</div>
+</div>
+
+<!-- 6. 自查练习 -->
+<div class="section">
+<h2>六、自查练习</h2>
+
+<div class="checkpoint">
+  <ol>
+    <li>CUMCM关于AI使用的核心原则是什么？三条具体规则分别是什么？如果未使用AI应该如何声明？</li>
+    <li>简述四阶段提示工程框架中每个阶段的核心任务和AI的角色。为什么必须迭代而非一次性提问？</li>
+    <li>AI在数学建模中有哪些局限性？在实际竞赛中，对AI输出应该遵循什么"黄金法则"？</li>
+    <li>三人团队中建模手、编程手、写作手各自的AI使用重点是什么？三天（74小时）竞赛时间应该如何分配？</li>
+    <li>一篇优秀的数学建模论文摘要应该包含哪些要素？列出数学建模论文中的十个常见写作错误。</li>
+  </ol>
+</div>
+</div>
+
+<!-- Bottom Nav -->
+<div class="nav-links">
+  <a href="线性回归.html">← 线性回归</a>
+  <a href="index.html">⌂ 首页</a>
+  <a href="index.html">返回首页 →</a>
+</div>
+
+</div><!-- .container -->
+
+<div class="footer"><p>📐 数学建模方法与算法 · 复习系统 &copy; 2026 Jacky</p></div>
+</div><!-- .main-wrap -->
+
+<!-- Back to Top -->
+<button class="back2top" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="回到顶部">↑</button>
+
+<!-- Chapter Nav Toggle + Panel -->
+<button class="chapter-nav-toggle" onclick="toggleChapterNav()" title="章节导航">📖 章节导航</button>
+<div class="chapter-nav-panel" id="chapterNav">
+  <div class="nav-header">📐 目录导航</div>
+  <div class="nav-section">核心方法</div>
+  <a href="插值与拟合.html"><span class="num">1</span>插值与拟合</a>
+  <a href="蒙特卡洛.html"><span class="num">2</span>蒙特卡洛方法</a>
+  <a href="线性回归.html"><span class="num">3</span>线性回归</a>
+  <div class="nav-section">综合专题</div>
+  <a href="AI与建模.html"><span class="num">4</span>AI与数学建模</a>
+  <a href="index.html" style="border-top:1px solid var(--sidebar-border);margin-top:6px;padding-top:10px"><span class="num">⌂</span>返回首页</a>
+</div>
+
+<!-- ===== JavaScript ===== -->
+<script>
+// Sidebar current-page highlight
+(function(){
+  var p = window.location.pathname.split('/').pop() || 'AI与建模.html';
+  document.querySelectorAll('.sidebar-nav a').forEach(function(a){
+    if(a.getAttribute('href') === p) a.classList.add('current');
+  });
+})();
+
+// Theme toggle
+(function(){
+  var d = localStorage.getItem('mathmodel-theme');
+  if(d === 'dark'){
+    document.body.classList.add('dark-mode');
+    document.querySelector('.theme-toggle').textContent = '☀️';
+  }
+})();
+function toggleTheme(){
+  var b = document.body; b.classList.toggle('dark-mode');
+  var btn = document.querySelector('.theme-toggle');
+  var isDark = b.classList.contains('dark-mode');
+  btn.textContent = isDark ? '☀️' : '🌙';
+  localStorage.setItem('mathmodel-theme', isDark ? 'dark' : 'light');
+}
+
+// Chapter nav panel
+function toggleChapterNav(){
+  var panel = document.getElementById('chapterNav');
+  panel.classList.toggle('open');
+}
+document.addEventListener('click', function(e){
+  var panel = document.getElementById('chapterNav');
+  var btn = document.querySelector('.chapter-nav-toggle');
+  if(panel && panel.classList.contains('open') && !panel.contains(e.target) && !btn.contains(e.target)){
+    panel.classList.remove('open');
+  }
+});
+document.addEventListener('DOMContentLoaded', function(){
+  var path = window.location.pathname.split('/').pop() || 'AI与建模.html';
+  var panel = document.getElementById('chapterNav');
+  if(!panel) return;
+  panel.querySelectorAll('a').forEach(function(a){
+    if(a.getAttribute('href') === path) a.classList.add('current');
+  });
+});
+</script>
+
+</body>
+</html>
