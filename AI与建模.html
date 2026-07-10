@@ -7,6 +7,10 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <title>AI与数学建模 — 数学建模复习系统</title>
+<script>
+MathJax = { tex: { inlineMath: [['$','$'],['\\(','\\)']], displayMath: [['$$','$$'],['\\[','\\]']], processEscapes: true } };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" async></script>
 <style>
 /* ===== CSS Variables ===== */
 :root {
@@ -113,7 +117,8 @@ td{background:var(--card-bg)}
 .def-box{background:var(--code-bg);border:1px solid var(--card-border);border-radius:6px;padding:14px 18px;margin:12px 0}
 .def-box .def-title{font-weight:700;color:var(--accent);margin-bottom:4px;font-size:.92em}
 
-.formula{text-align:center;background:var(--code-bg);padding:12px 20px;margin:14px 0;border-radius:6px;font-family:"Cascadia Code","Consolas","Courier New",monospace;font-size:1em;color:var(--ink)}
+.formula{text-align:center;background:var(--code-bg);padding:12px 20px;margin:14px 0;border-radius:6px}
+mjx-container[display="true"]{max-width:100%;overflow-x:auto;overflow-y:hidden}
 
 .code-block{background:var(--code-bg);border:1px solid var(--card-border);border-radius:6px;padding:16px 20px;margin:12px 0;overflow-x:auto;font-family:"Cascadia Code","Consolas","Courier New",monospace;font-size:.88em;line-height:1.65;color:var(--ink);white-space:pre}
 .code-block .kw{color:#82502e;font-weight:600}

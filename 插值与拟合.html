@@ -7,6 +7,10 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <title>插值与拟合 — 数学建模复习系统</title>
+<script>
+MathJax = { tex: { inlineMath: [['$','$'],['\\(','\\)']], displayMath: [['$$','$$'],['\\[','\\]']], processEscapes: true } };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" async></script>
 <style>
 /* ===== CSS Variables ===== */
 :root {
@@ -113,7 +117,8 @@ td{background:var(--card-bg)}
 .def-box{background:var(--code-bg);border:1px solid var(--card-border);border-radius:6px;padding:14px 18px;margin:12px 0}
 .def-box .def-title{font-weight:700;color:var(--accent);margin-bottom:4px;font-size:.92em}
 
-.formula{text-align:center;background:var(--code-bg);padding:12px 20px;margin:14px 0;border-radius:6px;font-family:"Cascadia Code","Consolas","Courier New",monospace;font-size:1em;color:var(--ink)}
+.formula{text-align:center;background:var(--code-bg);padding:12px 20px;margin:14px 0;border-radius:6px}
+mjx-container[display="true"]{max-width:100%;overflow-x:auto;overflow-y:hidden}
 
 .code-block{background:var(--code-bg);border:1px solid var(--card-border);border-radius:6px;padding:16px 20px;margin:12px 0;overflow-x:auto;font-family:"Cascadia Code","Consolas","Courier New",monospace;font-size:.88em;line-height:1.65;color:var(--ink);white-space:pre}
 .code-block .kw{color:#82502e;font-weight:600}
@@ -332,7 +337,7 @@ td{background:var(--card-bg)}
 </div>
 
 <h3>2.3 Lagrange 插值公式</h3>
-<div class="formula">L(x) = Σ y<sub>k</sub> · l<sub>k</sub>(x)，其中 l<sub>k</sub>(x) = Π (x - x<sub>j</sub>) / (x<sub>k</sub> - x<sub>j</sub>)，j ≠ k</div>
+$$L(x) = \sum y_k \cdot l_k(x)，\text{其中 } l_k(x) = \prod_{j \neq k} \frac{x - x_j}{x_k - x_j}$$
 
 <div class="code-block"><span class="co">% lagrange.m — 自定义 Lagrange 插值函数</span>
 <span class="kw">function</span> y = lagrange(x0, y0, x)
@@ -456,7 +461,7 @@ z = <span class="fn">griddata</span>(x, y, h, x0', y0, <span class="str">'cubic'
 
 <h3>5.1 最小二乘法原理</h3>
 <p><strong>最小二乘法</strong>的目标是找到函数 <code>f(x)</code>，使所有数据点的残差平方和最小：</p>
-<div class="formula">min Σ [y<sub>i</sub> - f(x<sub>i</sub>)]²</div>
+$$\min \sum [y_i - f(x_i)]^2$$
 
 <div class="highlight">
   <strong>与插值的区别：</strong>拟合不要求曲线经过已知点，而是追求整体趋势的最佳逼近。数据含噪声或测量误差时，拟合优于插值。
@@ -489,8 +494,8 @@ z3 = <span class="fn">polyval</span>(a3, x);
 
 <h3>5.3 超定方程组求解</h3>
 <p>多项式拟合也可以用超定方程组直接求解：</p>
-<div class="formula">A = [x<sup>n</sup> ... x 1]，系数 = A \ y</div>
-<p>即求解 <code>β = (AᵀA)⁻¹Aᵀy</code>，MATLAB 中直接使用反斜杠运算符 <code>A \ y</code>。</p>
+$$A = [x^n \dots x \ 1]，\text{系数} = A \backslash y$$
+<p>即求解 $\beta = (A^T A)^{-1} A^T y$，MATLAB 中直接使用反斜杠运算符 <code>A \ y</code>。</p>
 
 <h3>5.4 非线性拟合 <span class="tag-key">重点</span></h3>
 
