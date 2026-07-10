@@ -42,6 +42,8 @@ var CSS =
 '#ai-panel .msgs .m.a code{font-family:"Cascadia Code","JetBrains Mono","Consolas",monospace;font-size:.85em;background:rgba(0,0,0,.08);padding:1px 5px;border-radius:3px}'+
 '#ai-panel .msgs .m.a ul{margin:4px 0;padding-left:18px}'+
 '#ai-panel .msgs .m.a li{margin:2px 0}'+
+'#ai-panel .msgs .m.a blockquote{border-left:3px solid var(--accent,#2d7fc1);margin:6px 0;padding:4px 10px;font-size:.9em;opacity:.85}'+
+'#ai-panel .msgs .m.a hr{border:none;border-top:1px solid var(--divider,#d9c9a0);margin:8px 0}'+
 '#ai-panel .msgs .typing{color:var(--ink-light);font-size:.8em;padding:4px 2px;font-style:italic}'+
 '#ai-panel .inp{display:flex;gap:6px;padding:10px 14px;border-top:1px solid var(--divider,#d9c9a0);flex-shrink:0}'+
 '#ai-panel .inp textarea{flex:1;padding:8px 10px;border:1px solid var(--card-border,#e5d5b5);border-radius:6px;resize:none;font-size:.85em;line-height:1.5;background:var(--card-bg,#fef9ee);color:var(--ink,#3d3525);outline:none;max-height:80px;font-family:inherit}'+
@@ -147,24 +149,32 @@ function addMsg(role, text){
 }
 
 function renderMD(t){
-  // Escape HTML first (except what we'll generate)
-  t = t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  // Code blocks: ```...```
-  t = t.replace(/```(\w*)\n?([\s\S]*?)```/g, function(_,lang,code){
-    return '<pre><code>' + code.replace(/\n$/,'') + '</code></pre>';
+  // 1) Save code blocks before escaping
+  var blocks = [];
+  t = t.replace(/```(\w*)\n([\s\S]*?)```/g, function(_,lang,code){
+    var escaped = code.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    blocks.push('<pre><code>' + escaped.replace(/\n$/,'') + '</code></pre>');
+    return '\x00B' + (blocks.length-1) + '\x00';
   });
-  // Inline code: `...`
+  // 2) Escape HTML in the rest
+  t = t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  // 3) Inline code
   t = t.replace(/`([^`]+)`/g, '<code>$1</code>');
-  // Bold: **...**
+  // 4) Bold
   t = t.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-  // Headings: ### ...
+  // 5) Headings
   t = t.replace(/^### (.+)$/gm, '<h4>$1</h4>');
   t = t.replace(/^## (.+)$/gm, '<h3>$1</h3>');
-  // Unordered list items: - ...
+  // 6) Blockquote
+  t = t.replace(/^&gt; (.+)$/gm, '<blockquote>$1</blockquote>');
+  // 7) HR
+  t = t.replace(/^---$/gm, '<hr>');
+  // 8) List items
   t = t.replace(/^- (.+)$/gm, '<li>$1</li>');
-  t = t.replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>');
-  // Line breaks
+  // 9) Line breaks
   t = t.replace(/\n/g,'<br>');
+  // 10) Restore code blocks
+  t = t.replace(/\x00B(\d+)\x00/g, function(_,i){ return blocks[parseInt(i)]; });
   return t;
 }
 
@@ -205,13 +215,19 @@ function doSend(){
     var msgEl = document.createElement('div');
     msgEl.className = 'm a'; msgs.appendChild(msgEl);
     msgs.scrollTop = msgs.scrollHeight;
+    var rawText = '';
 
     var reader = res.body.getReader();
     var decoder = new TextDecoder();
     var buf = '';
     function read(){
       reader.read().then(function(r){
-        if(r.done){ busy=false; send.disabled=false; return; }
+        if(r.done){
+          // Stream done — render accumulated text
+          msgEl.innerHTML = renderMD(rawText);
+          msgs.scrollTop = msgs.scrollHeight;
+          busy=false; send.disabled=false; return;
+        }
         buf += decoder.decode(r.value, {stream:true});
         var lines = buf.split('\n'); buf = lines.pop() || '';
         for(var i=0; i<lines.length; i++){
@@ -222,12 +238,17 @@ function doSend(){
           try{
             var j = JSON.parse(d);
             var c = j.choices&&j.choices[0]&&j.choices[0].delta&&j.choices[0].delta.content;
-            if(c){ msgEl.textContent += c; msgs.scrollTop = msgs.scrollHeight; }
+            if(c){
+              rawText += c;
+              // Show raw text during streaming (no markdown yet — avoids broken partial render)
+              msgEl.textContent = rawText;
+              msgs.scrollTop = msgs.scrollHeight;
+            }
           }catch(e){}
         }
         read();
       }).catch(function(e){
-        if(!msgEl.textContent) msgEl.textContent = '⚠️ 读取中断: '+e.message;
+        if(!rawText) msgEl.innerHTML = '⚠️ 读取中断: '+e.message;
         busy=false; send.disabled=false;
       });
     }
