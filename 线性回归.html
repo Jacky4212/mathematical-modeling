@@ -607,7 +607,6 @@ VIFⱼ = 1 / (1 − Rⱼ²)
     <span class="kw">for</span> j = <span class="num">1</span>:p
         X_j = X(:, j);
         X_other = X(:, [<span class="num">1</span>:j-<span class="num">1</span>, j+<span class="num">1</span>:p]);
-        R2 = <span class="fn">corrcoef</span>([X_j, X_other]);
         <span class="co">% 计算 R_j^2: 以 X_j 为因变量回归</span>
         mdl = <span class="fn">fitlm</span>(X_other, X_j);
         R2_j = mdl.Rsquared.Ordinary;
@@ -807,21 +806,6 @@ x0 = [<span class="num">2.874</span>, <span class="num">3.278</span>, <span clas
   <tr><td>新陈代谢 GM(1,1)</td><td>不断加入新数据、移除旧数据，动态建模</td></tr>
   <tr><td>灰色 Verhulst 模型</td><td>S 型曲线，适合饱和增长（替代 Logistic）</td></tr>
 </table>
-</div>
-
-<!-- 7. 自查练习 -->
-<div class="section">
-<h2>七、自查练习</h2>
-
-<div class="checkpoint">
-  <ol>
-    <li>如果回归模型的自变量高度相关（多重共线性），会发生什么问题？有哪些检测方法（至少说出两种）？如何修复？</li>
-    <li>什么情况下应该使用 Logistic 回归而不是线性回归？Logistic 回归的参数估计方法与线性回归有何本质区别？</li>
-    <li>R² 和调整 R² 的本质区别是什么？为什么在多元回归中调整 R² 比 R² 更适合做模型选择？</li>
-    <li>逐步回归为什么存在争议？有哪些更可靠的替代方法？</li>
-    <li>灰色预测 GM(1,1) 的核心假设是什么（数据应满足什么特征）？它在什么情况下会失效？</li>
-  </ol>
-</div>
 </div>
 
 <!-- Bottom Nav -->

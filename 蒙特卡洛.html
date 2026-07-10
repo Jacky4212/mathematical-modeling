@@ -234,7 +234,7 @@ td{background:var(--card-bg)}
   <div class="def-title">大数定律 (Law of Large Numbers)</div>
   <p>设 <code>X₁, X₂, ..., X<sub>N</sub></code> 是独立同分布的随机变量，期望 <code>E[Xi] = μ</code>，则当样本数 N → ∞ 时：</p>
   <div class="formula" style="text-align:left;padding-left:20px">(1/N) Σ Xᵢ → μ （依概率收敛）</div>
-  <p style="margin-top:4px"><strong>含义：</strong>样本均值随着样本量的增加必然趋近于真实期望值，这保证了 MC 方法的<strong>收敛性</strong>（一致性）。</p>
+  <p style="margin-top:4px"><strong>含义：</strong>样本均值随着样本量的增加依概率收敛到真实期望值（弱大数定律），这保证了 MC 方法的<strong>一致性</strong>。</p>
 </div>
 
 <div class="def-box">
@@ -279,7 +279,7 @@ td{background:var(--card-bg)}
 
 <h3>1.5 误差与收敛性深入分析</h3>
 
-<div class="formula">ε ≈ σ / √N，其中 σ 为被积函数的标准差</div>
+<div class="formula">ε ≈ σ / √N，其中 σ = √Var[f(X)]，X 服从采样分布</div>
 
 <p>MC 误差有以下关键性质：</p>
 <ul>
@@ -295,7 +295,7 @@ td{background:var(--card-bg)}
   <tr><td>0.1% (0.001)</td><td>~1,000,000</td></tr>
   <tr><td>0.01% (0.0001)</td><td>~100,000,000</td></tr>
 </table>
-<p style="font-size:.85em;color:var(--ink-light)">表中清晰体现了 MC 的 "平方根瓶颈"：精度提高 10 倍需要 100 倍的样本量。</p>
+<p style="font-size:.85em;color:var(--ink-light)">表中给出的是标准误 σ/√N 的近似值，95% 置信区间半宽约为 1.96σ/√N。可清晰看出 MC 的 "平方根瓶颈"：精度提高 10 倍需要 100 倍的样本量。</p>
 </div>
 
 <!-- 2. MC积分 -->
@@ -349,7 +349,7 @@ area_est = <span class="num">4</span> * count / N;            <span class="co">%
   <tr><th>方法</th><th>一维误差阶</th><th>d 维误差阶</th><th>d=10, N=10⁶ 时误差</th></tr>
   <tr><td><strong>Monte Carlo</strong></td><td>O(N⁻¹/²)</td><td>O(N⁻¹/²)</td><td>~10⁻³</td></tr>
   <tr><td><strong>梯形法则</strong></td><td>O(N⁻²)</td><td>O(N⁻²/d)</td><td>~10⁻¹.² ≈ 0.06</td></tr>
-  <tr><td><strong>Simpson 法则</strong></td><td>O(N⁻⁴)</td><td>O(N⁻⁴/d)</td><td>~10⁻⁰.⁴ ≈ 0.4</td></tr>
+  <tr><td><strong>Simpson 法则</strong></td><td>O(N⁻⁴)</td><td>O(N⁻⁴/d)</td><td>~10⁻²·⁴ ≈ 0.004</td></tr>
   <tr><td><strong>Gauss 求积</strong></td><td>指数收敛</td><td>随 d 急剧恶化</td><td>需 ≈10ᵈ 个节点</td></tr>
 </table>
 
@@ -363,9 +363,9 @@ area_est = <span class="num">4</span> * count / N;            <span class="co">%
   <tr><th>技术</th><th>原理</th><th>适用场景</th></tr>
   <tr><td><strong>重要性采样</strong></td><td>在被积函数大的区域以更高概率采样</td><td>被积函数有尖峰或奇点</td></tr>
   <tr><td><strong>控制变量法</strong></td><td>减去一个已知积分值且与原函数相关的函数</td><td>存在已知解析积分的近似函数</td></tr>
-  <tr><td><strong>对偶变量法</strong></td><td>利用配对负相关样本抵消部分方差</td><td>被积函数单调时效果显著</td></tr>
+  <tr><td><strong>对偶变量法</strong></td><td>利用配对负相关样本抵消部分方差</td><td>被积函数在采样区间上单调时，理想情况下方差可减半</td></tr>
   <tr><td><strong>分层采样</strong></td><td>将定义域分层，每层分别采样保证覆盖均匀</td><td>区域可自然分层时</td></tr>
-  <tr><td><strong>拟蒙特卡洛 (QMC)</strong></td><td>用低差异序列（Halton、Sobol）替代伪随机数</td><td>一般情况，收敛速率可提升至 O(lnᵈN / N)</td></tr>
+  <tr><td><strong>拟蒙特卡洛 (QMC)</strong></td><td>用低差异序列（Halton、Sobol）替代伪随机数</td><td>理论收敛速率约 O((ln N)ᵈ / N)，但在极高维时 lnᵈN 因子可能抵消优势</td></tr>
 </table>
 </div>
 
@@ -565,22 +565,6 @@ volume = <span class="num">2</span>*R * <span class="num">2</span>*R * L * <span
   <tr><td><strong>排队论/库存论</strong></td><td>模拟顾客到达、服务时间、库存消耗等随机过程</td><td>离散事件模拟 (DES)</td></tr>
   <tr><td><strong>可靠性分析</strong></td><td>估计复杂系统的故障概率（罕见事件采样）</td><td>重要采样 (Importance Sampling)</td></tr>
 </table>
-</div>
-
-<!-- 5. 自查练习 -->
-<div class="section">
-<h2>五、自查练习</h2>
-
-<div class="checkpoint">
-  <ol>
-    <li><strong>为什么 MC 误差按 1/√N 减小？</strong>这个衰减速率来自中心极限定理的哪一部分？将样本量增加 100 倍，精度大约提高多少？</li>
-    <li><strong>MC 方法最适合哪类问题？</strong>至少列举三个典型应用场景，并解释为什么确定性格点法在这些场景下失效。</li>
-    <li><strong>如何用 MC 估计一个 10 维空间中的积分？</strong>写出完整步骤，并对比与 Simpson 法则在该场景下的效率差异。</li>
-    <li><strong>在中子屏蔽模拟中，</strong>如果某一层的穿透概率很低（如 P = 0.05），MC 模拟会出现什么问题？可以用什么减方差技术来改善？</li>
-    <li><strong>储油罐标定问题中，</strong>MC 方法比解析推导有哪些优势和劣势？在竞赛时间有限的情况下如何权衡？</li>
-    <li><strong>拟蒙特卡洛 (QMC) 与普通 MC 的根本区别是什么？</strong>什么场景下 QMC 能显著优于 MC？</li>
-  </ol>
-</div>
 </div>
 
 <!-- Bottom Nav -->

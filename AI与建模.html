@@ -259,6 +259,7 @@ td{background:var(--card-bg)}
     <li><strong>队员对AI输出的修改与采纳说明</strong> — 说明哪些部分被采用、哪些被修改、如何修改</li>
     <li><strong>使用的阶段与目的</strong> — 注明在建模的哪个阶段、出于什么目的使用了AI</li>
   </ul>
+  <p style="margin-top:8px"><strong>⚠️ 注意：</strong>AI 工具同时须在论文正文<strong>参考文献</strong>中以指定格式列出：<code>[编号] 工具名称，版本/型号，开发机构/公司，使用日期</code>。AI 使用文件应命名为 <strong>"AI工具使用详情"</strong>（PDF格式）。</p>
 </div>
 
 <h3>1.4 竞赛允许使用的AI工具</h3>
@@ -386,7 +387,10 @@ td{background:var(--card-bg)}
    根据数据特征推荐合适方法）
 4. 特征工程建议：是否需要构造组合特征、
    多项式特征、对数变换？
-5. 如果需要降维，推荐PCA还是t-SNE？为什么？
+5. 如果需要降维，推荐PCA用于特征提取与建模；
+   如果仅做可视化探索，可考虑t-SNE或UMAP。
+   （注意：t-SNE不可用于模型输入，仅用于可视化）
+   分别说明理由。
 
 代码要求：有详细注释，每个步骤输出中间结果
 便于检查。</div>
@@ -553,7 +557,7 @@ td{background:var(--card-bg)}
 </table>
 
 <div class="highlight">
-  <strong>时间管理要点：</strong>比赛共74小时（不含提交时间），<strong>前48小时必须完成模型求解</strong>，留足24-26小时给论文撰写和修改。第一天的模型选择至关重要，选错模型后期很难弥补。A/B题至少留1小时讨论后再做决定。
+  <strong>时间管理要点：</strong>比赛共74小时（含提交时间），<strong>前48小时必须完成模型求解</strong>，留足24-26小时给论文撰写和修改。第一天的模型选择至关重要，选错模型后期很难弥补。A/B/C题（本科组）至少留1小时讨论后再做决定。
 </div>
 
 <h3>4.4 赛前准备清单</h3>
@@ -588,14 +592,14 @@ td{background:var(--card-bg)}
 
 <table>
   <tr><th>序号</th><th>部分</th><th>核心功能</th><th>篇幅建议</th></tr>
-  <tr><td>1</td><td><strong>摘要（Abstract）</strong></td><td>全文缩影，决定评审第一印象</td><td>800-1000字</td></tr>
+  <tr><td>1</td><td><strong>摘要（Abstract）</strong></td><td>全文缩影，决定评审第一印象</td><td>控制在一页以内（约500-700字）</td></tr>
   <tr><td>2</td><td><strong>问题重述（Problem Restatement）</strong></td><td>用自己的话解释题目，展示理解深度</td><td>300-500字</td></tr>
   <tr><td>3</td><td><strong>模型假设（Assumptions）</strong></td><td>列出建模的前提条件，说明合理性</td><td>200-400字</td></tr>
   <tr><td>4</td><td><strong>符号说明（Notation）</strong></td><td>统一定义全文中使用的数学符号</td><td>表格形式</td></tr>
   <tr><td>5</td><td><strong>模型建立与求解（Model & Solution）</strong></td><td>论文核心，展示建模过程与结果</td><td>正文的50%-60%</td></tr>
   <tr><td>6</td><td><strong>结果分析（Results & Analysis）</strong></td><td>解读模型输出，回答题目中的问题</td><td>正文的15%-20%</td></tr>
   <tr><td>7</td><td><strong>模型评价与改进（Evaluation）</strong></td><td>客观分析模型的优缺点与改进方向</td><td>300-600字</td></tr>
-  <tr><td>8</td><td><strong>参考文献（References）</strong></td><td>列出引用的文献、数据来源</td><td>5-15条</td></tr>
+  <tr><td>8</td><td><strong>参考文献（References）</strong></td><td>列出引用的文献、数据来源</td><td>建议5-15条（非硬性要求）</td></tr>
   <tr><td>9</td><td><strong>附录（Appendix）</strong></td><td>核心代码、详细数据表格</td><td>不限</td></tr>
 </table>
 
@@ -633,7 +637,7 @@ td{background:var(--card-bg)}
   <tr><th>规范项</th><th>要求</th></tr>
   <tr><td>分辨率</td><td>不低于300 DPI，确保打印清晰</td></tr>
   <tr><td>标注</td><td>所有坐标轴必须有标签和单位，图例清晰可读</td></tr>
-  <tr><td>编号与标题</td><td>按出现顺序编号（图1、图2... 表1、表2...），标题在图表下方</td></tr>
+  <tr><td>编号与标题</td><td>按出现顺序编号（图1、图2... 表1、表2...），表标题在表上方，图标题在图下方</td></tr>
   <tr><td>配色</td><td>使用对比度高的配色方案，考虑灰度打印效果</td></tr>
   <tr><td>风格统一</td><td>全文图表的字体、字号、线宽保持一致</td></tr>
   <tr><td>引用</td><td>正文中必须引用每个图表，不可出现孤立的图表</td></tr>
@@ -671,21 +675,6 @@ td{background:var(--card-bg)}
   - 直接将整段AI生成的文字原封不动地粘贴到论文中<br>
   - 使用明显带有ChatGPT风格的模板化表达（如大量使用"Furthermore"、"In conclusion"等连接词堆砌）<br>
   - 让AI完全代写任何章节
-</div>
-</div>
-
-<!-- 6. 自查练习 -->
-<div class="section">
-<h2>六、自查练习</h2>
-
-<div class="checkpoint">
-  <ol>
-    <li>CUMCM关于AI使用的核心原则是什么？三条具体规则分别是什么？如果未使用AI应该如何声明？</li>
-    <li>简述四阶段提示工程框架中每个阶段的核心任务和AI的角色。为什么必须迭代而非一次性提问？</li>
-    <li>AI在数学建模中有哪些局限性？在实际竞赛中，对AI输出应该遵循什么"黄金法则"？</li>
-    <li>三人团队中建模手、编程手、写作手各自的AI使用重点是什么？三天（74小时）竞赛时间应该如何分配？</li>
-    <li>一篇优秀的数学建模论文摘要应该包含哪些要素？列出数学建模论文中的十个常见写作错误。</li>
-  </ol>
 </div>
 </div>
 
