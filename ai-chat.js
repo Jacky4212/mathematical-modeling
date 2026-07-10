@@ -1,16 +1,15 @@
 /**
- * AI Chat Assistant — 数学建模复习系统
- * Fixed panel on right side, API-key based, with embedded site knowledge base.
+ * AI Chat Logic — 数学建模复习系统
+ * Panel HTML/CSS is embedded directly in each page. This script handles chat API logic only.
  */
 (function(){
 'use strict';
 
 // ========== CONFIG ==========
-var PANEL_WIDTH = 340;
 var DEFAULT_MODEL = 'gpt-4o';
 var DEFAULT_BASE  = 'https://api.openai.com/v1';
 
-// ========== KNOWLEDGE BASE (系统提示词) ==========
+// ========== KNOWLEDGE BASE ==========
 var SYSTEM_PROMPT =
 '你是「数学建模复习系统」的AI助教，专门辅导大学生准备数学建模竞赛（国赛CUMCM/美赛MCM）。' +
 '你已完整学习了本网站的全部知识点，请基于这些内容回答用户问题。\n\n' +
@@ -68,173 +67,59 @@ var SYSTEM_PROMPT =
 '4. 回答简洁有条理，适合竞赛备考场景。\n' +
 '5. 如果用户询问代码，给出MATLAB或Python可运行示例。';
 
-// ========== CSS INJECTION ==========
-var CSS = [
-'#ai-chat-toggle{transition:right .35s cubic-bezier(.4,0,.2,1)}',
-'#ai-chat-toggle:hover{opacity:1!important;box-shadow:-4px 0 16px rgba(0,0,0,.3)!important}',
-'#ai-chat-toggle.active{right:'+PANEL_WIDTH+'px!important}',
-'#ai-chat-panel{position:fixed;right:-'+(PANEL_WIDTH+10)+'px;top:0;width:'+PANEL_WIDTH+'px;height:100vh;',
-  'z-index:140;background:var(--card-bg,#fef9ee);border-left:1px solid var(--card-border,#e5d5b5);',
-  'display:flex;flex-direction:column;transition:right .35s cubic-bezier(.4,0,.2,1);',
-  'box-shadow:-4px 0 24px rgba(0,0,0,.1)}',
-'#ai-chat-panel.open{right:0}',
-'#ai-chat-panel .chat-header{display:flex;align-items:center;justify-content:space-between;',
-  'padding:14px 16px;border-bottom:1px solid var(--card-border,#e5d5b5);',
-  'background:linear-gradient(135deg,#1a3a5c,var(--accent,#2d7fc1));color:#fff;flex-shrink:0}',
-'#ai-chat-panel .chat-header .title{font-size:.95em;font-weight:700}',
-'#ai-chat-panel .chat-header .close-btn{background:none;border:none;color:#fff;font-size:1.3em;',
-  'cursor:pointer;padding:0 4px;line-height:1;opacity:.8;transition:opacity .15s}',
-'#ai-chat-panel .chat-header .close-btn:hover{opacity:1}',
-'#ai-chat-panel .chat-settings{padding:10px 14px;border-bottom:1px solid var(--divider,#d9c9a0);flex-shrink:0;',
-  'font-size:.78em;background:var(--paper-dark,#f3e8d0)}',
-'#ai-chat-panel .chat-settings input,#ai-chat-panel .chat-settings select{width:100%;margin:3px 0 6px;',
-  'padding:6px 8px;border:1px solid var(--card-border,#e5d5b5);border-radius:4px;',
-  'font-size:.85em;background:var(--card-bg,#fef9ee);color:var(--ink,#3d3525);outline:none}',
-'#ai-chat-panel .chat-settings label{font-weight:600;color:var(--ink-light,#6b5f48)}',
-'#ai-chat-panel .chat-settings .save-btn{padding:6px 14px;background:var(--accent,#2d7fc1);color:#fff;',
-  'border:none;border-radius:4px;cursor:pointer;font-size:.82em;font-weight:600;transition:opacity .15s}',
-'#ai-chat-panel .chat-settings .save-btn:hover{opacity:.85}',
-'#ai-chat-panel .chat-settings .row{display:flex;gap:8px;align-items:center}',
-'#ai-chat-panel .chat-msgs{flex:1;overflow-y:auto;padding:12px 14px;display:flex;flex-direction:column;gap:10px}',
-'#ai-chat-panel .chat-msgs .msg{max-width:92%;padding:8px 12px;border-radius:8px;font-size:.85em;',
-  'line-height:1.6;word-break:break-word;animation:fadeIn .2s ease}',
-'@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}',
-'#ai-chat-panel .chat-msgs .msg.user{align-self:flex-end;background:var(--accent,#2d7fc1);color:#fff}',
-'#ai-chat-panel .chat-msgs .msg.assistant{align-self:flex-start;background:var(--code-bg,#ede0c5);',
-  'color:var(--ink,#3d3525)}',
-'#ai-chat-panel .chat-msgs .msg.assistant p{margin:4px 0}',
-'#ai-chat-panel .chat-input-wrap{display:flex;gap:6px;padding:10px 14px;border-top:1px solid var(--divider,#d9c9a0);',
-  'flex-shrink:0}',
-'#ai-chat-panel .chat-input-wrap textarea{flex:1;padding:8px 10px;border:1px solid var(--card-border,#e5d5b5);',
-  'border-radius:6px;resize:none;font-size:.85em;line-height:1.5;outline:none;',
-  'background:var(--card-bg,#fef9ee);color:var(--ink,#3d3525);max-height:80px}',
-'#ai-chat-panel .chat-input-wrap button{padding:8px 14px;background:var(--accent,#2d7fc1);color:#fff;',
-  'border:none;border-radius:6px;cursor:pointer;font-weight:600;font-size:.85em;transition:opacity .15s;',
-  'align-self:flex-end;white-space:nowrap}',
-'#ai-chat-panel .chat-input-wrap button:hover{opacity:.85}',
-'#ai-chat-panel .chat-input-wrap button:disabled{opacity:.5;cursor:not-allowed}',
-'#ai-chat-panel .typing{color:var(--ink-light,#6b5f48);font-size:.8em;padding:4px 12px;font-style:italic}',
-'@media print{#ai-chat-toggle,#ai-chat-panel{display:none}}',
-'@media(max-width:768px){#ai-chat-toggle{top:auto;bottom:80px}#ai-chat-panel{width:100vw;right:-110vw}',
-  '#ai-chat-panel.open{right:0}}',
-'body.ai-chat-open .main-wrap{margin-right:'+PANEL_WIDTH+'px}',
-'@media(max-width:768px){body.ai-chat-open .main-wrap{margin-right:0}}'
-].join('\n');
-
-// ========== HTML INJECTION ==========
-var HTML = [
-'<div id="ai-chat-panel">',
-'  <div class="chat-header">',
-'    <span class="title">🤖 AI 学习助手</span>',
-'    <button class="close-btn" id="chat-close">×</button>',
-'  </div>',
-'  <div class="chat-settings" id="chat-settings">',
-'    <label>API Key <span style="font-weight:400;font-size:.85em;color:var(--ink-light)">🔒 仅存你本地</span></label>',
-'    <input type="password" id="api-key" placeholder="sk-...">',
-'    <label>Base URL <span style="font-weight:400;font-size:.9em">(默认 OpenAI)</span></label>',
-'    <input type="text" id="api-base" placeholder="'+DEFAULT_BASE+'">',
-'    <div class="row">',
-'      <input type="text" id="api-model" placeholder="模型: '+DEFAULT_MODEL+'" style="flex:1;margin:3px 0">',
-'      '<button class="save-btn" id="save-config">保存</button>',
-'      <button class="save-btn" id="clear-config" style="background:#888">清除</button>',
-'    </div>',
-'    <p style="margin:6px 0 0;font-size:.75em;color:var(--ink-light)">',
-'    🔒 Key仅保存在你浏览器本地，其他用户看不到也无法使用。</p>',
-'  </div>',
-'  <div class="chat-msgs" id="chat-msgs">',
-'    <div class="msg assistant">👋 你好！我是数学建模AI助教，已学习本网站全部知识点（插值与拟合、蒙特卡洛、线性回归、AI与建模竞赛策略）。<br><br>请先输入你的 API Key 并保存，然后开始提问。</div>',
-'  </div>',
-'  <div class="chat-input-wrap">',
-'    <textarea id="chat-input" rows="1" placeholder="输入问题，回车发送..." onkeydown="if(event.key===\'Enter\'&&!event.shiftKey){event.preventDefault();document.getElementById(\'chat-send\').click()}"></textarea>',
-'    '<button id="chat-send">发送</button>',
-'  </div>',
-'</div>'
-].join('\n');
-
-// ========== DOM INIT ==========
-var styleEl = document.createElement('style');
-styleEl.textContent = CSS;
-document.head.appendChild(styleEl);
-
-var div = document.createElement('div');
-div.innerHTML = HTML;
-document.body.appendChild(div);
-
 // ========== STATE ==========
-var isOpen = false;
 var isBusy = false;
 var apiKey  = localStorage.getItem('ai-chat-key')  || '';
 var apiBase = localStorage.getItem('ai-chat-base') || '';
 var apiModel= localStorage.getItem('ai-chat-model')|| '';
 
 // ========== DOM REFS ==========
-var toggleBtn  = document.getElementById('ai-chat-toggle');
-var panel      = document.getElementById('ai-chat-panel');
-var closeBtn   = document.getElementById('chat-close');
-var msgsEl     = document.getElementById('chat-msgs');
-var inputEl    = document.getElementById('chat-input');
-var sendBtn    = document.getElementById('chat-send');
-var keyInput   = document.getElementById('api-key');
-var baseInput  = document.getElementById('api-base');
-var modelInput = document.getElementById('api-model');
-var saveBtn    = document.getElementById('save-config');
-var clearBtn   = document.getElementById('clear-config');
+var panel    = document.getElementById('ai-chat-panel');
+var toggleBtn= document.getElementById('ai-chat-toggle');
+var msgsEl   = document.getElementById('chat-msgs');
+var inputEl  = document.getElementById('chat-input');
+var sendBtn  = document.getElementById('chat-send');
+var keyInput = document.getElementById('api-key');
+var baseInput= document.getElementById('api-base');
+var modelInput=document.getElementById('api-model');
+var saveBtn  = document.getElementById('save-config');
+var clearBtn = document.getElementById('clear-config');
 
-// Init inputs
-keyInput.value   = apiKey;
-baseInput.value  = apiBase;
-modelInput.value = apiModel;
+// Init
+if(keyInput)  keyInput.value   = apiKey;
+if(baseInput) baseInput.value  = apiBase;
+if(modelInput)modelInput.value = apiModel;
 
-// ========== TOGGLE ==========
-function openPanel(){
-  isOpen = true;
-  panel.classList.add('open');
-  toggleBtn.classList.add('active');
-  document.body.classList.add('ai-chat-open');
-  setTimeout(function(){ inputEl.focus(); }, 400);
-}
+// ========== CLOSE ==========
 function closePanel(){
-  isOpen = false;
-  panel.classList.remove('open');
+  panel.style.display = 'none';
   toggleBtn.classList.remove('active');
   document.body.classList.remove('ai-chat-open');
 }
-// Toggle handled by inline onclick on #ai-chat-toggle in HTML
-toggleBtn.addEventListener('click', function(){
-  isOpen = !isOpen;
-  if(isOpen){ setTimeout(function(){ inputEl.focus(); }, 400); }
-});
-closeBtn.addEventListener('click', function(){ closePanel(); });
 
-// Close on Escape
+// Escape key
 document.addEventListener('keydown', function(e){
-  if(e.key === 'Escape' && panel.classList.contains('open')){ closePanel(); }
+  if(e.key === 'Escape' && panel && panel.style.display === 'flex'){ closePanel(); }
 });
 
-// Close on click outside
-document.addEventListener('click', function(e){
-  if(panel.classList.contains('open') && !panel.contains(e.target) && e.target !== toggleBtn && !toggleBtn.contains(e.target)){
-    closePanel();
-  }
-});
-
-// ========== SAVE / CLEAR CONFIG ==========
-saveBtn.addEventListener('click', function(){
+// ========== SAVE / CLEAR ==========
+if(saveBtn) saveBtn.addEventListener('click', function(){
   apiKey  = keyInput.value.trim();
   apiBase = baseInput.value.trim();
   apiModel= modelInput.value.trim();
   localStorage.setItem('ai-chat-key',  apiKey);
   localStorage.setItem('ai-chat-base', apiBase);
   localStorage.setItem('ai-chat-model',apiModel);
-  addMsg('assistant', '✅ 配置已保存！现在可以向我提问了。');
+  addMsg('bot', '✅ 配置已保存！现在可以向我提问了。');
 });
-clearBtn.addEventListener('click', function(){
+
+if(clearBtn) clearBtn.addEventListener('click', function(){
   apiKey=''; apiBase=''; apiModel='';
   keyInput.value=''; baseInput.value=''; modelInput.value='';
   localStorage.removeItem('ai-chat-key');
   localStorage.removeItem('ai-chat-base');
   localStorage.removeItem('ai-chat-model');
-  addMsg('assistant', '🗑️ 配置已清除。');
+  addMsg('bot', '🗑️ 配置已清除。');
 });
 
 // ========== CHAT ==========
@@ -251,20 +136,13 @@ function setTyping(show){
   if(show && !el){
     el = document.createElement('div');
     el.id = 'typing-indicator';
-    el.className = 'typing';
     el.textContent = 'AI 正在思考...';
+    el.style.cssText = 'color:var(--ink-light,#6b5f48);font-size:.8em;padding:4px 12px;font-style:italic';
     msgsEl.appendChild(el);
     msgsEl.scrollTop = msgsEl.scrollHeight;
   } else if(!show && el){
     el.remove();
   }
-}
-
-function buildMessages(userMsg){
-  return [
-    { role: 'system', content: SYSTEM_PROMPT },
-    { role: 'user',   content: userMsg }
-  ];
 }
 
 function streamResponse(messages){
@@ -295,11 +173,10 @@ function streamResponse(messages){
         throw new Error('API错误 ' + res.status + ': ' + (e.error ? e.error.message : '请检查API Key和Base URL'));
       });
     }
-    // Streaming
     var reader = res.body.getReader();
     var decoder = new TextDecoder();
     var msgEl = document.createElement('div');
-    msgEl.className = 'msg assistant';
+    msgEl.className = 'msg bot';
     msgsEl.appendChild(msgEl);
     setTyping(false);
 
@@ -325,7 +202,7 @@ function streamResponse(messages){
               msgEl.textContent += delta.content;
               msgsEl.scrollTop = msgsEl.scrollHeight;
             }
-          } catch(e){ /* skip malformed */ }
+          } catch(e){}
         }
         read();
       }).catch(function(e){
@@ -337,7 +214,7 @@ function streamResponse(messages){
     read();
   }).catch(function(e){
     setTyping(false);
-    addMsg('assistant', '❌ 请求失败: ' + e.message + '\n\n请检查：\n1. API Key 是否正确\n2. Base URL 是否正确\n3. 网络连接是否正常\n4. 账户是否有可用额度');
+    addMsg('bot', '❌ 请求失败: ' + e.message + '\n\n请检查：\n1. API Key 是否正确\n2. Base URL 是否正确\n3. 网络连接是否正常\n4. 账户是否有可用额度');
     isBusy = false;
     sendBtn.disabled = false;
   });
@@ -349,7 +226,7 @@ function sendMsg(){
   if(!text) return;
 
   if(!apiKey){
-    addMsg('assistant', '⚠️ 请先在上方输入 API Key 并点击"保存"。');
+    addMsg('bot', '⚠️ 请先在上方输入 API Key 并点击"保存"。');
     return;
   }
 
@@ -357,19 +234,20 @@ function sendMsg(){
   inputEl.value = '';
   inputEl.style.height = 'auto';
 
-  var messages = buildMessages(text);
-  streamResponse(messages);
+  streamResponse([{ role: 'system', content: SYSTEM_PROMPT }, { role: 'user', content: text }]);
 }
 
-sendBtn.addEventListener('click', sendMsg);
+if(sendBtn) sendBtn.addEventListener('click', sendMsg);
+
+// Enter to send
+if(inputEl) inputEl.addEventListener('keydown', function(e){
+  if(e.key === 'Enter' && !e.shiftKey){ e.preventDefault(); sendMsg(); }
+});
 
 // Auto-resize textarea
-inputEl.addEventListener('input', function(){
+if(inputEl) inputEl.addEventListener('input', function(){
   this.style.height = 'auto';
   this.style.height = Math.min(this.scrollHeight, 80) + 'px';
 });
-
-// ========== DARK MODE SYNC ==========
-// Panel uses CSS variables so it auto-adapts to dark mode — no extra code needed.
 
 })();
