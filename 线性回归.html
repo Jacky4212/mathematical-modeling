@@ -49,20 +49,20 @@ MathJax = { tex: { inlineMath: [['$','$'],['\\(','\\)']], displayMath: [['$$','$
   --card-bg: #24243a; --card-border: #33334d;
   --sidebar-bg: #1a1a2e; --sidebar-border: #2d2d45;
   --code-bg: #2a2a3e;
-  --highlight-bg: #2d2a1a; --highlight-border: #c8900a; --highlight-strong: #e8b830;
+  --highlight-bg: #1e2a3a; --highlight-border: #6a82f0; --highlight-strong: #8ab8f0;
   --checkpoint-bg: #1e2a3a; --checkpoint-border: #2d4a5a; --checkpoint-color: #6a82f0;
   --tag-must-bg: #3d1a1a; --tag-must-color: #e88080;
-  --tag-key-bg: #3d3a1a; --tag-key-color: #e0b860;
+  --tag-key-bg: #1e2a3d; --tag-key-color: #80b8e0;
   --tag-freq-bg: #1a2a3d; --tag-freq-color: #80b8e0;
   --tag-info-bg: #1a3d2a; --tag-info-color: #80c090;
   --heading-color: var(--ink);
-  --code-text: #c0a060;
+  --code-text: #8ab8c0;
   background-color: var(--paper);
 }
 
 /* ===== Reset & Base ===== */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-body{font-family:var(--font);font-size:11pt;line-height:1.8;color:var(--ink);background:var(--paper);display:flex;min-height:100vh}
+body{font-family:var(--font);font-size:12pt;font-weight:500;line-height:1.8;color:var(--ink);background:var(--paper);display:flex;min-height:100vh}
 a{color:var(--accent);text-decoration:none;transition:color .2s}
 a:hover{color:var(--accent-hover)}
 ul,ol{padding-left:1.5em}
@@ -126,11 +126,11 @@ mjx-container[display="true"]{max-width:100%;overflow-x:auto;overflow-y:hidden}
 .code-block .str{color:#5a7a3a}
 .code-block .co{color:#8a8070;font-style:italic}
 .code-block .num{color:#a06030}
-.dark-mode .code-block .kw{color:#e0b878}
+.dark-mode .code-block .kw{color:#80c0e0}
 .dark-mode .code-block .fn{color:#c8a8e0}
-.dark-mode .code-block .str{color:#a0c868}
-.dark-mode .code-block .co{color:#908878}
-.dark-mode .code-block .num{color:#e0a870}
+.dark-mode .code-block .str{color:#80c080}
+.dark-mode .code-block .co{color:#8890a0}
+.dark-mode .code-block .num{color:#80b8d0}
 
 .checkpoint{background:var(--checkpoint-bg);border:1px solid var(--checkpoint-border);border-radius:6px;padding:14px 18px;margin:14px 0}
 .checkpoint::before{content:"🧠 自查练习：";font-weight:700;color:var(--checkpoint-color);display:block;margin-bottom:6px}
