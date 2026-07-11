@@ -1,0 +1,1094 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>主成分与因子分析 — 数学建模学习平台</title>
+<script>
+MathJax = { tex: { inlineMath: [['$','$'],['\\(','\\)']], displayMath: [['$$','$$'],['\\[','\\]']], processEscapes: true } };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" async></script>
+<style>
+/* ===== CSS Variables ===== */
+:root {
+  --paper: #fdf6e3;
+  --paper-dark: #f3e8d0;
+  --ink: #3d3525;
+  --ink-light: #6b5f48;
+  --accent: #2d7fc1;
+  --accent-hover: #1d4ed8;
+  --divider: #d9c9a0;
+  --card-bg: #fef9ee;
+  --card-border: #e5d5b5;
+  --sidebar-bg: #f5ebd5;
+  --sidebar-border: #e5d5b5;
+  --code-bg: #ede0c5;
+  --highlight-bg: #fefce8;
+  --highlight-border: #eab308;
+  --highlight-strong: #92400e;
+  --checkpoint-bg: #eff6ff;
+  --checkpoint-border: #bfdbfe;
+  --checkpoint-color: #1e40af;
+  --tag-must-bg: #dbeafe; --tag-must-color: #1e40af;
+  --tag-key-bg: #fef3c7; --tag-key-color: #92400e;
+  --tag-freq-bg: #dbeafe; --tag-freq-color: #1e40af;
+  --tag-info-bg: #f0fdf4; --tag-info-color: #166534;
+  --heading-color: #1a3a5c;
+  --code-text: #8a4b1e;
+  --radius: 8px;
+  --font: "Microsoft YaHei","PingFang SC","Noto Sans SC",sans-serif;
+}
+.dark-mode {
+  --paper: #1a1a2e; --paper-dark: #22223a;
+  --ink: #e0e0ec; --ink-light: #8888aa;
+  --accent: #6a82f0; --accent-hover: #5a72e0;
+  --divider: #2d2d45;
+  --card-bg: #24243a; --card-border: #33334d;
+  --sidebar-bg: #1a1a2e; --sidebar-border: #2d2d45;
+  --code-bg: #2a2a3e;
+  --highlight-bg: #1e2a3a; --highlight-border: #6a82f0; --highlight-strong: #8ab8f0;
+  --checkpoint-bg: #1e2a3a; --checkpoint-border: #2d4a5a; --checkpoint-color: #6a82f0;
+  --tag-must-bg: #1a2a3d; --tag-must-color: #80b8e0;
+  --tag-key-bg: #1e2a3d; --tag-key-color: #80b8e0;
+  --tag-freq-bg: #1a2a3d; --tag-freq-color: #80b8e0;
+  --tag-info-bg: #1a3d2a; --tag-info-color: #80c090;
+  --heading-color: var(--ink);
+  --code-text: #8ab8c0;
+  background-color: var(--paper);
+}
+
+/* ===== Reset & Base ===== */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font);font-size:12pt;font-weight:500;line-height:1.8;color:var(--ink);background:var(--paper);display:flex;min-height:100vh}
+a{color:var(--accent);text-decoration:none;transition:color .2s}
+a:hover{color:var(--accent-hover)}
+ul,ol{padding-left:1.5em}
+li{margin-bottom:.3em}
+table{border-collapse:collapse;width:100%;margin:12px 0;font-size:.95em}
+th,td{border:1px solid var(--card-border);padding:8px 12px;text-align:center}
+th{background:var(--paper-dark);font-weight:600}
+td{background:var(--card-bg)}
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-thumb{background:var(--ink-light);border-radius:3px}
+
+/* ===== Sidebar ===== */
+.sidebar{position:fixed;top:0;left:0;width:210px;height:100vh;background:var(--sidebar-bg);border-right:1px solid var(--sidebar-border);overflow-y:auto;z-index:100;padding:0 0 20px}
+.sidebar-header{padding:22px 16px 16px;border-bottom:1px solid var(--sidebar-border)}
+.sidebar-header .site-name{font-size:1.15em;font-weight:700;color:var(--accent)}
+.sidebar-header .site-sub{font-size:.75em;color:var(--ink-light);margin-top:2px}
+.sidebar-nav{padding:8px 0}
+.sidebar-nav .group-label{font-size:.7em;text-transform:uppercase;letter-spacing:1px;color:var(--ink-light);padding:12px 16px 4px;font-weight:600}
+.sidebar-nav a{display:flex;align-items:center;padding:7px 16px;font-size:.9em;color:var(--ink);gap:8px;border-left:3px solid transparent;transition:background .15s,border-color .15s}
+.sidebar-nav a:hover{background:var(--paper-dark);color:var(--accent)}
+.sidebar-nav a.current{background:var(--highlight-bg);border-left-color:var(--accent);color:var(--accent);font-weight:600}
+.sidebar-nav .tag{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:var(--paper-dark);font-size:.75em;font-weight:600;flex-shrink:0}
+.sidebar-nav a.current .tag{background:var(--accent);color:#fff}
+
+/* ===== Theme Toggle ===== */
+.theme-toggle{position:fixed;top:12px;right:20px;z-index:200;background:var(--card-bg);border:1px solid var(--card-border);border-radius:50%;width:38px;height:38px;font-size:1.1em;cursor:pointer;line-height:1;transition:transform .2s}
+.theme-toggle:hover{transform:scale(1.1)}
+
+/* ===== Main Area ===== */
+.main-wrap{flex:1;margin-left:210px;display:flex;flex-direction:column;min-height:100vh}
+
+/* ===== Topbar ===== */
+.topbar{position:sticky;top:0;z-index:90;background:linear-gradient(135deg, #1a3a5c, var(--accent));padding:0}
+.topbar-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:14px 28px}
+.topbar-inner h2{color:#fff;font-size:1.15em;font-weight:600}
+.topbar-inner a{color:rgba(255,255,255,.85);font-size:.9em;padding:5px 12px;border-radius:4px;transition:background .2s}
+.topbar-inner a:hover{background:rgba(255,255,255,.15);color:#fff}
+
+/* ===== Container ===== */
+.container{max-width:1100px;margin:0 auto;padding:28px 28px 40px;width:100%}
+
+/* ===== Content Blocks ===== */
+.section{background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--radius);padding:24px 28px;margin-bottom:22px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.section h2{font-size:1.3em;color:var(--heading-color);margin-bottom:16px;padding-bottom:8px;border-bottom:2px solid var(--divider)}
+.section h3{font-size:1.08em;color:var(--accent);margin:20px 0 10px;padding-bottom:6px;border-bottom:1px dashed var(--divider)}
+.section h4{font-size:1em;color:var(--ink);font-weight:600;margin:14px 0 6px}
+.section p{margin-bottom:10px}
+
+.highlight{background:var(--highlight-bg);border-left:4px solid var(--highlight-border);padding:12px 16px;margin:14px 0;border-radius:0 6px 6px 0;font-size:.95em}
+.highlight strong{color:var(--highlight-strong)}
+
+.def-box{background:var(--code-bg);border:1px solid var(--card-border);border-radius:6px;padding:14px 18px;margin:12px 0}
+.def-box .def-title{font-weight:700;color:var(--accent);margin-bottom:4px;font-size:.92em}
+
+.formula{text-align:center;background:var(--code-bg);padding:12px 20px;margin:14px 0;border-radius:6px}
+mjx-container[display="true"]{max-width:100%;overflow-x:auto;overflow-y:hidden}
+
+.code-block{background:var(--code-bg);border:1px solid var(--card-border);border-radius:6px;padding:16px 20px;margin:12px 0;overflow-x:auto;font-family:"Cascadia Code","Consolas","Courier New",monospace;font-size:.88em;line-height:1.65;color:var(--ink);white-space:pre}
+.code-block .kw{color:#82502e;font-weight:600}
+.code-block .fn{color:#7b5ea7}
+.code-block .str{color:#5a7a3a}
+.code-block .co{color:#8a8070;font-style:italic}
+.code-block .num{color:#a06030}
+.dark-mode .code-block .kw{color:#80c0e0}
+.dark-mode .code-block .fn{color:#c8a8e0}
+.dark-mode .code-block .str{color:#80c080}
+.dark-mode .code-block .co{color:#8890a0}
+.dark-mode .code-block .num{color:#80b8d0}
+
+/* ===== Inline Code ===== */
+code{font-family:"Cascadia Code","JetBrains Mono","Consolas",monospace;font-size:.88em;background:var(--code-bg);color:var(--code-text);padding:1px 6px;border-radius:4px}
+.dark-mode code{background:var(--code-bg)}
+
+.checkpoint{background:var(--checkpoint-bg);border:1px solid var(--checkpoint-border);border-radius:6px;padding:14px 18px;margin:14px 0}
+.checkpoint::before{content:"🧠 自查练习：";font-weight:700;color:var(--checkpoint-color);display:block;margin-bottom:6px}
+.checkpoint ol,.checkpoint ul{margin-bottom:0}
+
+.tag-must,.tag-key,.tag-freq,.tag-info{display:inline-block;padding:1px 8px;border-radius:3px;font-size:.8em;font-weight:600;margin:0 2px}
+.tag-must{background:var(--tag-must-bg);color:var(--tag-must-color)}
+.tag-key{background:var(--tag-key-bg);color:var(--tag-key-color)}
+.tag-freq{background:var(--tag-freq-bg);color:var(--tag-freq-color)}
+.tag-info{background:var(--tag-info-bg);color:var(--tag-info-color)}
+
+/* ===== Bottom Nav ===== */
+.nav-links{display:flex;justify-content:space-between;align-items:center;margin-top:30px;padding:16px 0}
+.nav-links a{padding:8px 18px;border:1px solid var(--card-border);border-radius:6px;background:var(--card-bg);font-size:.9em;transition:all .2s}
+.nav-links a:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+/* ===== Back to Top ===== */
+.back2top{position:fixed;right:24px;bottom:30px;z-index:90;width:42px;height:42px;background:linear-gradient(135deg, #1a3a5c, var(--accent));color:#fff;border:none;border-radius:50%;font-size:1.2em;cursor:pointer;opacity:.75;transition:all .2s;box-shadow:0 2px 10px rgba(0,0,0,.18)}
+.back2top:hover{opacity:1}
+
+/* ===== Chapter Nav Panel (right slide-in) ===== */
+.chapter-nav-toggle{position:fixed;right:0;top:50%;transform:translateY(-50%);z-index:95;background:linear-gradient(135deg, #1a3a5c, var(--accent));color:#fff;border:none;border-radius:8px 0 0 8px;padding:14px 8px;font-size:1.1em;cursor:pointer;writing-mode:vertical-lr;letter-spacing:2px;opacity:.8;transition:all .2s;box-shadow:-2px 0 10px rgba(0,0,0,.15)}
+.chapter-nav-panel{position:fixed;right:-260px;top:0;width:250px;height:100vh;z-index:150;background:var(--sidebar-bg);border-left:1px solid var(--sidebar-border);overflow-y:auto;transition:right .35s cubic-bezier(.4,0,.2,1);padding:20px 0}
+.chapter-nav-panel.open{right:0}
+.chapter-nav-panel .nav-header{padding:12px 20px 16px;border-bottom:1px solid var(--sidebar-border);font-weight:700;color:var(--accent);font-size:1.05em}
+.chapter-nav-panel .nav-section{padding:8px 20px 2px;font-size:.7em;text-transform:uppercase;letter-spacing:1px;color:var(--ink-light);font-weight:600}
+.chapter-nav-panel a{display:flex;align-items:center;padding:7px 20px;font-size:.9em;color:var(--ink);gap:8px;transition:background .15s}
+.chapter-nav-panel a:hover{background:var(--paper-dark);color:var(--accent)}
+.chapter-nav-panel a.current{color:var(--accent);font-weight:600}
+.chapter-nav-panel .num{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:var(--paper-dark);font-size:.75em;font-weight:600;flex-shrink:0}
+
+/* ===== Footer ===== */
+.footer{text-align:center;padding:20px;color:var(--ink-light);font-size:.82em;border-top:1px solid var(--divider);margin-top:auto}
+
+/* ===== Responsive ===== */
+@media(max-width:768px){
+  .sidebar{display:none}
+  .main-wrap{margin-left:0}
+  body{font-size:10.5pt}
+}
+@media(max-width:640px){
+  .section{padding:18px 16px}
+  .topbar-inner h2{font-size:1em}
+  .topbar-inner{padding:10px 14px}
+  .chapter-nav-panel{width:200px}
+  table{font-size:.85em}
+  th,td{padding:5px 8px}
+  .back2top{right:10px;bottom:20px;width:38px;height:38px}
+  .container{padding:16px 12px 30px}
+}
+
+/* ===== Print ===== */
+@media print{.sidebar,.topbar,.theme-toggle,.chapter-nav-toggle,.chapter-nav-panel,.back2top,.nav-links,.footer{display:none}.main-wrap{margin-left:0}}
+</style>
+</head>
+<body>
+
+<!-- ===== Sidebar ===== -->
+<nav class="sidebar">
+  <div class="sidebar-header">
+    <div class="site-name">📐 数学建模</div>
+    <div class="site-sub">学习平台</div>
+  </div>
+  <div class="sidebar-nav">
+    <div class="group-label">核心方法</div>
+    <a href="插值与拟合.html"><span class="tag">1</span>插值与拟合</a>
+    <a href="蒙特卡洛.html"><span class="tag">2</span>蒙特卡洛方法</a>
+    <a href="线性回归.html"><span class="tag">3</span>线性回归</a>
+    <a href="主成分与因子分析.html"><span class="tag">5</span>主成分与因子分析</a>
+    <div class="group-label">综合专题</div>
+    <a href="AI与建模.html"><span class="tag">4</span>AI与数学建模</a>
+    <a href="index.html" style="margin-top:6px;border-top:1px solid var(--sidebar-border);padding-top:8px"><span class="tag">⌂</span>返回首页</a>
+  </div>
+</nav>
+
+<!-- ===== Theme Toggle ===== -->
+<button class="theme-toggle no-print" onclick="toggleTheme()" title="切换暗黑模式">🌙</button>
+
+<!-- ===== Main ===== -->
+<div class="main-wrap">
+
+<!-- Topbar -->
+<div class="topbar">
+  <div class="topbar-inner">
+    <a href="线性回归.html">← 线性回归</a>
+    <h2>5. 主成分与因子分析</h2>
+    <a href="AI与建模.html">AI与数学建模 →</a>
+  </div>
+</div>
+
+<!-- Content -->
+<div class="container">
+
+<!-- 1. 预备知识 -->
+<div class="section">
+<h2>一、预备知识 <span class="tag-info">基础回顾</span></h2>
+
+<h3>1.1 样本统计量</h3>
+
+<div class="def-box">
+  <div class="def-title">样本均值（Sample Mean）</div>
+  $$\bar{x} = \frac{1}{n}\sum_{i=1}^{n} x_i$$
+  <p style="margin-top:4px">描述数据的中心位置，是所有观测值的算术平均。</p>
+</div>
+
+<div class="def-box">
+  <div class="def-title">样本方差（Sample Variance）与标准差</div>
+  $$s^2 = \frac{1}{n-1}\sum_{i=1}^{n}(x_i - \bar{x})^2, \quad s = \sqrt{s^2}$$
+  <p style="margin-top:4px">方差衡量数据围绕均值的离散程度。使用 $n-1$（Bessel校正）而非 $n$，使得 $s^2$ 是总体方差的无偏估计。标准差与原始数据同量纲，更易解释。</p>
+</div>
+
+<h3>1.2 数据标准化（Normalization）</h3>
+
+<div class="def-box">
+  <div class="def-title">Z-score 标准化</div>
+  $$x_i^* = \frac{x_i - \bar{x}}{s}$$
+  <p style="margin-top:4px">标准化后的数据均值为0、方差为1，消除了量纲和数量级的影响。<strong>在PCA和因子分析中，标准化是至关重要的预处理步骤</strong>——如果不标准化，数值范围大的变量（如人口数）会在分析中占据主导地位，而实际重要的变量（如比率）则被淹没。</p>
+</div>
+
+<h3>1.3 协方差与相关系数</h3>
+
+<div class="def-box">
+  <div class="def-title">协方差（Covariance）</div>
+  $$\text{Cov}(X, Y) = \frac{1}{n-1}\sum_{i=1}^{n}(x_i - \bar{x})(y_i - \bar{y})$$
+  <p style="margin-top:4px">衡量两个变量的<strong>协同变化趋势</strong>：</p>
+  <ul>
+    <li>$\text{Cov} > 0$：两变量同方向变化（一个增大，另一个也增大）</li>
+    <li>$\text{Cov} < 0$：两变量反方向变化（一个增大，另一个减小）</li>
+    <li>$\text{Cov} = 0$：两变量无线性相关关系</li>
+  </ul>
+  <p style="margin-top:4px"><strong>注意：</strong>协方差的大小受量纲影响，不能直接比较不同变量对的关联强度。</p>
+</div>
+
+<div class="def-box">
+  <div class="def-title">Pearson 相关系数</div>
+  $$r_{XY} = \frac{\text{Cov}(X, Y)}{s_X \cdot s_Y} = \frac{\sum(x_i - \bar{x})(y_i - \bar{y})}{\sqrt{\sum(x_i - \bar{x})^2 \sum(y_i - \bar{y})^2}}$$
+  <p style="margin-top:4px">相关系数是<strong>标准化后的协方差</strong>，取值范围 $[-1, 1]$：</p>
+  <ul>
+    <li>$|r| \to 1$：强线性相关 | $|r| \to 0$：弱线性相关</li>
+    <li>$r = 1$：完全正线性相关 | $r = -1$：完全负线性相关</li>
+    <li>随机变量与自身的协方差就是其方差：$\text{Cov}(X, X) = \text{Var}(X)$</li>
+  </ul>
+</div>
+
+<div class="highlight">
+  <strong>为什么这些预备知识很重要？</strong><br>
+  协方差矩阵和相关系数矩阵是PCA与因子分析的<strong>数学出发点</strong>。PCA本质上是对方差-协方差结构进行特征分解，寻找最大方差方向。如果你的数据未经标准化，PCA结果将由量纲最大的变量主导，可能完全偏离你的分析目的。
+</div>
+</div>
+
+<!-- 2. 主成分分析基本原理 -->
+<div class="section">
+<h2>二、主成分分析（PCA）基本原理 <span class="tag-must">必须掌握</span></h2>
+
+<h3>2.1 问题的提出 — 降维的思想</h3>
+
+<div class="highlight">
+  <strong>核心问题：</strong>在实际研究中，变量太多会增加分析难度。多个变量之间往往存在<strong>相关关系</strong>（信息冗余）。能否用较少的新变量代替原来较多的旧变量，同时尽可能多地保留原始信息？
+</div>
+
+<div class="def-box">
+  <div class="def-title">PCA 的定义</div>
+  <p><strong>主成分分析（Principal Component Analysis, PCA）</strong>是设法将原来众多具有一定相关性的指标，重新组合成一组新的<strong>相互无关</strong>的综合指标（主成分），并且尽可能多地反映原来指标的信息。它是数学上最经典的一种<strong>降维方法</strong>。</p>
+  <p style="margin-top:6px"><strong>举例：</strong>在商业经济中，可以把复杂的物价数据综合成"物价指数"、"消费指数"等少数几个综合指标。在数学建模中，PCA常用于将多维指标压缩为2-3个主成分进行综合评价。</p>
+</div>
+
+<h3>2.2 PCA的几何意义</h3>
+
+<p>从几何角度看，主成分分析就是寻找一个新的坐标系，使得：</p>
+<ul>
+  <li><strong>第一主成分</strong>方向是数据方差最大的方向（信息最多的方向）</li>
+  <li><strong>第二主成分</strong>方向与第一主成分<strong>正交</strong>（协方差为零），且在该约束下方差最大</li>
+  <li>依此类推，每个新坐标轴都代表数据的一个"主要变化模式"</li>
+</ul>
+
+<div class="highlight">
+  <strong>直观理解：</strong>如果把数据想象成高维空间中的一个"椭球体"，PCA就是找到这个椭球体的<strong>主轴方向</strong>。第一主轴是椭球最长的方向，第二主轴是垂直于第一主轴的最长方向，以此类推。投影到前几个主轴上，就像从"正面"看数据，信息损失最小。
+</div>
+
+<h3>2.3 数学模型</h3>
+
+<div class="def-box">
+  <div class="def-title">主成分的数学表达</div>
+  <p>设 $X = (X_1, X_2, \ldots, X_p)^T$ 为 $p$ 维随机向量，其协方差矩阵为 $\Sigma$。第 $i$ 个主成分定义为：</p>
+  <div style="text-align:left;padding-left:20px">
+  $$Y_i = a_{i1}X_1 + a_{i2}X_2 + \cdots + a_{ip}X_p = a_i^T X$$
+  </div>
+  <p style="margin-top:4px">其中 $a_i = (a_{i1}, \ldots, a_{ip})^T$ 是 $\Sigma$ 的第 $i$ 大特征值 $\lambda_i$ 对应的<strong>单位特征向量</strong>。</p>
+</div>
+
+<p>主成分的方差与特征值的关系：</p>
+
+$$\text{Var}(Y_i) = \lambda_i, \quad \text{Cov}(Y_i, Y_j) = 0 \;(i \neq j)$$
+
+$$\text{总方差} = \sum_{i=1}^{p} \lambda_i = \sum_{i=1}^{p} \text{Var}(X_i)$$
+
+<div class="highlight">
+  <strong>关键洞察：</strong>特征值 $\lambda_i$ 就是主成分 $Y_i$ 携带的信息量（方差）。特征向量 $a_i$ 决定了新旧变量之间的线性组合关系（即"方向"）。因此，PCA本质上是对协方差矩阵（或相关系数矩阵）做<strong>特征值分解</strong>。
+</div>
+
+<h3>2.4 主成分的确定方法</h3>
+
+<p>在实际计算中，我们通常从<strong>相关系数矩阵</strong>（而非协方差矩阵）出发，以避免量纲影响。主成分的计算等价于：</p>
+
+<div class="def-box">
+  <div class="def-title">计算流程</div>
+  <ol>
+    <li><strong>标准化原始数据</strong>：消除量纲影响</li>
+    <li><strong>计算相关系数矩阵</strong> $R$</li>
+    <li><strong>求 $R$ 的特征值</strong> $\lambda_1 \geq \lambda_2 \geq \cdots \geq \lambda_p \geq 0$ 和对应的<strong>单位特征向量</strong> $a_1, a_2, \ldots, a_p$</li>
+    <li><strong>写出主成分</strong>：$Y_i = a_i^T X^*$（$X^*$ 为标准化的 $X$）</li>
+    <li><strong>筛选主成分个数</strong>：按累计贡献率或特征值阈值</li>
+  </ol>
+</div>
+
+<h3>2.5 主成分个数的筛选 <span class="tag-key">重点</span></h3>
+
+<p>选择合适的主成分个数是PCA的关键决策点。常用准则：</p>
+
+<table>
+  <tr><th>准则</th><th>标准</th><th>说明</th></tr>
+  <tr>
+    <td><strong>累计贡献率准则</strong></td>
+    <td>$\frac{\sum_{i=1}^{m} \lambda_i}{\sum_{i=1}^{p} \lambda_i} \geq 85\%$</td>
+    <td>选择前 $m$ 个主成分使得累计方差贡献率达到 85% 以上。这是<strong>最常用</strong>的准则</td>
+  </tr>
+  <tr>
+    <td><strong>Kaiser 准则</strong></td>
+    <td>$\lambda_i \geq 1$</td>
+    <td>保留特征值大于 1 的主成分。基于：标准化后每个原始变量方差为 1，主成分至少应比单个变量携带更多信息</td>
+  </tr>
+  <tr>
+    <td><strong>碎石图（Scree Plot）</strong></td>
+    <td>寻找"拐点"</td>
+    <td>画出特征值从大到小的折线图，在曲线由陡变缓的"拐点"处截断。拐点后的主成分类似于"碎石"（噪声）</td>
+  </tr>
+</table>
+
+<div class="highlight">
+  <strong>实际应用建议：</strong>通常结合累计贡献率（≥85%）和碎石图来确定主成分个数。当多个准则给出不同建议时，优先使用累计贡献率准则，同时要确保选出的主成分在业务上<strong>有合理的解释</strong>。
+</div>
+
+<h3>2.6 贡献率与综合得分</h3>
+
+<div class="def-box">
+  <div class="def-title">贡献率与累计贡献率</div>
+  <ul>
+    <li><strong>第 $k$ 个主成分的贡献率：</strong>$\frac{\lambda_k}{\sum \lambda_i} \times 100\%$</li>
+    <li><strong>前 $m$ 个主成分的累计贡献率：</strong>$\frac{\sum_{i=1}^{m} \lambda_i}{\sum_{i=1}^{p} \lambda_i} \times 100\%$</li>
+    <li><strong>综合得分：</strong>$Z = \sum_{i=1}^{m} \left(\frac{\lambda_i}{\sum \lambda_j}\right) \cdot Y_i$（以贡献率为权重）</li>
+  </ul>
+</div>
+
+<p>综合得分以各主成分的方差贡献率作为权重，加权求和得到每个样本的综合评价值，可用于<strong>排序、分类和综合评价</strong>。</p>
+
+<h3>2.7 主成分分析步骤总结 <span class="tag-key">核心流程</span></h3>
+
+<div class="highlight">
+  <strong>PCA 六步法：</strong><br>
+  ① <strong>标准化</strong> → 消除量纲影响<br>
+  ② <strong>求相关矩阵</strong> → 判断变量间的线性关联强度<br>
+  ③ <strong>KMO & Bartlett 检验</strong> → 判断是否适合做PCA（KMO > 0.5, Sig < 0.05）<br>
+  ④ <strong>求特征值与特征向量</strong> → 确定主成分方向和方差<br>
+  ⑤ <strong>筛选主成分个数</strong> → 累计贡献率 ≥ 85% 或特征值 ≥ 1<br>
+  ⑥ <strong>计算得分与综合评价</strong> → 以贡献率为权重加权求和
+</div>
+</div>
+
+<!-- 3. PCA案例分析 -->
+<div class="section">
+<h2>三、PCA案例分析：高等教育发展水平评价 <span class="tag-freq">经典案例</span></h2>
+
+<h3>3.1 问题描述与数据</h3>
+
+<p>对我国 30 个省市自治区的高等教育发展水平进行综合评价，选取以下 10 项指标（每十万人口拥有）：</p>
+
+<table>
+  <tr><th>指标</th><th>含义</th><th>指标</th><th>含义</th></tr>
+  <tr><td>$x_1$</td><td>高等院校数</td><td>$x_6$</td><td>专职教师数</td></tr>
+  <tr><td>$x_2$</td><td>毕业生数</td><td>$x_7$</td><td>高级职称比例</td></tr>
+  <tr><td>$x_3$</td><td>招生人数</td><td>$x_8$</td><td>平均在校人数</td></tr>
+  <tr><td>$x_4$</td><td>在校人数</td><td>$x_9$</td><td>教育经费占比</td></tr>
+  <tr><td>$x_5$</td><td>教职工数</td><td>$x_{10}$</td><td>生均教育经费</td></tr>
+</table>
+
+<h3>3.2 分析过程</h3>
+
+<h4>Step 1: 适用性检验</h4>
+
+<div class="def-box">
+  <div class="def-title">KMO 与 Bartlett 检验</div>
+  <p><strong>KMO = 0.834 > 0.5</strong>，越接近 1 越适合做主成分分析，不小于 0.5 即合格。<br>
+  <strong>Sig < 0.05</strong>（Bartlett 球形检验），拒绝变量独立的原假设，说明变量间存在相关关系，适合做PCA。</p>
+</div>
+
+<h4>Step 2: 特征值与主成分个数</h4>
+
+<table>
+  <tr><th>主成分</th><th>特征值</th><th>贡献率 (%)</th><th>累计贡献率 (%)</th></tr>
+  <tr><td>1</td><td>6.150</td><td>61.50</td><td>61.50</td></tr>
+  <tr><td>2</td><td>1.512</td><td>15.12</td><td>76.62</td></tr>
+  <tr><td>3</td><td>0.857</td><td>8.57</td><td>85.19</td></tr>
+  <tr><td>4</td><td>0.678</td><td>6.78</td><td>91.97</td></tr>
+</table>
+
+<div class="highlight">
+  <strong>筛选结果：</strong>前 4 个主成分的累计贡献率已达 91.97%（>85%），且碎石图在此处出现拐点，因此提取 4 个主成分。
+</div>
+
+<h4>Step 3: 主成分系数（特征向量）</h4>
+
+<div class="code-block">           PC1      PC2      PC3      PC4
+x1       0.3498  -0.1975  -0.1639  -0.1014
+x2       0.3589   0.0342  -0.1079  -0.2269
+x3       0.3622   0.0295  -0.0901  -0.1697
+x4       0.3622   0.0135  -0.1134  -0.1608
+x5       0.3604  -0.0510  -0.1530  -0.0441
+x6       0.3600  -0.0645  -0.1639  -0.0022
+x7       0.2242   0.5829  -0.0396   0.0815
+x8       0.1201   0.7023   0.3579   0.0705
+x9       0.3191  -0.1943   0.1202   0.9011
+x10      0.2453  -0.2867   0.8632  -0.2468</div>
+
+<h4>Step 4: 主成分解释</h4>
+
+<div class="highlight">
+  <strong>主成分命名（关键步骤）：</strong><br>
+  <strong>PC1 — 规模因子：</strong>前 6 个指标（$x_1$ 至 $x_6$）的载荷均很大，反映高校的<strong>办学规模</strong>（学校数、学生数、教师数）<br>
+  <strong>PC2 — 质量因子：</strong>$x_7$（高级职称比例）和 $x_8$（平均在校人数）的载荷大，反映<strong>师资质量与学校规模</strong><br>
+  <strong>PC3 — 经费因子：</strong>$x_{10}$（生均教育经费）的载荷最大，反映<strong>教育投入水平</strong><br>
+  <strong>PC4 — 财政因子：</strong>$x_9$（教育经费占GDP比重）载荷最大，反映<strong>政府对教育的重视程度</strong>
+</div>
+
+<h3>3.3 MATLAB 实现</h3>
+
+<div class="code-block"><span class="co">% pca_education.m — 高等教育发展水平 PCA 评价</span>
+clc, clear
+<span class="fn">load</span> gj.txt                      <span class="co">% 读取原始数据（30行×10列）</span>
+gj = <span class="fn">zscore</span>(gj);                   <span class="co">% 步骤1：数据标准化</span>
+r = <span class="fn">corrcoef</span>(gj);                  <span class="co">% 步骤2：计算相关系数矩阵</span>
+<span class="co">% 步骤3：主成分分析 — vec1列向量为特征向量，lamda为特征值，rate为贡献率(%)</span>
+[vec1, lamda, rate] = <span class="fn">pcacov</span>(r)
+<span class="co">% 修正特征向量符号（使每个特征向量分量和为正）</span>
+f = <span class="fn">repmat</span>(<span class="fn">sign</span>(<span class="fn">sum</span>(vec1)), <span class="fn">size</span>(vec1,<span class="num">1</span>), <span class="num">1</span>);
+vec2 = vec1 .* f                   <span class="co">% 修正后的特征向量（主成分系数）</span>
+
+num = <span class="num">4</span>;                           <span class="co">% 步骤4：选取前 4 个主成分</span>
+df = gj * vec2(:, <span class="num">1</span>:num);         <span class="co">% 步骤5：计算各主成分得分</span>
+tf = df * rate(<span class="num">1</span>:num) / <span class="num">100</span>;       <span class="co">% 步骤6：以贡献率为权重计算综合得分</span>
+[stf, ind] = <span class="fn">sort</span>(tf, <span class="str">'descend'</span>);  <span class="co">% 按综合得分从高到低排序</span>
+stf = stf', ind = ind'             <span class="co">% 输出排序结果</span></div>
+
+<h3>3.4 结果分析</h3>
+
+<div class="highlight">
+  <strong>综合评价排名（前10与后10）：</strong>
+</div>
+
+<table>
+  <tr><th>排名</th><th>地区</th><th>综合得分</th><th>排名</th><th>地区</th><th>综合得分</th></tr>
+  <tr><td>1</td><td>北京</td><td>8.604</td><td>21</td><td>云南</td><td>-0.956</td></tr>
+  <tr><td>2</td><td>上海</td><td>4.474</td><td>22</td><td>江西</td><td>-0.961</td></tr>
+  <tr><td>3</td><td>天津</td><td>2.788</td><td>23</td><td>海南</td><td>-1.015</td></tr>
+  <tr><td>4</td><td>陕西</td><td>0.812</td><td>24</td><td>内蒙古</td><td>-1.125</td></tr>
+  <tr><td>5</td><td>辽宁</td><td>0.762</td><td>25</td><td>西藏</td><td>-1.147</td></tr>
+  <tr><td>6</td><td>吉林</td><td>0.588</td><td>26</td><td>河南</td><td>-1.206</td></tr>
+  <tr><td>7</td><td>黑龙江</td><td>0.297</td><td>27</td><td>广西</td><td>-1.225</td></tr>
+  <tr><td>8</td><td>湖北</td><td>0.246</td><td>28</td><td>宁夏</td><td>-1.251</td></tr>
+  <tr><td>9</td><td>江苏</td><td>0.058</td><td>29</td><td>贵州</td><td>-1.651</td></tr>
+  <tr><td>10</td><td>广东</td><td>0.006</td><td>30</td><td>青海</td><td>-1.680</td></tr>
+</table>
+
+<div class="highlight">
+  <strong>结果解读：</strong>北京、上海、天津的高等教育综合发展水平遥遥领先（得分为正且远大于其他省份），这与它们的教育资源和历史积累高度一致。而西部和部分中部省份得分为负，反映教育发展相对滞后。注意得分有正有负——正分表示高于全国平均水平，负分表示低于平均水平。
+</div>
+
+<h3>3.5 主成分分析的重要说明</h3>
+
+<div class="highlight">
+  <strong>PCA的局限性与使用须知：</strong><br>
+  <strong>1. 主成分解释的模糊性：</strong>主成分是原始变量的线性组合，其含义不如原始变量清楚。当主成分系数在多个变量上都很大时，难以给出简洁的解释——这是降维必须付出的代价<br>
+  <strong>2. "m 应明显小于 p"：</strong>提取的主成分个数 $m$ 通常应明显小于原始变量个数 $p$，否则降维的"利"可能抵不过解释性损失的"弊"<br>
+  <strong>3. 相关性是前提：</strong>如果原始变量之间相关性很低，PCA效果会很差——前几个主成分的累计贡献率难以达到较高水平。此时应考虑其他方法<br>
+  <strong>4. 主成分 ≠ 因子：</strong>PCA是一种<strong>线性变换</strong>方法，将原始变量精确表示为新变量的线性组合。因子分析则更进一步，引入了<strong>潜变量</strong>（公共因子）和<strong>特殊因子</strong>的概念，建模角度不同
+</div>
+</div>
+
+<!-- 4. 因子分析原理与模型 -->
+<div class="section">
+<h2>四、因子分析原理与模型 <span class="tag-must">必须掌握</span></h2>
+
+<h3>4.1 因子分析的概念</h3>
+
+<div class="def-box">
+  <div class="def-title">定义</div>
+  <p><strong>因子分析（Factor Analysis）</strong>是主成分分析的一种推广，是一种把多个变量化为少数几个<strong>综合变量（因子）</strong>的多变量分析方法。其目的是用有限个<strong>不可观测的潜在变量（公共因子）</strong>来描述原始变量之间的相关（协方差）关系。</p>
+</div>
+
+<h3>4.2 核心原理</h3>
+
+<p>根据<strong>相关性大小</strong>把变量分组：</p>
+<ul>
+  <li><strong>同组内</strong>的变量之间相关性较高（共享同一个公共因子）</li>
+  <li><strong>不同组</strong>的变量之间相关性较低（由不同的公共因子解释）</li>
+</ul>
+<p>每组变量代表一个基本结构，称为<strong>公共因子</strong>。每个原始变量可表示为公共因子的线性组合加上一个<strong>特殊因子</strong>。</p>
+
+<div class="def-box">
+  <div class="def-title">直观例子：高校科研评价</div>
+  <table>
+    <tr><th>原始指标（6个）</th><th>公共因子（2个）</th></tr>
+    <tr>
+      <td>科研人力投入、经费投入、立项项目数<br>（三者高度相关）</td>
+      <td><strong>F1：科研投入因子</strong></td>
+    </tr>
+    <tr>
+      <td>结项项目数、发表论文数、获奖成果数<br>（三者高度相关）</td>
+      <td><strong>F2：科研产出因子</strong></td>
+    </tr>
+  </table>
+  <p style="margin-top:4px">F1 和 F2 之间<strong>不存在显著相关性</strong>（正交），但各自能很好地解释组内的指标。这就是因子分析的"命名解释性"——每个因子有清晰的业务含义。</p>
+</div>
+
+<h3>4.3 因子分析的特点</h3>
+
+<table>
+  <tr><th>特点</th><th>说明</th></tr>
+  <tr><td><strong>降维</strong></td><td>因子变量的数量远少于原有指标变量的数量</td></tr>
+  <tr><td><strong>重组而非取舍</strong></td><td>因子不是对原始变量的简单取舍，而是根据原始变量的信息进行重新组构，能反映原有变量大部分信息</td></tr>
+  <tr><td><strong>因子间不相关</strong></td><td>因子变量之间不存在显著的线性相关关系（正交时），解决了多重共线性问题</td></tr>
+  <tr><td><strong>可命名解释</strong></td><td>因子变量具有命名解释性——通过因子旋转，使每个因子在少数变量上有高载荷，便于赋予实际意义</td></tr>
+  <tr><td><strong>旋转优化</strong></td><td>因子分析可以通过坐标轴的旋转优化因子的可解释性（这是PCA不具备的功能）</td></tr>
+</table>
+
+<h3>4.4 因子分析的数学模型 <span class="tag-key">核心</span></h3>
+
+<div class="def-box">
+  <div class="def-title">正交因子模型</div>
+  <p>设有 $p$ 个标准化变量 $X_1, X_2, \ldots, X_p$，因子模型为：</p>
+  $$\begin{cases}
+  X_1 = a_{11}F_1 + a_{12}F_2 + \cdots + a_{1m}F_m + \varepsilon_1 \\
+  X_2 = a_{21}F_1 + a_{22}F_2 + \cdots + a_{2m}F_m + \varepsilon_2 \\
+  \quad\vdots \\
+  X_p = a_{p1}F_1 + a_{p2}F_2 + \cdots + a_{pm}F_m + \varepsilon_p
+  \end{cases}$$
+  <p style="margin-top:8px">矩阵形式：$X = AF + \varepsilon$</p>
+  <p>其中：</p>
+  <ul>
+    <li>$F = (F_1, \ldots, F_m)^T$ — <strong>公共因子</strong>（不可观测的潜在变量）</li>
+    <li>$A = (a_{ij})_{p \times m}$ — <strong>因子载荷矩阵</strong>，$a_{ij}$ 为第 $i$ 个变量在第 $j$ 个因子上的载荷</li>
+    <li>$\varepsilon = (\varepsilon_1, \ldots, \varepsilon_p)^T$ — <strong>特殊因子</strong>（变量独有部分，含测量误差）</li>
+  </ul>
+</div>
+
+<h3>4.5 因子模型中的关键统计量</h3>
+
+<h4>(1) 因子载荷 $a_{ij}$</h4>
+
+<div class="def-box">
+  <div class="def-title">统计意义</div>
+  <p>当公共因子彼此正交时，$a_{ij}$ 等于第 $i$ 个变量 $X_i$ 与第 $j$ 个公共因子 $F_j$ 的<strong>相关系数</strong>：$a_{ij} = \text{Corr}(X_i, F_j)$</p>
+  <p>$|a_{ij}|$ 越大，$X_i$ 对 $F_j$ 的依赖程度越高，表示该因子对该变量的"解释力"越强。</p>
+</div>
+
+<h4>(2) 变量共同度（Communality）</h4>
+
+<div class="def-box">
+  <div class="def-title">定义</div>
+  $$h_i^2 = \sum_{j=1}^{m} a_{ij}^2$$
+  <p>$h_i^2$ 是因子载荷矩阵第 $i$ 行元素的平方和，表示<strong>所有公共因子对变量 $X_i$ 的总方差贡献</strong>。</p>
+  <ul>
+    <li>$h_i^2 \to 1$：公共因子很好地解释了该变量</li>
+    <li>$h_i^2 \to 0$：该变量的方差主要由特殊因子解释</li>
+    <li>剩余方差 $\sigma_i^2 = 1 - h_i^2$（标准化后各变量方差为 1）</li>
+  </ul>
+</div>
+
+<h4>(3) 公共因子的方差贡献</h4>
+
+<div class="def-box">
+  <div class="def-title">定义</div>
+  $$g_j^2 = \sum_{i=1}^{p} a_{ij}^2$$
+  <p>$g_j^2$ 是因子载荷矩阵第 $j$ 列元素的平方和，表示第 $j$ 个公共因子 $F_j$ 对<strong>所有变量</strong>的总方差贡献，是衡量<strong>因子相对重要性</strong>的指标。</p>
+  <p>$g_j^2$ 越大 → 该因子越重要。通常按 $g_j^2$ 从大到小排列因子。</p>
+</div>
+
+<h3>4.6 因子载荷矩阵的估计方法</h3>
+
+<table>
+  <tr><th>方法</th><th>原理</th><th>特点</th></tr>
+  <tr>
+    <td><strong>主成分法</strong></td>
+    <td>用相关系数矩阵的前 $m$ 个特征值和特征向量构造 $A$</td>
+    <td>最常用，简单直观。但特殊因子各变量可能不独立</td>
+  </tr>
+  <tr>
+    <td><strong>主轴因子法</strong></td>
+    <td>从约相关矩阵出发迭代估计</td>
+    <td>更关注共同度，但对初值敏感</td>
+  </tr>
+  <tr>
+    <td><strong>最大似然估计法</strong></td>
+    <td>假设数据服从多元正态，最大化似然函数</td>
+    <td>样本容量大时效果好（建议1500+），可做假设检验。MATLAB <code>factoran</code> 默认使用此法</td>
+  </tr>
+</table>
+
+<h3>4.7 因子旋转（Factor Rotation）<span class="tag-key">重点</span></h3>
+
+<div class="highlight">
+  <strong>为什么需要旋转？</strong>因子载荷矩阵<strong>不唯一</strong>——任意一组初始公共因子的正交变换都可以生成新的等价因子。旋转的目的：让每个变量只在<strong>少数几个因子</strong>上有高载荷，而在其他因子上载荷接近于 0。这样的结构最便于<strong>命名和解释</strong>。因子旋转<strong>不改变变量共同度</strong>，只改变公因子的方差贡献分配。
+</div>
+
+<h4>(1) 方差最大法（Varimax）— 最常用</h4>
+
+<div class="def-box">
+  <div class="def-title">原理</div>
+  <p>从<strong>简化因子载荷矩阵的每一列</strong>出发，使和每个因子有关的载荷的平方的方差最大。直观效果：每个因子上，一部分变量的载荷趋于较大值（如 ≥0.7），另一部分趋于 0，<strong>拉开距离</strong>，使因子含义更加清晰。</p>
+</div>
+
+<h4>(2) 四次方最大法（Quartimax）</h4>
+
+<div class="def-box">
+  <div class="def-title">原理</div>
+  <p>从<strong>简化载荷矩阵的行</strong>出发，使每个变量只在一个因子上有较高的载荷，而在其他因子上尽可能低的载荷。如果每个变量只在唯一一个因子上有非零载荷，这时的因子解释是最简单的。</p>
+</div>
+
+<div class="highlight">
+  <strong>实际建议：</strong>在 SPSS 和大多数统计软件中，默认使用<strong>方差最大正交旋转（Varimax）</strong>。大多数情况下 Varimax 的效果已经足够好。如果旋转后因子含义仍然不清晰，可以尝试斜交旋转（允许因子间相关）。
+</div>
+
+<h3>4.8 因子得分（Factor Score）</h3>
+
+<div class="def-box">
+  <div class="def-title">因子得分函数</div>
+  <p>因子分析的数学模型是将变量表示为公共因子的线性组合：$X = AF + \varepsilon$。但在实际应用中，我们往往需要反过来——用观测到的变量值来估计每个样本在各个因子上的取值：</p>
+  $$F_j = b_{j1}X_1 + b_{j2}X_2 + \cdots + b_{jp}X_p, \quad j = 1, 2, \ldots, m$$
+  <p style="margin-top:4px">称为<strong>因子得分函数</strong>。有了因子得分，就可以将因子用作后续分析（如聚类分析、回归分析）的输入变量。</p>
+</div>
+
+<h3>4.9 因子分析步骤总结 <span class="tag-key">核心流程</span></h3>
+
+<div class="highlight">
+  <strong>因子分析六步法：</strong><br>
+  ① <strong>选择变量并标准化</strong> → 计算相关系数矩阵 $R$<br>
+  ② <strong>适用性检验</strong> → KMO > 0.5，Bartlett Sig < 0.05<br>
+  ③ <strong>提取公共因子</strong> → 确定因子个数（特征值 > 1 或累计贡献率 ≥ 60%）<br>
+  ④ <strong>因子旋转</strong> → 使载荷结构更清晰，便于命名解释<br>
+  ⑤ <strong>计算因子得分</strong> → 将因子表示为变量的线性组合<br>
+  ⑥ <strong>应用分析</strong> → 综合评分排序、聚类、回归等后续分析
+</div>
+</div>
+
+<!-- 5. 因子分析案例 -->
+<div class="section">
+<h2>五、因子分析案例 <span class="tag-freq">实战应用</span></h2>
+
+<h3>5.1 案例1：上市公司盈利能力与资本结构</h3>
+
+<p>对 16 家上市公司的盈利能力与资本结构关系进行因子分析，选取以下 5 个指标：</p>
+
+<table>
+  <tr><th>符号</th><th>指标</th><th>含义</th></tr>
+  <tr><td>$x_1$</td><td>销售净利率</td><td>净利润 / 销售收入</td></tr>
+  <tr><td>$x_2$</td><td>资产净利率</td><td>净利润 / 总资产</td></tr>
+  <tr><td>$x_3$</td><td>净资产收益率</td><td>净利润 / 净资产</td></tr>
+  <tr><td>$x_4$</td><td>销售毛利率</td><td>毛利润 / 销售收入</td></tr>
+  <tr><td>$y$</td><td>资产负债率</td><td>总负债 / 总资产（资本结构指标）</td></tr>
+</table>
+
+<h4>分析结果</h4>
+
+<div class="highlight">
+  <strong>KMO 与 Bartlett 检验：</strong>Sig < 0.05，适合因子分析<br>
+  <strong>公共因子个数：</strong>提取特征值大于 1 的两个公共因子<br>
+  <strong>累计贡献率：</strong>一般建议 ≥ 85%，但 ≥ 60% 也可接受（SPSS 默认阈值）
+</div>
+
+<h4>旋转后的因子载荷（Varimax）</h4>
+
+<p>通过因子旋转，每个原始变量被分配到载荷最高的因子上，形成清晰的两因子结构：</p>
+
+<div class="highlight">
+  <strong>F1 — 盈利能力因子：</strong>$x_1$（销售净利率）、$x_2$（资产净利率）、$x_3$（净资产收益率）、$x_4$（销售毛利率）在该因子上有高载荷<br>
+  <strong>F2 — 资本结构因子：</strong>$y$（资产负债率）在该因子上有高载荷<br>
+  <strong>解读：</strong>该结果清晰地将盈利能力指标与资本结构指标分离，验证了指标体系的合理性。两因子正交，说明盈利能力与资本结构在统计意义上相对独立。
+</div>
+
+<h3>5.2 案例2：农业生产情况因子分析</h3>
+
+<p>对全国 30 个省市自治区的农业生产情况作因子分析。选取 6 项指标：</p>
+
+<table>
+  <tr><th>指标</th><th>含义</th><th>指标</th><th>含义</th></tr>
+  <tr><td>$X_1$</td><td>乡村劳动力人口（万人）</td><td>$X_4$</td><td>家庭基本纯收入（元）</td></tr>
+  <tr><td>$X_2$</td><td>人均经营耕地面积（亩）</td><td>$X_5$</td><td>人均农业总产值（千元/人）</td></tr>
+  <tr><td>$X_3$</td><td>户均生产性固定资产原值（元）</td><td>$X_6$</td><td>增加值占总产值比重（%）</td></tr>
+</table>
+
+<h4>特征值与贡献率</h4>
+
+<table>
+  <tr><th>序号</th><th>特征值</th><th>贡献率 (%)</th><th>累计贡献率 (%)</th></tr>
+  <tr><td>1</td><td>2.7765</td><td>46.28</td><td>46.28</td></tr>
+  <tr><td>2</td><td>1.7410</td><td>29.02</td><td>75.29</td></tr>
+  <tr><td>3</td><td>0.7116</td><td>11.86</td><td>87.15</td></tr>
+  <tr><td>4</td><td>0.4334</td><td>7.22</td><td>94.38</td></tr>
+  <tr><td>5</td><td>0.2369</td><td>3.95</td><td>98.33</td></tr>
+  <tr><td>6</td><td>0.1004</td><td>1.67</td><td>100.00</td></tr>
+</table>
+
+<p>前 3 个特征值累计贡献率已达 87.15%（> 85%），故提取 3 个公共因子。</p>
+
+<h4>旋转前后的因子载荷对比</h4>
+
+<table>
+  <tr><th rowspan="2">指标</th><th colspan="3">旋转前（$A$）</th><th colspan="3">旋转后（Varimax）</th><th rowspan="2">共同度</th></tr>
+  <tr><th>$a_1$</th><th>$a_2$</th><th>$a_3$</th><th>$F_1$</th><th>$F_2$</th><th>$F_3$</th></tr>
+  <tr><td>$X_1$</td><td>0.243</td><td>-0.824</td><td>-0.156</td><td>-0.379</td><td><strong>-0.725</strong></td><td>-0.304</td><td>0.762</td></tr>
+  <tr><td>$X_2$</td><td>0.272</td><td>0.695</td><td>0.637</td><td>-0.105</td><td>0.218</td><td><strong>0.951</strong></td><td>0.963</td></tr>
+  <tr><td>$X_3$</td><td>0.403</td><td>0.696</td><td>0.453</td><td>-0.296</td><td><strong>0.870</strong></td><td>0.089</td><td>0.852</td></tr>
+  <tr><td>$X_4$</td><td>-0.910</td><td>0.020</td><td>0.196</td><td><strong>0.886</strong></td><td>0.027</td><td>-0.285</td><td>0.868</td></tr>
+  <tr><td>$X_5$</td><td>-0.909</td><td>0.306</td><td>-0.036</td><td><strong>0.950</strong></td><td>0.121</td><td>0.065</td><td>0.921</td></tr>
+  <tr><td>$X_6$</td><td>0.909</td><td>0.030</td><td>0.192</td><td><strong>-0.898</strong></td><td>0.240</td><td>-0.001</td><td>0.863</td></tr>
+</table>
+
+<div class="highlight">
+  <strong>旋转前后对比解读：</strong><br>
+  <strong>旋转前：</strong>因子含义模糊——每个因子在多个不相关变量上都有较高载荷，难以命名<br>
+  <strong>旋转后：</strong>各因子与少数几个特定指标高度相关，结构清晰：
+</div>
+
+<h4>因子命名</h4>
+
+<table>
+  <tr><th>因子</th><th>高载荷指标</th><th>命名</th><th>解释</th></tr>
+  <tr>
+    <td><strong>$F_1$</strong></td>
+    <td>$X_4$, $X_5$, $X_6$</td>
+    <td>产出及效益因子</td>
+    <td>反映农业生产的<strong>经济产出</strong>水平——收入、产值、增加值占比</td>
+  </tr>
+  <tr>
+    <td><strong>$F_2$</strong></td>
+    <td>$X_1$, $X_3$</td>
+    <td>人为投入条件因子</td>
+    <td>反映农业的<strong>人力和资本投入</strong>——劳动力、固定资产</td>
+  </tr>
+  <tr>
+    <td><strong>$F_3$</strong></td>
+    <td>$X_2$</td>
+    <td>自然条件因子</td>
+    <td>反映<strong>土地资源禀赋</strong>——人均耕地面积</td>
+  </tr>
+</table>
+
+<h3>5.3 SPSS 操作要点</h3>
+
+<div class="highlight">
+  <strong>SPSS 因子分析操作路径：</strong><br>
+  <strong>标准化：</strong>分析 → 描述统计 → 描述（勾选"将标准化值另存为变量"）<br>
+  <strong>因子分析：</strong>分析 → 降维 → 因子分析<br>
+  &nbsp;&nbsp;• <strong>描述：</strong>勾选 KMO 和 Bartlett 球形度检验<br>
+  &nbsp;&nbsp;• <strong>抽取：</strong>方法默认主成分，基于特征值 > 1 或固定因子数<br>
+  &nbsp;&nbsp;• <strong>旋转：</strong>选择"最大方差法"（Varimax）<br>
+  &nbsp;&nbsp;• <strong>得分：</strong>勾选"保存为变量"（回归法）<br>
+  <strong>输出要点：</strong>关注 KMO 值、Sig 值、总方差解释表（累计贡献率）、旋转后的成分矩阵（因子载荷）
+</div>
+
+<h3>5.4 因子分析可提供的核心成果</h3>
+
+<div class="highlight">
+  <strong>因子分析在数学建模竞赛中能提供的四类产出：</strong><br>
+  <strong>1. 因子命名与结构理解：</strong>揭示隐藏的数据结构，帮助理解复杂的指标体系（如"某问题的影响因素分析"）<br>
+  <strong>2. 权重确定：</strong>以因子方差贡献率为权重，替代主观评分或层次分析法（AHP）中的主观赋权——更加客观<br>
+  <strong>3. 因子得分变量：</strong>将高维指标压缩为少数几个因子得分，作为后续<strong>聚类分析</strong>或<strong>回归分析</strong>的输入<br>
+  <strong>4. 综合评价排名：</strong>以各因子贡献率为权重计算综合得分，用于排序、分档或均值比较
+</div>
+</div>
+
+<!-- 6. PCA vs 因子分析 -->
+<div class="section">
+<h2>六、主成分分析与因子分析的异同 <span class="tag-key">高频考点</span></h2>
+
+<h3>6.1 核心差异对比</h3>
+
+<table>
+  <tr><th>维度</th><th>主成分分析（PCA）</th><th>因子分析（FA）</th></tr>
+  <tr>
+    <td><strong>数学本质</strong></td>
+    <td>变量的<strong>线性组合</strong>（变换）<br>$Y = A^T X$</td>
+    <td>变量的<strong>生成模型</strong><br>$X = AF + \varepsilon$</td>
+  </tr>
+  <tr>
+    <td><strong>目标</strong></td>
+    <td>最大化方差，<strong>降维</strong></td>
+    <td>解释<strong>潜在结构</strong>（寻找公共因子）</td>
+  </tr>
+  <tr>
+    <td><strong>方差解释</strong></td>
+    <td>关注<strong>总方差</strong>（全部解释）</td>
+    <td>只关注<strong>共同方差</strong>（分出特殊方差）</td>
+  </tr>
+  <tr>
+    <td><strong>模型方向</strong></td>
+    <td>从 $X$ → $Y$（正向：主成分=变量的组合）</td>
+    <td>从 $F$ → $X$（反向：变量=因子的组合+特殊项）</td>
+  </tr>
+  <tr>
+    <td><strong>唯一性</strong></td>
+    <td>主成分<strong>唯一</strong>（由特征向量确定）</td>
+    <td>因子<strong>不唯一</strong>（可通过旋转改变）</td>
+  </tr>
+  <tr>
+    <td><strong>旋转</strong></td>
+    <td>不可旋转（也无必要）</td>
+    <td><strong>可以且应该旋转</strong>以提高可解释性</td>
+  </tr>
+  <tr>
+    <td><strong>输出</strong></td>
+    <td>主成分得分 + 综合得分</td>
+    <td>因子载荷 + 因子得分 + 因子命名</td>
+  </tr>
+  <tr>
+    <td><strong>适用场景</strong></td>
+    <td>纯降维、综合评价、数据压缩</td>
+    <td>揭示潜变量结构、量表分析、因素分析</td>
+  </tr>
+</table>
+
+<h3>6.2 如何选择？</h3>
+
+<div class="highlight">
+  <strong>决策指南：</strong><br>
+  <strong>用 PCA 当：</strong>你的目标是<strong>降维</strong>（减少变量数量）、<strong>综合评价</strong>（计算综合得分排名）、或为后续模型<strong>消除多重共线性</strong>。PCA 简单直接，输出就是变量的精确线性组合，没有模型假设。<br>
+  <strong>用因子分析当：</strong>你的目标是<strong>理解数据结构</strong>（哪些变量共享同一个潜在因素）、<strong>量表分析</strong>（验证指标体系的合理性）、或<strong>揭示隐藏因素</strong>（如将10个问卷题目归纳为3个心理维度）。因子分析引入了潜变量概念，更接近社会科学研究的思维范式。<br>
+  <strong>竞赛建议：</strong>综合评价排名 → PCA；因素分析/结构探索/权重客观化 → 因子分析。两者通常只需选其一，不需要同时用。
+</div>
+
+<h3>6.3 共同注意点</h3>
+
+<div class="highlight">
+  <strong>PCA 和因子分析的共同前提：</strong><br>
+  • <strong>数据需标准化</strong> — 消除量纲影响<br>
+  • <strong>KMO > 0.5</strong> — 变量间有足够的共同方差<br>
+  • <strong>Bartlett Sig < 0.05</strong> — 拒绝变量独立的原假设<br>
+  • <strong>结果需要专业解释</strong> — 统计软件只输出数字，因子的命名和解读需要领域知识<br>
+  • <strong>样本量建议</strong> — 一般要求 $n \geq 5p$（样本数至少是指标数的 5 倍），最好 $n \geq 100$
+</div>
+</div>
+
+<!-- 7. 竞赛应用指南 -->
+<div class="section">
+<h2>七、数学建模竞赛中的应用 <span class="tag-freq">实战指导</span></h2>
+
+<h3>7.1 适用场景</h3>
+
+<table>
+  <tr><th>竞赛场景</th><th>推荐方法</th><th>解题思路</th></tr>
+  <tr>
+    <td><strong>综合评价排名</strong></td>
+    <td>PCA</td>
+    <td>多指标体系中以方差贡献率客观赋权，计算综合得分排序</td>
+  </tr>
+  <tr>
+    <td><strong>影响因素分析</strong></td>
+    <td>因子分析</td>
+    <td>将大量影响因素归纳为少数几个公共因子，命名并解释</td>
+  </tr>
+  <tr>
+    <td><strong>数据预处理</strong></td>
+    <td>PCA</td>
+    <td>对高维指标降维，消除多重共线性后输入回归/聚类模型</td>
+  </tr>
+  <tr>
+    <td><strong>指标体系验证</strong></td>
+    <td>因子分析</td>
+    <td>验证指标体系的构念效度——指标是否按预期归入各因子</td>
+  </tr>
+  <tr>
+    <td><strong>权重客观化</strong></td>
+    <td>PCA/FA</td>
+    <td>替代AHP等主观赋权法，以方差贡献率作为客观权重</td>
+  </tr>
+</table>
+
+<h3>7.2 论文写作要点</h3>
+
+<div class="highlight">
+  <strong>PCA/因子分析在论文中的标准化呈现：</strong><br>
+  ① <strong>适用性检验：</strong>报告 KMO 值和 Bartlett Sig 值，说明为什么这个方法适合你的数据<br>
+  ② <strong>特征值与贡献率表：</strong>展示特征值、贡献率和累计贡献率的完整表格<br>
+  ③ <strong>主成分/因子个数选择依据：</strong>结合累计贡献率（≥85%或≥60%）、碎石图和特征值>1准则综合论证<br>
+  ④ <strong>载荷矩阵：</strong>呈现旋转前后的因子载荷，用加粗标注高载荷（如 >0.7）<br>
+  ⑤ <strong>因子命名与解释：</strong>结合专业知识对每个因子给出有意义的解释<br>
+  ⑥ <strong>综合得分公式：</strong>明确写出综合得分的计算公式和权重
+</div>
+
+<h3>7.3 软件实现速查</h3>
+
+<table>
+  <tr><th>软件</th><th>PCA 函数</th><th>因子分析函数</th></tr>
+  <tr>
+    <td><strong>MATLAB</strong></td>
+    <td><code>pcacov(R)</code> 或 <code>pca(X)</code></td>
+    <td><code>factoran(X, m)</code>（最大似然法）</td>
+  </tr>
+  <tr>
+    <td><strong>Python</strong></td>
+    <td><code>sklearn.decomposition.PCA</code></td>
+    <td><code>sklearn.decomposition.FactorAnalysis</code></td>
+  </tr>
+  <tr>
+    <td><strong>SPSS</strong></td>
+    <td colspan="2">分析 → 降维 → 因子分析（PCA 作为抽取方法内嵌）</td>
+  </tr>
+  <tr>
+    <td><strong>R</strong></td>
+    <td><code>prcomp(X, scale=TRUE)</code></td>
+    <td><code>factanal(X, factors=m, rotation="varimax")</code></td>
+  </tr>
+</table>
+
+<h3>7.4 Python 实现参考</h3>
+
+<div class="code-block"><span class="co"># pca_demo.py — PCA + 综合评价 Python 实现</span>
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">from</span> sklearn.decomposition <span class="kw">import</span> PCA
+<span class="kw">from</span> sklearn.preprocessing <span class="kw">import</span> StandardScaler
+
+<span class="co"># 假设 X 是 n×p 原始数据矩阵</span>
+X = np.loadtxt(<span class="str">'data.txt'</span>)
+
+<span class="co"># 步骤1：标准化</span>
+scaler = StandardScaler()
+X_std = scaler.fit_transform(X)
+
+<span class="co"># 步骤2-3：PCA（自动计算特征值和特征向量）</span>
+pca = PCA()
+pca.fit(X_std)
+
+<span class="co"># 查看贡献率</span>
+<span class="kw">print</span>(<span class="str">'贡献率:'</span>, pca.explained_variance_ratio_)
+<span class="kw">print</span>(<span class="str">'累计贡献率:'</span>, np.cumsum(pca.explained_variance_ratio_))
+
+<span class="co"># 步骤4：选取前 m 个主成分</span>
+<span class="co"># 根据累计贡献率 ≥ 85% 确定 m</span>
+cumsum = np.cumsum(pca.explained_variance_ratio_)
+m = np.searchsorted(cumsum, <span class="num">0.85</span>) + <span class="num">1</span>
+
+<span class="co"># 步骤5：计算主成分得分</span>
+scores = pca.transform(X_std)[:, :m]
+
+<span class="co"># 步骤6：以贡献率为权重计算综合得分</span>
+weights = pca.explained_variance_ratio_[:m]
+weights = weights / weights.sum()    <span class="co"># 归一化权重</span>
+composite = scores @ weights
+
+<span class="co"># 排序</span>
+rank = np.argsort(-composite) + <span class="num">1</span>  <span class="co"># 降序排名（从1开始）</span>
+<span class="kw">print</span>(<span class="str">'排名:'</span>, rank)</div>
+
+<div class="checkpoint">
+  <ol>
+    <li>PCA 中为什么要先对数据做标准化？如果不标准化会有什么后果？</li>
+    <li>KMO 值和 Bartlett Sig 值分别表明什么？它们的阈值各是多少？</li>
+    <li>因子旋转改变哪些东西，不改变哪些东西？为什么需要旋转？</li>
+    <li>主成分分析与因子分析最大的区别是什么？在数学建模中什么时候用PCA、什么时候用因子分析？</li>
+    <li>如果累计贡献率只有 55%，但前两个因子都有明确的业务含义，你应该怎么处理？</li>
+    <li>因子载荷 $a_{ij}$ 和变量共同度 $h_i^2$ 分别有什么统计意义？</li>
+  </ol>
+</div>
+</div>
+
+<!-- Bottom Nav -->
+<div class="nav-links">
+  <a href="线性回归.html">← 线性回归</a>
+  <a href="index.html">⌂ 首页</a>
+  <a href="AI与建模.html">AI与数学建模 →</a>
+</div>
+
+</div><!-- .container -->
+
+<div class="footer"><p>📐 数学建模学习平台 &copy; 2026 Jacky</p></div>
+</div><!-- .main-wrap -->
+
+<!-- Back to Top -->
+<button class="back2top" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="回到顶部">↑</button>
+
+<!-- Chapter Nav Toggle + Panel -->
+<button class="chapter-nav-toggle" onclick="toggleChapterNav()" title="章节导航">📖 章节导航</button>
+<div class="chapter-nav-panel" id="chapterNav">
+  <div class="nav-header">📐 目录导航</div>
+  <div class="nav-section">核心方法</div>
+  <a href="插值与拟合.html"><span class="num">1</span>插值与拟合</a>
+  <a href="蒙特卡洛.html"><span class="num">2</span>蒙特卡洛方法</a>
+  <a href="线性回归.html"><span class="num">3</span>线性回归</a>
+  <a href="主成分与因子分析.html"><span class="num">5</span>主成分与因子分析</a>
+  <div class="nav-section">综合专题</div>
+  <a href="AI与建模.html"><span class="num">4</span>AI与数学建模</a>
+  <a href="index.html" style="border-top:1px solid var(--sidebar-border);margin-top:6px;padding-top:10px"><span class="num">⌂</span>返回首页</a>
+</div>
+
+<!-- ===== JavaScript ===== -->
+<script>
+(function(){var v='250711c';if(localStorage.getItem('mm-ver')!==v){localStorage.setItem('mm-ver',v);location.reload(true);}})();
+// Sidebar current-page highlight
+(function(){
+  var p = window.location.pathname.split('/').pop() || '主成分与因子分析.html';
+  document.querySelectorAll('.sidebar-nav a').forEach(function(a){
+    if(a.getAttribute('href') === p) a.classList.add('current');
+  });
+})();
+
+// Theme toggle
+(function(){
+  var d = localStorage.getItem('mathmodel-theme');
+  if(d === 'dark'){
+    document.body.classList.add('dark-mode');
+    document.querySelector('.theme-toggle').textContent = '☀️';
+  }
+})();
+function toggleTheme(){
+  var b = document.body; b.classList.toggle('dark-mode');
+  var btn = document.querySelector('.theme-toggle');
+  var isDark = b.classList.contains('dark-mode');
+  btn.textContent = isDark ? '☀️' : '🌙';
+  localStorage.setItem('mathmodel-theme', isDark ? 'dark' : 'light');
+}
+
+// Chapter nav panel
+function toggleChapterNav(){
+  var panel = document.getElementById('chapterNav');
+  panel.classList.toggle('open');
+}
+document.addEventListener('click', function(e){
+  var panel = document.getElementById('chapterNav');
+  var btn = document.querySelector('.chapter-nav-toggle');
+  if(panel && panel.classList.contains('open') && !panel.contains(e.target) && !btn.contains(e.target)){
+    panel.classList.remove('open');
+  }
+});
+document.addEventListener('DOMContentLoaded', function(){
+  var path = window.location.pathname.split('/').pop() || '主成分与因子分析.html';
+  var panel = document.getElementById('chapterNav');
+  if(!panel) return;
+  panel.querySelectorAll('a').forEach(function(a){
+    if(a.getAttribute('href') === path) a.classList.add('current');
+  });
+});
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="rag-retriever.js?v=1"></script>
+<script src="ai-chat.js?v=7"></script>
+</body>
+</html>
