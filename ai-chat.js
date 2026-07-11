@@ -183,31 +183,40 @@ function addMsg(role, text){
 }
 
 function renderMD(t){
-  // 1) Save LaTeX math blocks before marked processing
-  var mathBlocks = [];
-  // Display math: $$ ... $$
-  t = t.replace(/\$\$([\s\S]*?)\$\$/g, function(_, math){
-    mathBlocks.push('<span class="math display">$$' + math + '$$</span>');
-    return '\x00M' + (mathBlocks.length-1) + '\x00';
-  });
-  // Inline math: $ ... $
-  t = t.replace(/\$(.+?)\$/g, function(_, math){
-    mathBlocks.push('<span class="math inline">$' + math + '$</span>');
-    return '\x00M' + (mathBlocks.length-1) + '\x00';
+  var blocks = [];
+  var B = '\x00B'; // placeholder prefix
+
+  // 1) Save code blocks first (before math, so $ inside code is preserved)
+  t = t.replace(/```(\w*)\n([\s\S]*?)```/g, function(_, lang, code){
+    blocks.push({type:'code', html:'<pre><code>' +
+      code.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n$/,'') +
+      '</code></pre>'});
+    return B + (blocks.length-1) + B;
   });
 
-  // 2) Use marked.js for full GFM markdown → HTML
+  // 2) Save LaTeX math blocks
+  // Display math: $$ ... $$
+  t = t.replace(/\$\$([\s\S]*?)\$\$/g, function(_, math){
+    blocks.push({type:'math', html:'<span class="math display">$$' + math + '$$</span>'});
+    return B + (blocks.length-1) + B;
+  });
+  // Inline math: $...$ (won't match inside code blocks — already saved)
+  t = t.replace(/\$(.+?)\$/g, function(_, math){
+    blocks.push({type:'math', html:'<span class="math inline">$' + math + '$</span>'});
+    return B + (blocks.length-1) + B;
+  });
+
+  // 3) Use marked.js for full GFM markdown → HTML
   var html;
   if(typeof marked !== 'undefined' && marked.parse){
     html = marked.parse(t, {gfm: true, breaks: true});
   } else {
-    // Fallback: basic HTML escape + line breaks
     html = t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
   }
 
-  // 3) Restore math blocks
-  html = html.replace(/\x00M(\d+)\x00/g, function(_, i){
-    return mathBlocks[parseInt(i)];
+  // 4) Restore all saved blocks (code + math)
+  html = html.replace(new RegExp(B + '(\\d+)' + B, 'g'), function(_, i){
+    return blocks[parseInt(i)].html;
   });
 
   return html;
