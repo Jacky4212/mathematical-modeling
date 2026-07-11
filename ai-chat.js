@@ -231,7 +231,11 @@ function renderMD(t){
   if(buf) merged.push(buf);  // safety: flush any unclosed buffer
   t = merged.join('\n');
 
-  // 4) Use marked.js for full GFM markdown → HTML
+  // 4) Normalize whitespace: collapse 3+ blank lines, trim line ends
+  t = t.replace(/[ \t]+$/gm, '');      // trim trailing spaces per line
+  t = t.replace(/\n{3,}/g, '\n\n');    // collapse excessive blank lines
+
+  // 5) Use marked.js for full GFM markdown → HTML
   var html;
   if(typeof marked !== 'undefined' && marked.parse){
     html = marked.parse(t, {gfm: true, breaks: true});
