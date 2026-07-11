@@ -178,13 +178,25 @@ function addMsg(role, text){
 }
 
 function renderMD(t){
-  // 1) Save code blocks before escaping
+  // 1) Save code blocks AND LaTeX math blocks before escaping
   var blocks = [];
+  // 1a) Code blocks — ``` ... ```
   t = t.replace(/```(\w*)\n([\s\S]*?)```/g, function(_,lang,code){
     var escaped = code.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
     blocks.push('<pre><code>' + escaped.replace(/\n$/,'') + '</code></pre>');
     return '\x00B' + (blocks.length-1) + '\x00';
   });
+  // 1b) Display math — $$ ... $$
+  t = t.replace(/\$\$([\s\S]*?)\$\$/g, function(_,math){
+    blocks.push('<span class="math display">$$' + math + '$$</span>');
+    return '\x00B' + (blocks.length-1) + '\x00';
+  });
+  // 1c) Inline math — $ ... $ (single $, non-empty content)
+  t = t.replace(/\$(.+?)\$/g, function(_,math){
+    blocks.push('<span class="math inline">$' + math + '$</span>');
+    return '\x00B' + (blocks.length-1) + '\x00';
+  });
+
   // 2) Escape HTML in the rest
   t = t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   // 3) Inline code
@@ -202,7 +214,7 @@ function renderMD(t){
   t = t.replace(/^- (.+)$/gm, '<li>$1</li>');
   // 9) Line breaks
   t = t.replace(/\n/g,'<br>');
-  // 10) Restore code blocks
+  // 10) Restore all saved blocks (code + math)
   t = t.replace(/\x00B(\d+)\x00/g, function(_,i){ return blocks[parseInt(i)]; });
   return t;
 }
