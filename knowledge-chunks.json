@@ -1,0 +1,702 @@
+[
+  {
+    "id": "综合评价-01",
+    "title": "层次分析法 (AHP)",
+    "category": "综合评价",
+    "keywords": [
+      "AHP",
+      "层次分析",
+      "SA",
+      "权重"
+    ],
+    "search_text": "层次分析法 (AHP)\n通过两两比较构造正互反判断矩阵 $A$，求最大特征值 $\\lambda_{max}$ 对应的特征向量作为权重向量。使用 Saaty 1-9 标度法。\n\n$$AW = \\lambda_{max}W$$\n\n**一致性检验**：$CI = \\frac{\\lambda_{max} - n}{n - 1}$，$CR = \\frac{CI}{RI}$，必须 CR < 0.1 才通过。\n\n| n | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 |\n|---|----|----|----|----|----|----|----|----|\n| RI | 0.52 | 0.89 | 1.11 | 1.25 | 1.35 | 1.40 | 1.45 | 1.49 |\n多准则决策（选址、供应商选择、项目评估），需要专家经验时。",
+    "context": "【层次分析法 (AHP)】（综合评价）\n原理：通过两两比较构造正互反判断矩阵 $A$，求最大特征值 $\\lambda_{max}$ 对应的特征向量作为权重向量。使用 Saaty 1-9 标度法。\n\n$$AW = \\lambda_{max}W$$\n\n**一致性检验**：$CI = \\frac{\\lambda_{max} - n}{n - 1}$，$CR = \\frac{CI}{RI}$，必须 CR < 0.1 才通过。\n\n| n | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 |\n|---|----|----|----|----|----|----|----|----|\n| RI | 0.52 | 0.89 | 1.11 | 1.25 | 1.35 | 1.40 | 1.45 | 1.49 |\n适用场景：多准则决策（选址、供应商选择、项目评估），需要专家经验时。\n关键参数：- RI（随机一致性指标）：查表，与 n 相关\n- CR < 0.1：一致性通过标准\n注意事项：1. 判断矩阵必须正互反：$a_{ij} = 1/a_{ji}$\n2. 对角线元素必为 1\n3. CR >= 0.1 时需重新调整判断矩阵\n4. 可结合熵值法混合赋权\n参考代码：\n```python\nimport numpy as np\n\nclass AHP:\n    def __init__(self, judgment_matrix):\n        self.A = np.array(judgment_matrix, dtype=float)\n        self.n = self.A.shape[0]\n\n    def compute_weights(self, method='eigenvector'):\n        \"\"\"计算权重向量\"\"\"\n        if method == 'eigenvector':\n            eigenvalues, eigenvectors = np.linalg.eig(self.A)\n            max_idx = np.argmax(eigenvalues.real)\n            w = eigenvectors[:, max_idx].real\n            w = w / w.sum()\n            self.lambda_max = eigenvalues[max_idx].real\n        elif method == 'geometric':\n            w = np.prod(self.A, axis=1) ** (1/self.n)\n            w = w / w.sum()\n            self.lambda_max = np.sum(self.A @ w / w) / self.n\n        self.weights = np.abs(w)\n        return self.weights\n\n    def consistency_check(self):\n        \"\"\"一致性检验\"\"\"\n        CI = (self.lambda_max - self.n) / (self.n - 1)\n        RI_dict = {1:0, 2:0, 3:0.52, 4:0.89, 5:1.11, 6:1.25,\n                   7:1.35, 8:1.40, 9:1.45, 10:1.49}\n        RI = RI_dict.get(self.n, 1.49)\n        CR = CI / RI if RI != 0 else 0\n        return {'CI': CI, 'RI': RI, 'CR': CR, 'passed': CR < 0.1}\n\n# 使用示例\nA = [[1, 3, 5],\n     [1/3, 1, 2],\n     [1/5, 1/2, 1]]\nahp = AHP(A)\nw = ahp.compute_weights()\nprint(f\"权重: {w}\")\nprint(f\"CR = {ahp.consistency_check()['CR']:.4f}\")\n```\n\n**推荐组合**：AHP 赋权 + TOPSIS 排序\n\n---\n"
+  },
+  {
+    "id": "综合评价-02",
+    "title": "TOPSIS 优劣解距离法",
+    "category": "综合评价",
+    "keywords": [
+      "AHP",
+      "TOPSIS",
+      "优劣解距离",
+      "熵值法",
+      "综合评价"
+    ],
+    "search_text": "TOPSIS 优劣解距离法\n最优方案距离正理想解最近、距离负理想解最远。\n\n1. 向量归一化：$r_{ij} = x_{ij} / \\sqrt{\\sum x_{ij}^2}$\n2. 加权：$v_{ij} = w_j \\cdot r_{ij}$\n3. 正负理想解：$A^+$（效益型取max/成本型取min），$A^-$（反之）\n4. 欧氏距离：$S_i^+ = \\sqrt{\\sum_j (v_{ij} - A_j^+)^2}$\n5. 相对接近度：$C_i = S_i^- / (S_i^+ + S_i^-)$\n多方案多指标综合评价与排名，与熵值法/AHP 组合使用。",
+    "context": "【TOPSIS 优劣解距离法】（综合评价）\n原理：最优方案距离正理想解最近、距离负理想解最远。\n\n1. 向量归一化：$r_{ij} = x_{ij} / \\sqrt{\\sum x_{ij}^2}$\n2. 加权：$v_{ij} = w_j \\cdot r_{ij}$\n3. 正负理想解：$A^+$（效益型取max/成本型取min），$A^-$（反之）\n4. 欧氏距离：$S_i^+ = \\sqrt{\\sum_j (v_{ij} - A_j^+)^2}$\n5. 相对接近度：$C_i = S_i^- / (S_i^+ + S_i^-)$\n适用场景：多方案多指标综合评价与排名，与熵值法/AHP 组合使用。\n关键参数：- benefit_cols / cost_cols：指标方向（正向化处理）\n注意事项：1. 必须区分效益型（越大越好）和成本型（越小越好）\n2. 指标需先做正向化处理（成本型取倒数或取负）\n3. 量纲不一致需归一化\n参考代码：\n```python\nimport numpy as np\n\ndef topsis(X, weights, benefit_cols=None):\n    \"\"\"\n    X: 原始数据矩阵 (m方案 × n指标)\n    weights: 权重向量\n    benefit_cols: 效益型指标列索引列表\n    \"\"\"\n    X = np.array(X, dtype=float)\n    m, n = X.shape\n\n    # 正向化处理\n    if benefit_cols is not None:\n        cost_cols = [j for j in range(n) if j not in benefit_cols]\n        for j in cost_cols:\n            X[:, j] = X[:, j].max() - X[:, j]\n\n    # 向量归一化\n    r_ij = X / np.sqrt(np.sum(X**2, axis=0))\n\n    # 加权\n    v_ij = r_ij * weights\n\n    # 正负理想解\n    ideal_best = np.max(v_ij, axis=0)\n    ideal_worst = np.min(v_ij, axis=0)\n\n    # 欧氏距离\n    s_best = np.sqrt(np.sum((v_ij - ideal_best)**2, axis=1))\n    s_worst = np.sqrt(np.sum((v_ij - ideal_worst)**2, axis=1))\n\n    # 相对接近度\n    c_i = s_worst / (s_best + s_worst)\n    return c_i, np.argsort(-c_i)\n```\n\n---\n"
+  },
+  {
+    "id": "综合评价-03",
+    "title": "熵值法",
+    "category": "综合评价",
+    "keywords": [
+      "TOPSIS",
+      "熵值法",
+      "赋权",
+      "权重",
+      "排序"
+    ],
+    "search_text": "熵值法\n基于 Shannon 信息熵客观赋权。指标变异程度越大，熵值越小，权重越大。\n\n$$e_j = -\\frac{1}{\\ln m} \\sum p_{ij} \\ln(p_{ij})$$\n$$d_j = 1 - e_j$$\n$$w_j = d_j / \\sum d_j$$\n需要完全客观赋权，与 TOPSIS 组合（熵值法赋权 + TOPSIS 排序）。",
+    "context": "【熵值法】（综合评价）\n原理：基于 Shannon 信息熵客观赋权。指标变异程度越大，熵值越小，权重越大。\n\n$$e_j = -\\frac{1}{\\ln m} \\sum p_{ij} \\ln(p_{ij})$$\n$$d_j = 1 - e_j$$\n$$w_j = d_j / \\sum d_j$$\n适用场景：需要完全客观赋权，与 TOPSIS 组合（熵值法赋权 + TOPSIS 排序）。\n注意事项：1. 必须有正数值（$p_{ij}>0$ 才能取对），零值需平移处理\n2. 负值需先做归一化处理到正值区间\n参考代码：\n```python\ndef entropy_weight(X):\n    \"\"\"熵值法客观赋权\"\"\"\n    X = np.array(X, dtype=float)\n\n    # 平移处理确保正值\n    if np.any(X <= 0):\n        X = X - X.min() + 0.0001\n\n    m, n = X.shape\n    # 和归一化\n    p = X / X.sum(axis=0)\n    # 熵值\n    e = -np.sum(p * np.log(p + 1e-10), axis=0) / np.log(m)\n    # 差异系数 → 权重\n    d = 1 - e\n    w = d / d.sum()\n    return w\n```\n\n---\n"
+  },
+  {
+    "id": "综合评价-04",
+    "title": "变异系数法",
+    "category": "综合评价",
+    "keywords": [
+      "变异系数",
+      "权重"
+    ],
+    "search_text": "变异系数法\n$v_j = \\sigma_j / \\bar{y}_j$（标准差/均值），变异系数越大的指标权重越大。\n\n$$w_j = v_j / \\sum v_k, \\quad \\text{Score}_i = \\sum_j w_j \\cdot y_{ij}$$\n快速初步评价、指标量纲差异大、纯客观评价。",
+    "context": "【变异系数法】（综合评价）\n原理：$v_j = \\sigma_j / \\bar{y}_j$（标准差/均值），变异系数越大的指标权重越大。\n\n$$w_j = v_j / \\sum v_k, \\quad \\text{Score}_i = \\sum_j w_j \\cdot y_{ij}$$\n适用场景：快速初步评价、指标量纲差异大、纯客观评价。\n参考代码：\n```python\ndef cv_weight(X):\n    \"\"\"变异系数法赋权\"\"\"\n    X = np.array(X, dtype=float)\n    mean = np.mean(X, axis=0)\n    std = np.std(X, axis=0, ddof=1)\n    cv = np.abs(std / (mean + 1e-10))  # 避免除零\n    w = cv / cv.sum()\n    return w\n```\n\n---\n"
+  },
+  {
+    "id": "综合评价-05",
+    "title": "CRITIC 权重法",
+    "category": "综合评价",
+    "keywords": [
+      "CRITIC",
+      "相关性",
+      "权重"
+    ],
+    "search_text": "CRITIC 权重法\n同时考虑对比强度（标准差）和冲突性（1 - |r|）。指标间相关性越高，权重越低。\n\n$$C_j = \\sigma_j \\cdot \\sum_{k=1}^{n} (1 - |r_{jk}|), \\quad w_j = C_j / \\sum C_j$$\n指标间存在明显相关性、需要惩罚冗余信息、学术论文常用。",
+    "context": "【CRITIC 权重法】（综合评价）\n原理：同时考虑对比强度（标准差）和冲突性（1 - |r|）。指标间相关性越高，权重越低。\n\n$$C_j = \\sigma_j \\cdot \\sum_{k=1}^{n} (1 - |r_{jk}|), \\quad w_j = C_j / \\sum C_j$$\n适用场景：指标间存在明显相关性、需要惩罚冗余信息、学术论文常用。\n参考代码：\n```python\ndef critic_weight(X):\n    \"\"\"CRITIC法客观赋权\"\"\"\n    X = np.array(X, dtype=float)\n    n = X.shape[1]\n    std = np.std(X, axis=0, ddof=1)\n    corr = np.corrcoef(X.T)\n    # 冲突性：与其他指标的相关性越低，冲突性越高\n    conflict = np.sum(1 - np.abs(corr), axis=1)\n    # 信息量\n    C = std * conflict\n    w = C / C.sum()\n    return w\n```\n\n---\n"
+  },
+  {
+    "id": "综合评价-06",
+    "title": "模糊综合评价",
+    "category": "综合评价",
+    "keywords": [
+      "模糊综合评价",
+      "模糊评价",
+      "综合评价",
+      "权重"
+    ],
+    "search_text": "模糊综合评价\n基于 Zadeh 模糊集理论，用 [0,1] 隶属度取代二值判断处理边界模糊的评价。\n\n**五要素**：因素集 $U$、评语集 $V$、权重向量 $A$、模糊评价矩阵 $R$、模糊合成 $B = A \\circ R$\n\n**5种算子**：\n| 算子 | 特点 |\n|------|------|\n| M(∧,∨) | 主因素决定型 |\n| M(·,∨) | 主因素突出型 |\n| M(∧,⊕) | 不均衡平均型 |\n| M(·,⊕) | **加权平均型（推荐）** |\n\n**去模糊化**：$\\text{Score} = \\sum_j b_j \\cdot s_j$（加权平均法，$s_j$为各等级分值）\n定性+定量混合评价、满意度测评、风险评估、教学质量评价。",
+    "context": "【模糊综合评价】（综合评价）\n原理：基于 Zadeh 模糊集理论，用 [0,1] 隶属度取代二值判断处理边界模糊的评价。\n\n**五要素**：因素集 $U$、评语集 $V$、权重向量 $A$、模糊评价矩阵 $R$、模糊合成 $B = A \\circ R$\n\n**5种算子**：\n| 算子 | 特点 |\n|------|------|\n| M(∧,∨) | 主因素决定型 |\n| M(·,∨) | 主因素突出型 |\n| M(∧,⊕) | 不均衡平均型 |\n| M(·,⊕) | **加权平均型（推荐）** |\n\n**去模糊化**：$\\text{Score} = \\sum_j b_j \\cdot s_j$（加权平均法，$s_j$为各等级分值）\n适用场景：定性+定量混合评价、满意度测评、风险评估、教学质量评价。\n参考代码：\n```python\ndef fuzzy_synthesis(weights, R, operator='weighted_avg'):\n    \"\"\"\n    weights: 因素权重向量\n    R: 模糊评价矩阵 (n因素 × m评语等级)\n    \"\"\"\n    if operator == 'weighted_avg':  # M(·,+) 推荐\n        B = weights @ R\n        B = B / B.sum()  # 归一化\n    elif operator == 'max_min':  # M(∧,∨)\n        B = np.array([np.max(np.minimum(weights, R[:, j]))\n                       for j in range(R.shape[1])])\n    return B\n\ndef defuzzify(B, grade_scores):\n    \"\"\"去模糊化：模糊向量 → 综合分值\"\"\"\n    return np.dot(B, grade_scores)\n```\n\n---\n"
+  },
+  {
+    "id": "综合评价-07",
+    "title": "灰色关联分析 (GRA)",
+    "category": "综合评价",
+    "keywords": [
+      "灰色关联",
+      "GRA",
+      "GA"
+    ],
+    "search_text": "灰色关联分析 (GRA)\n比较参考序列与比较序列之间曲线几何形状的相似程度，越相似关联度越高。\n\n**灰色关联系数**：\n$$\\zeta_i(k) = \\frac{\\Delta_{min} + \\rho \\cdot \\Delta_{max}}{\\Delta_{0i}(k) + \\rho \\cdot \\Delta_{max}}$$\n\n**关联度**：$\\gamma(x_0, x_i) = \\frac{1}{n} \\sum_{k=1}^{n} \\zeta_i(k)$\n小样本（n<10）、贫信息系统、多因素影响分析。",
+    "context": "【灰色关联分析 (GRA)】（综合评价）\n原理：比较参考序列与比较序列之间曲线几何形状的相似程度，越相似关联度越高。\n\n**灰色关联系数**：\n$$\\zeta_i(k) = \\frac{\\Delta_{min} + \\rho \\cdot \\Delta_{max}}{\\Delta_{0i}(k) + \\rho \\cdot \\Delta_{max}}$$\n\n**关联度**：$\\gamma(x_0, x_i) = \\frac{1}{n} \\sum_{k=1}^{n} \\zeta_i(k)$\n适用场景：小样本（n<10）、贫信息系统、多因素影响分析。\n关键参数：| 参数 | 含义 | 建议 |\n|------|------|------|\n| ρ | 分辨系数 | 通常 0.5，降低（0.1~0.3）可提高分辨率 |\n参考代码：\n```python\ndef grey_relational_analysis(ref, comp_matrix, rho=0.5):\n    \"\"\"\n    ref: 参考序列 (1, n)\n    comp_matrix: 比较序列 (m, n)\n    \"\"\"\n    ref = np.array(ref).reshape(1, -1)\n    comp = np.array(comp_matrix)\n\n    # 无量纲化（初值化）\n    ref = ref / ref[:, 0].reshape(-1, 1)\n    comp = comp / comp[:, 0].reshape(-1, 1)\n\n    # 绝对差\n    delta = np.abs(ref - comp)\n\n    # 关联系数\n    delta_min = delta.min()\n    delta_max = delta.max()\n    zeta = (delta_min + rho * delta_max) / (delta + rho * delta_max)\n\n    # 关联度\n    gamma = zeta.mean(axis=1)\n    return gamma\n```\n\n---\n"
+  },
+  {
+    "id": "综合评价-08",
+    "title": "数据包络分析 (DEA)",
+    "category": "综合评价",
+    "keywords": [
+      "DEA",
+      "数据包络",
+      "线性规划",
+      "优化",
+      "规划",
+      "效率评价"
+    ],
+    "search_text": "数据包络分析 (DEA)\n非参数线性规划方法，评价多投入多产出 DMU 的相对效率。\n\n**CCR 模型（CRS，规模报酬不变）**：\n$$\\min \\theta \\quad \\text{s.t.} \\quad \\sum \\lambda_j y_{rj} \\ge y_{rk}, \\quad \\sum \\lambda_j x_{ij} \\le \\theta x_{ik}$$\n\n**BCC 模型（VRS）**：CCR + $\\sum \\lambda_j = 1$（凸性约束）\n\n**效率分解**：TE（综合效率）= PTE（纯技术效率）× SE（规模效率）\n银行/医院/学校效率评价、标杆分析、资源优化配置。",
+    "context": "【数据包络分析 (DEA)】（综合评价）\n原理：非参数线性规划方法，评价多投入多产出 DMU 的相对效率。\n\n**CCR 模型（CRS，规模报酬不变）**：\n$$\\min \\theta \\quad \\text{s.t.} \\quad \\sum \\lambda_j y_{rj} \\ge y_{rk}, \\quad \\sum \\lambda_j x_{ij} \\le \\theta x_{ik}$$\n\n**BCC 模型（VRS）**：CCR + $\\sum \\lambda_j = 1$（凸性约束）\n\n**效率分解**：TE（综合效率）= PTE（纯技术效率）× SE（规模效率）\n适用场景：银行/医院/学校效率评价、标杆分析、资源优化配置。\n参考代码：\n```python\nfrom scipy.optimize import linprog\n\ndef dea_ccr(X, Y, orientation='input'):\n    \"\"\"\n    X: 投入矩阵 (n_dmu × n_inputs)\n    Y: 产出矩阵 (n_dmu × n_outputs)\n    返回各DMU的效率值\n    \"\"\"\n    n_dmu, n_inputs = X.shape\n    n_outputs = Y.shape[1]\n    efficiencies = []\n\n    for k in range(n_dmu):\n        if orientation == 'input':\n            # min θ\n            c = np.zeros(n_dmu)\n            c = np.append(c, [1] + [0]*n_dmu)  # θ + λ\n\n            A_ub = []  # 投入约束\n            for i in range(n_inputs):\n                row = np.zeros(n_dmu + 1 + n_dmu)\n                row[:n_dmu] = -X[:, i]  # -Σλx\n                row[n_dmu] = X[k, i]    # +θx_k\n                A_ub.append(row)\n\n            # 产出约束\n            for r in range(n_outputs):\n                row = np.zeros(n_dmu + 1 + n_dmu)\n                row[:n_dmu] = Y[:, r]\n                row[n_dmu+1:] = np.eye(n_dmu)[r] if r < n_dmu else 0\n                A_ub.append(row)\n\n            # 简化版：用 scipy 的 linprog\n            # 乘子型更简洁\n            c_mul = np.zeros(n_inputs + n_outputs)\n            c_mul[:n_outputs] = -Y[k, :]  # max 加权产出\n\n            A_eq = np.zeros((1, n_inputs + n_outputs))\n            A_eq[0, n_outputs:] = X[k, :]\n            b_eq = [1.0]\n\n            A_ub = np.hstack([Y, -X])\n            b_ub = np.zeros(n_dmu)\n\n            res = linprog(c_mul, A_ub=A_ub, b_ub=b_ub,\n                         A_eq=A_eq, b_eq=b_eq,\n                         bounds=[(0, None)]*(n_inputs+n_outputs))\n            eff = -res.fun if res.success else None\n            efficiencies.append(eff)\n\n    return np.array(efficiencies)\n```\n\n---\n"
+  },
+  {
+    "id": "综合评价-09",
+    "title": "秩和比法 (RSR)",
+    "category": "综合评价",
+    "keywords": [
+      "秩和比",
+      "RSR",
+      "综合评价",
+      "预测",
+      "分类",
+      "回归"
+    ],
+    "search_text": "秩和比法 (RSR)\n在 n×m 数据矩阵中通过秩转换获得无量纲统计量，用 Probit 回归 + 分档完成评价。\n\n$$RSR_i = \\frac{\\sum_j R_{ij}}{m \\cdot n}$$\n\n$$\\text{Probit} = \\Phi^{-1}(p) + 5$$\n\n$$RSR = a + b \\cdot \\text{Probit}$$\n多指标综合评价、分类鉴别（优/中/差分档）、统计预测。",
+    "context": "【秩和比法 (RSR)】（综合评价）\n原理：在 n×m 数据矩阵中通过秩转换获得无量纲统计量，用 Probit 回归 + 分档完成评价。\n\n$$RSR_i = \\frac{\\sum_j R_{ij}}{m \\cdot n}$$\n\n$$\\text{Probit} = \\Phi^{-1}(p) + 5$$\n\n$$RSR = a + b \\cdot \\text{Probit}$$\n适用场景：多指标综合评价、分类鉴别（优/中/差分档）、统计预测。\n参考代码：\n```python\nfrom scipy.stats import norm\nimport statsmodels.api as sm\n\ndef rsr_analysis(df, benefit_cols=None):\n    \"\"\"\n    df: 原始数据DataFrame\n    benefit_cols: 高优指标（值越大越好）列名\n    \"\"\"\n    # 编秩（高优从小到大，低优从大到小）\n    rank_df = df.copy()\n    cost_cols = [c for c in df.columns if c not in (benefit_cols or [])]\n    for c in benefit_cols or []:\n        rank_df[c] = df[c].rank(method='average', ascending=True)\n    for c in cost_cols:\n        rank_df[c] = df[c].rank(method='average', ascending=False)\n\n    n_rows, n_cols = df.shape\n    RSR = rank_df.sum(axis=1) / (n_cols * n_rows)\n\n    # 频率分布\n    freq = RSR.value_counts().sort_index()\n    cum = freq.cumsum() / n_rows\n\n    # Probit变换（修正最后一项）\n    p_fixed = cum.copy()\n    p_fixed.iloc[-1] = 1 - 1/(4*n_rows)\n    probit = norm.ppf(p_fixed.values) + 5\n\n    # 回归\n    X = sm.add_constant(probit)\n    y = freq.index.values\n    model = sm.OLS(y, X).fit()\n\n    # 按Probit分档（常用3/5档）\n    # ...\n    return RSR, model\n```\n\n---\n"
+  },
+  {
+    "id": "综合评价-10",
+    "title": "耦合协调度模型",
+    "category": "综合评价",
+    "keywords": [
+      "耦合协调"
+    ],
+    "search_text": "耦合协调度模型\n量化多个子系统之间的相互作用强度和发展协调水平。\n\n**三个核心指标**：\n\n| 指标 | 公式 | 含义 |\n|------|------|------|\n| 耦合度 C | $C_n = \\left[ \\frac{\\prod U_i}{(\\frac{1}{n}\\sum U_i)^n} \\right]^{\\frac{1}{n}}$ | 系统间相互作用强度 |\n| 协调指数 T | $T = \\sum \\alpha_i \\cdot U_i$ | 综合发展水平 |\n| 耦合协调度 D | $D = \\sqrt{C \\times T}$ | 协调发展程度 |\n经济-社会-环境三元系统协调评价、产业融合发展、历年动态演化趋势分析。",
+    "context": "【耦合协调度模型】（综合评价）\n原理：量化多个子系统之间的相互作用强度和发展协调水平。\n\n**三个核心指标**：\n\n| 指标 | 公式 | 含义 |\n|------|------|------|\n| 耦合度 C | $C_n = \\left[ \\frac{\\prod U_i}{(\\frac{1}{n}\\sum U_i)^n} \\right]^{\\frac{1}{n}}$ | 系统间相互作用强度 |\n| 协调指数 T | $T = \\sum \\alpha_i \\cdot U_i$ | 综合发展水平 |\n| 耦合协调度 D | $D = \\sqrt{C \\times T}$ | 协调发展程度 |\n适用场景：经济-社会-环境三元系统协调评价、产业融合发展、历年动态演化趋势分析。\n参考代码：\n```python\ndef coupling_coordination(U, alpha=None):\n    \"\"\"\n    U: 子系统得分矩阵 (m样本 × n子系统)\n    alpha: 子系统权重，默认等权\n    \"\"\"\n    n_sys = U.shape[1]\n    if alpha is None:\n        alpha = np.ones(n_sys) / n_sys\n\n    # 耦合度（n元一般式）\n    geo_mean = np.prod(U, axis=1) ** (1.0 / n_sys)\n    ari_mean = U.sum(axis=1) / n_sys\n    C = (geo_mean / (ari_mean + 1e-10)) ** (1.0 / n_sys)\n\n    # 协调指数\n    T = U @ alpha\n\n    # 耦合协调度\n    D = np.sqrt(np.maximum(C * T, 0))\n    return C, T, D\n\ndef classify_d(value):\n    \"\"\"D值等级分类\"\"\"\n    thresholds = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]\n    labels = ['极度失调', '严重失调', '中度失调', '轻度失调', '濒临失调',\n              '勉强协调', '初级协调', '中级协调', '良好协调', '优质协调']\n    for i, t in enumerate(thresholds[1:], 1):\n        if value < t:\n            return labels[i-1]\n    return labels[-1]\n```\n\n---\n"
+  },
+  {
+    "id": "综合评价-11",
+    "title": "解释结构模型 (ISM)",
+    "category": "综合评价",
+    "keywords": [
+      "ISM",
+      "解释结构"
+    ],
+    "search_text": "解释结构模型 (ISM)\n将要素间的二元关系通过图论和布尔代数转化为多层递阶有向图。\n\n**核心流程**：\n1. 邻接矩阵 $A$（$a_{ij}=1$ 表示要素 i 直接影响要素 j）\n2. 可达矩阵 $R = (A+I)^k$（Floyd-Warshall 传递闭包）\n3. 层级划分（条件：$R(i) \\cap A(i) = R(i)$，迭代剥离）\n4. MICMAC 分析：驱动力=行和，依赖性=列和\n事故致因、供应链风险因素层级分析、安全管理。",
+    "context": "【解释结构模型 (ISM)】（综合评价）\n原理：将要素间的二元关系通过图论和布尔代数转化为多层递阶有向图。\n\n**核心流程**：\n1. 邻接矩阵 $A$（$a_{ij}=1$ 表示要素 i 直接影响要素 j）\n2. 可达矩阵 $R = (A+I)^k$（Floyd-Warshall 传递闭包）\n3. 层级划分（条件：$R(i) \\cap A(i) = R(i)$，迭代剥离）\n4. MICMAC 分析：驱动力=行和，依赖性=列和\n适用场景：事故致因、供应链风险因素层级分析、安全管理。\n参考代码：\n```python\ndef floyd_warshall_reachability(adj):\n    \"\"\"Floyd-Warshall算法求可达矩阵\"\"\"\n    n = len(adj)\n    R = adj.copy().astype(bool)\n    np.fill_diagonal(R, True)  # 自反性\n    for k in range(n):\n        for i in range(n):\n            for j in range(n):\n                R[i, j] = R[i, j] or (R[i, k] and R[k, j])\n    return R.astype(int)\n\ndef level_partition(adj):\n    \"\"\"ISM层级划分\"\"\"\n    n = len(adj)\n    R = floyd_warshall_reachability(adj)\n\n    remaining = set(range(n))\n    levels = []\n\n    while remaining:\n        current_level = []\n        for i in remaining:\n            # 可达集 R(i) 和先行集 A(i)\n            reachable = {j for j in range(n) if R[i, j] == 1} & remaining\n            antecedent = {j for j in range(n) if R[j, i] == 1} & remaining\n            # 条件：R(i) ∩ A(i) = R(i)\n            if reachable == reachable & antecedent:\n                current_level.append(i)\n\n        for i in current_level:\n            remaining.remove(i)\n        levels.append(current_level)\n\n    return levels\n```\n\n---\n"
+  },
+  {
+    "id": "综合评价-12",
+    "title": "主成分分析 (PCA)",
+    "category": "综合评价",
+    "keywords": [
+      "PCA",
+      "主成分",
+      "多重共线性",
+      "综合评价"
+    ],
+    "search_text": "主成分分析 (PCA)\n通过协方差矩阵特征分解，寻找使投影方差最大化的新正交基。\n\n$$S \\cdot v_k = \\lambda_k \\cdot v_k, \\quad \\lambda_1 \\ge \\lambda_2 \\ge \\dots \\ge \\lambda_p$$\n多指标综合评价、高维数据可视化、消除多重共线性。",
+    "context": "【主成分分析 (PCA)】（综合评价）\n原理：通过协方差矩阵特征分解，寻找使投影方差最大化的新正交基。\n\n$$S \\cdot v_k = \\lambda_k \\cdot v_k, \\quad \\lambda_1 \\ge \\lambda_2 \\ge \\dots \\ge \\lambda_p$$\n适用场景：多指标综合评价、高维数据可视化、消除多重共线性。\n参考代码：\n```python\nfrom sklearn.decomposition import PCA\nfrom sklearn.preprocessing import StandardScaler\n\ndef pca_evaluation(X, n_components=None, threshold=0.85):\n    \"\"\"PCA综合评价\"\"\"\n    # 标准化\n    X_scaled = StandardScaler().fit_transform(X)\n\n    # PCA\n    if n_components is None:\n        pca_full = PCA().fit(X_scaled)\n        cumsum = np.cumsum(pca_full.explained_variance_ratio_)\n        n_components = np.searchsorted(cumsum, threshold) + 1\n\n    pca = PCA(n_components=n_components)\n    X_pca = pca.fit_transform(X_scaled)\n\n    # 综合评价得分\n    scores = X_pca @ pca.explained_variance_ratio_\n\n    # KMO和Bartlett检验（判断是否适合PCA）\n    return scores, pca, n_components\n```\n\n---\n"
+  },
+  {
+    "id": "预测模型-01",
+    "title": "灰色预测 GM(1,1)",
+    "category": "预测模型",
+    "keywords": [
+      "GM(1,1)",
+      "灰色预测",
+      "最小二乘",
+      "预测"
+    ],
+    "search_text": "灰色预测 GM(1,1)\nGM(1,1) 意为\"一阶单变量灰色模型\"。核心思想：对非负原始序列作一次累加生成(1-AGO)，消除随机波动使序列呈近似指数规律，然后用一阶白化微分方程建模，最后累减还原(IAGO)得到预测值。\n\n**建模步骤**：\n\n- **步骤1** — 一次累加生成(1-AGO)：$x^{(1)}(k) = \\sum_{i=1}^{k} x^{(0)}(i)$\n- **步骤2** — 紧邻均值生成：$z^{(1)}(k) = 0.5[x^{(1)}(k) + x^{(1)}(k-1)]$\n- **步骤3** — 灰微分方程：$x^{(0)}(k) + a z^{(1)}(k) = b$\n- **步骤4** — 白化微分方程：$dx^{(1)}/dt + a x^{(1)} = b$\n- **步骤5** — 最小二乘解 $[a,b]^T = (B^T B)^{-1} B^T Y$\n- **步骤6** — 时间响应函数：$\\hat{x}^{(1)}(k+1) = [x^{(0)}(1) - b/a]e^{-ak} + b/a$\n- **步骤7** — 累减还原：$\\hat{x}^{(0)}(k+1) = \\hat{x}^{(1)}(k+1) - \\hat{x}^{(1)}(k)$\n\n**级比检验**：级比 $\\lambda(k) = x^{(0)}(k-1)/x^{(0)}(k)$ 必须落在区间 $[e^{-2/(n+1)}, e^{2/(n+1)}]$ 内\n- 小样本预测（4~10个数据点即可）\n- 信息不完备的\"灰色系统\"\n- 近似指数增长的数据（GDP、电力负荷、污染物浓度）\n- 中短期预测\n\n不适用场景：\n- 数据波动剧烈、不呈指数趋势\n- 数据有负值\n- 长期预测（误差累积严重）",
+    "context": "【灰色预测 GM(1,1)】（预测模型）\n原理：GM(1,1) 意为\"一阶单变量灰色模型\"。核心思想：对非负原始序列作一次累加生成(1-AGO)，消除随机波动使序列呈近似指数规律，然后用一阶白化微分方程建模，最后累减还原(IAGO)得到预测值。\n\n**建模步骤**：\n\n- **步骤1** — 一次累加生成(1-AGO)：$x^{(1)}(k) = \\sum_{i=1}^{k} x^{(0)}(i)$\n- **步骤2** — 紧邻均值生成：$z^{(1)}(k) = 0.5[x^{(1)}(k) + x^{(1)}(k-1)]$\n- **步骤3** — 灰微分方程：$x^{(0)}(k) + a z^{(1)}(k) = b$\n- **步骤4** — 白化微分方程：$dx^{(1)}/dt + a x^{(1)} = b$\n- **步骤5** — 最小二乘解 $[a,b]^T = (B^T B)^{-1} B^T Y$\n- **步骤6** — 时间响应函数：$\\hat{x}^{(1)}(k+1) = [x^{(0)}(1) - b/a]e^{-ak} + b/a$\n- **步骤7** — 累减还原：$\\hat{x}^{(0)}(k+1) = \\hat{x}^{(1)}(k+1) - \\hat{x}^{(1)}(k)$\n\n**级比检验**：级比 $\\lambda(k) = x^{(0)}(k-1)/x^{(0)}(k)$ 必须落在区间 $[e^{-2/(n+1)}, e^{2/(n+1)}]$ 内\n适用场景：- 小样本预测（4~10个数据点即可）\n- 信息不完备的\"灰色系统\"\n- 近似指数增长的数据（GDP、电力负荷、污染物浓度）\n- 中短期预测\n\n不适用场景：\n- 数据波动剧烈、不呈指数趋势\n- 数据有负值\n- 长期预测（误差累积严重）\n关键参数：| 参数 | 含义 | 取值范围 |\n|------|------|----------|\n| a（发展系数） | 系统发展态势 | a∈(-2,2); a<0增长, a>0衰减 |\n| b（灰色作用量） | 外部环境驱动强度 | 任意实数 |\n注意事项：1. 数据必须非负，若有负值需做平移变换\n2. 级比检验不通过时，加常数平移：$x' = x + c$\n3. 只适合中短期预测，预测步数不宜超过样本数的1/3\n4. 建模至少需要4个数据点\n参考代码：\n```python\nimport numpy as np\n\ndef gm11(x0, predict_n=1):\n    \"\"\"GM(1,1)灰色预测\"\"\"\n    x0 = np.array(x0, dtype=float)\n    n = len(x0)\n\n    # 1-AGO累加生成\n    x1 = np.cumsum(x0)\n\n    # 紧邻均值生成\n    z1 = (x1[:-1] + x1[1:]) / 2.0\n\n    # 最小二乘估计 [a, b]\n    B = np.vstack([-z1, np.ones(n-1)]).T\n    Y = x0[1:]\n    a, b = np.linalg.lstsq(B, Y, rcond=None)[0]\n\n    # 时间响应函数\n    def predict(k):\n        return (x0[0] - b/a) * np.exp(-a * k) + b/a\n\n    # 拟合值\n    x1_fit = np.array([predict(k) for k in range(n + predict_n)])\n    x0_fit = np.diff(x1_fit, prepend=x0[0])\n\n    # 预测值\n    forecast = x0_fit[-predict_n:] if predict_n > 0 else np.array([])\n\n    # 后验差检验\n    residual = x0 - x0_fit[:n]\n    C = residual.std() / x0.std()  # 后验差比值\n    P = (np.abs(residual - residual.mean()) < 0.6745 * x0.std()).mean()  # 小误差概率\n\n    return x0_fit[:n], forecast, {'a': a, 'b': b, 'C': C, 'P': P}\n\ndef grade_test(x0):\n    \"\"\"级比检验\"\"\"\n    n = len(x0)\n    lam = x0[:-1] / x0[1:]\n    lower = np.exp(-2/(n+1))\n    upper = np.exp(2/(n+1))\n    valid = (lam >= lower) & (lam <= upper)\n    return lam, (lower, upper), valid\n\n# 使用示例\nimport numpy as np\nx0 = np.array([2.67, 3.13, 3.25, 3.36, 3.56, 3.72])\nfit, pred, stats = gm11(x0, predict_n=2)\nprint(f\"拟合: {fit}\")\nprint(f\"预测: {pred}\")\nprint(f\"a={stats['a']:.4f}, 后验差比C={stats['C']:.4f}\")\n```\n\n---\n"
+  },
+  {
+    "id": "预测模型-02",
+    "title": "ARIMA 时间序列",
+    "category": "预测模型",
+    "keywords": [
+      "ARIMA",
+      "时间序列",
+      "季节性",
+      "VAR",
+      "预测",
+      "回归"
+    ],
+    "search_text": "ARIMA 时间序列\nARIMA(p,d,q) = 自回归(AR) + 差分(I) + 移动平均(MA)\n\n- **AR(p)**：$y_t = c + \\phi_1 y_{t-1} + \\cdots + \\phi_p y_{t-p} + \\varepsilon_t$\n- **I(d)**：差分使序列平稳，一阶 $\\Delta y_t = y_t - y_{t-1}$\n- **MA(q)**：$y_t = c + \\varepsilon_t + \\theta_1 \\varepsilon_{t-1} + \\cdots + \\theta_q \\varepsilon_{t-q}$\n\n**ACF/PACF 定阶规则**：\n| | ACF（自相关） | PACF（偏自相关） |\n|------|--------------|------------------|\n| AR(p) | 拖尾（衰减） | **p阶后截尾** |\n| MA(q) | **q阶后截尾** | 拖尾（衰减） |\n| ARMA(p,q) | 拖尾 | 拖尾 |\n- 平稳或可通过差分平稳化的单变量时间序列\n- 无明显季节性的数据\n- 经济指标（GDP、CPI）、销售预测、库存管理",
+    "context": "【ARIMA 时间序列】（预测模型）\n原理：ARIMA(p,d,q) = 自回归(AR) + 差分(I) + 移动平均(MA)\n\n- **AR(p)**：$y_t = c + \\phi_1 y_{t-1} + \\cdots + \\phi_p y_{t-p} + \\varepsilon_t$\n- **I(d)**：差分使序列平稳，一阶 $\\Delta y_t = y_t - y_{t-1}$\n- **MA(q)**：$y_t = c + \\varepsilon_t + \\theta_1 \\varepsilon_{t-1} + \\cdots + \\theta_q \\varepsilon_{t-q}$\n\n**ACF/PACF 定阶规则**：\n| | ACF（自相关） | PACF（偏自相关） |\n|------|--------------|------------------|\n| AR(p) | 拖尾（衰减） | **p阶后截尾** |\n| MA(q) | **q阶后截尾** | 拖尾（衰减） |\n| ARMA(p,q) | 拖尾 | 拖尾 |\n适用场景：- 平稳或可通过差分平稳化的单变量时间序列\n- 无明显季节性的数据\n- 经济指标（GDP、CPI）、销售预测、库存管理\n关键参数：| 参数 | 含义 | 建议范围 |\n|------|------|----------|\n| p | 自回归阶数 | 0~5 |\n| d | 差分阶数 | 0~2（通常≤1） |\n| q | 移动平均阶数 | 0~5 |\n注意事项：1. ADF检验 p<0.05才认为平稳\n2. AIC/BIC越小越好，BIC对复杂模型惩罚更重\n3. 残差必须通过Ljung-Box白噪声检验（p>0.05）\n4. 小样本时p、q不宜超过2\n参考代码：\n```python\nfrom statsmodels.tsa.arima.model import ARIMA\nfrom statsmodels.tsa.stattools import adfuller\n\ndef arima_forecast(series, order=(1,1,1), steps=5):\n    \"\"\"ARIMA建模与预测\"\"\"\n    # ADF平稳性检验\n    adf_result = adfuller(series.dropna())\n    print(f\"ADF统计量: {adf_result[0]:.4f}, p值: {adf_result[1]:.4f}\")\n\n    # 建模\n    model = ARIMA(series, order=order)\n    fitted = model.fit()\n\n    # 预测\n    forecast = fitted.forecast(steps=steps)\n    return fitted, forecast\n\n# 自动定阶（简化版）\ndef auto_arima_simple(series, p_range=(0,3), q_range=(0,3)):\n    \"\"\"网格搜索最优ARIMA(p,1,q)\"\"\"\n    best_aic = np.inf\n    best_order = None\n    for p in range(p_range[0], p_range[1]+1):\n        for q in range(q_range[0], q_range[1]+1):\n            try:\n                model = ARIMA(series, order=(p,1,q))\n                fitted = model.fit()\n                if fitted.aic < best_aic:\n                    best_aic = fitted.aic\n                    best_order = (p,1,q)\n            except:\n                continue\n    return best_order\n```\n\n---\n"
+  },
+  {
+    "id": "预测模型-03",
+    "title": "季节性 ARIMA (SARIMA)",
+    "category": "预测模型",
+    "keywords": [
+      "ARIMA",
+      "SARIMA",
+      "季节性",
+      "VAR",
+      "SA"
+    ],
+    "search_text": "季节性 ARIMA (SARIMA)\nSARIMA(p,d,q)(P,D,Q)s — 在ARIMA基础上增加季节性成分：\n\n$$\\Phi_P(B^s) \\phi_p(B) (1-B)^d (1-B^s)^D y_t = \\Theta_Q(B^s) \\theta_q(B) \\varepsilon_t$$\n\n| 参数 | 含义 | 示例（月度数据s=12） |\n|------|------|---------------------|\n| p | 非季节性AR阶数 | $y_{t-1}, y_{t-2}$ |\n| d | 非季节性差分 | $\\Delta y_t$ |\n| q | 非季节性MA阶数 | $\\varepsilon_{t-1}$ |\n| P | 季节性AR阶数 | $y_{t-12}, y_{t-24}$ |\n| D | 季节性差分 | $\\Delta_{12} y_t = y_t - y_{t-12}$ |\n| Q | 季节性MA阶数 | $\\varepsilon_{t-12}$ |\n| s | 季节周期 | 12(月), 4(季), 7(周) |\n有明显季节性/周期性的数据：电力负荷、零售销售、旅游客流",
+    "context": "【季节性 ARIMA (SARIMA)】（预测模型）\n原理：SARIMA(p,d,q)(P,D,Q)s — 在ARIMA基础上增加季节性成分：\n\n$$\\Phi_P(B^s) \\phi_p(B) (1-B)^d (1-B^s)^D y_t = \\Theta_Q(B^s) \\theta_q(B) \\varepsilon_t$$\n\n| 参数 | 含义 | 示例（月度数据s=12） |\n|------|------|---------------------|\n| p | 非季节性AR阶数 | $y_{t-1}, y_{t-2}$ |\n| d | 非季节性差分 | $\\Delta y_t$ |\n| q | 非季节性MA阶数 | $\\varepsilon_{t-1}$ |\n| P | 季节性AR阶数 | $y_{t-12}, y_{t-24}$ |\n| D | 季节性差分 | $\\Delta_{12} y_t = y_t - y_{t-12}$ |\n| Q | 季节性MA阶数 | $\\varepsilon_{t-12}$ |\n| s | 季节周期 | 12(月), 4(季), 7(周) |\n适用场景：有明显季节性/周期性的数据：电力负荷、零售销售、旅游客流\n参考代码：\n```python\nfrom statsmodels.tsa.statespace.sarimax import SARIMAX\n\n# 月度数据 s=12\nmodel = SARIMAX(series, order=(1,1,1), seasonal_order=(1,1,1,12))\nfitted = model.fit()\nforecast = fitted.forecast(steps=12)\n\n# 或使用 pmdarima 自动搜索\n# from pmdarima import auto_arima\n# auto_model = auto_arima(series, seasonal=True, m=12, trace=True)\n```\n\n---\n"
+  },
+  {
+    "id": "预测模型-04",
+    "title": "GARCH 模型（波动率建模）",
+    "category": "预测模型",
+    "keywords": [
+      "GARCH",
+      "波动率",
+      "VAR",
+      "GA"
+    ],
+    "search_text": "GARCH 模型（波动率建模）\n**均值方程**：$r_t = \\mu + \\varepsilon_t$，$\\varepsilon_t = \\sigma_t z_t, z_t \\sim N(0,1)$\n\n**方差方程 GARCH(p,q)**：\n$$\\sigma^2_t = \\omega + \\sum_{i=1}^{q} \\alpha_i \\varepsilon^2_{t-i} + \\sum_{j=1}^{p} \\beta_j \\sigma^2_{t-j}$$\n\n**最简形式 GARCH(1,1)**：$\\sigma^2_t = \\omega + \\alpha \\varepsilon^2_{t-1} + \\beta \\sigma^2_{t-1}$\n- $\\omega$：长期平均方差水平\n- $\\alpha$：新信息冲击程度（ARCH效应）\n- $\\beta$：波动率持续性（GARCH效应）\n- $\\alpha+\\beta$：越接近1波动持续越久\n金融资产收益率波动率建模、VaR风险度量、期权定价",
+    "context": "【GARCH 模型（波动率建模）】（预测模型）\n原理：**均值方程**：$r_t = \\mu + \\varepsilon_t$，$\\varepsilon_t = \\sigma_t z_t, z_t \\sim N(0,1)$\n\n**方差方程 GARCH(p,q)**：\n$$\\sigma^2_t = \\omega + \\sum_{i=1}^{q} \\alpha_i \\varepsilon^2_{t-i} + \\sum_{j=1}^{p} \\beta_j \\sigma^2_{t-j}$$\n\n**最简形式 GARCH(1,1)**：$\\sigma^2_t = \\omega + \\alpha \\varepsilon^2_{t-1} + \\beta \\sigma^2_{t-1}$\n- $\\omega$：长期平均方差水平\n- $\\alpha$：新信息冲击程度（ARCH效应）\n- $\\beta$：波动率持续性（GARCH效应）\n- $\\alpha+\\beta$：越接近1波动持续越久\n适用场景：金融资产收益率波动率建模、VaR风险度量、期权定价\n注意事项：1. 收益率需缩放：过小会导致收敛问题，建议x100\n2. 金融数据用't'或'skewt'分布优于'normal'\n3. $\\alpha+\\beta < 1$（平稳性）；若 ≈1，考虑IGARCH\n4. Python推荐库：`arch`\n参考代码：\n```python\nfrom arch import arch_model\n\nreturns = returns * 100  # 缩放避免收敛问题\nmodel = arch_model(returns, vol='Garch', p=1, q=1, dist='t')\nfitted = model.fit()\nforecast = fitted.forecast(horizon=5)\n```\n\n---\n"
+  },
+  {
+    "id": "预测模型-05",
+    "title": "VAR 向量自回归",
+    "category": "预测模型",
+    "keywords": [
+      "时间序列",
+      "VAR",
+      "向量自回归",
+      "回归"
+    ],
+    "search_text": "VAR 向量自回归\n$$Y_t = c + \\Pi_1 Y_{t-1} + \\cdots + \\Pi_p Y_{t-p} + \\varepsilon_t$$\n多个相互影响的时间序列、宏观经济分析、货币政策传导",
+    "context": "【VAR 向量自回归】（预测模型）\n原理：$$Y_t = c + \\Pi_1 Y_{t-1} + \\cdots + \\Pi_p Y_{t-p} + \\varepsilon_t$$\n适用场景：多个相互影响的时间序列、宏观经济分析、货币政策传导\n参考代码：\n```python\nfrom statsmodels.tsa.api import VAR\n\nmodel = VAR(data)\nlag_order = model.select_order(maxlags=12)\nfitted = model.fit(lag_order.aic)\n# 预测 + 脉冲响应 + 方差分解\nforecast = fitted.forecast(data.values[-fitted.k_ar:], steps=5)\nirf = fitted.irf(10)\n```\n\n---\n"
+  },
+  {
+    "id": "预测模型-06",
+    "title": "马尔可夫预测",
+    "category": "预测模型",
+    "keywords": [
+      "马尔可夫",
+      "状态转移",
+      "预测"
+    ],
+    "search_text": "马尔可夫预测\n**马尔可夫性质**：$P(X_{n+1}=x | X_0,...,X_n) = P(X_{n+1}=x | X_n)$\n\n**状态转移矩阵 P**：$P_{ij} = P(X_{n+1}=j | X_n=i)$，$\\sum_j P_{ij} = 1$\n\n**n步转移**：$P^{(n)} = P^n$\n\n**稳态分布 $\\pi$**：$\\pi P = \\pi, \\sum_i \\pi_i = 1$\n天气/信用等级预测、市场占有率分析、用户行为转换、排队系统",
+    "context": "【马尔可夫预测】（预测模型）\n原理：**马尔可夫性质**：$P(X_{n+1}=x | X_0,...,X_n) = P(X_{n+1}=x | X_n)$\n\n**状态转移矩阵 P**：$P_{ij} = P(X_{n+1}=j | X_n=i)$，$\\sum_j P_{ij} = 1$\n\n**n步转移**：$P^{(n)} = P^n$\n\n**稳态分布 $\\pi$**：$\\pi P = \\pi, \\sum_i \\pi_i = 1$\n适用场景：天气/信用等级预测、市场占有率分析、用户行为转换、排队系统\n参考代码：\n```python\ndef markov_predict(P, current_state, steps=1):\n    \"\"\"马尔可夫预测\"\"\"\n    P = np.array(P)\n    # n步转移矩阵\n    P_n = np.linalg.matrix_power(P, steps)\n    return P_n[current_state]\n\ndef steady_state(P):\n    \"\"\"计算稳态分布\"\"\"\n    n = P.shape[0]\n    # 解 pi P = pi, sum(pi)=1\n    A = np.vstack([(P.T - np.eye(n))[:-1], np.ones(n)])\n    b = np.zeros(n)\n    b[-1] = 1\n    return np.linalg.lstsq(A, b, rcond=None)[0]\n```\n\n---\n"
+  },
+  {
+    "id": "预测模型-07",
+    "title": "多项式拟合（最小二乘）",
+    "category": "预测模型",
+    "keywords": [
+      "VAR",
+      "多项式拟合",
+      "最小二乘",
+      "OLS",
+      "Ridge",
+      "Lasso"
+    ],
+    "search_text": "多项式拟合（最小二乘）\n$$y = a_0 + a_1x + a_2x^2 + \\cdots + a_mx^m + \\varepsilon$$\n\n**OLS**：$\\min_\\theta \\sum (y_i - f(x_i;\\theta))^2$，$\\theta = (X^T X)^{-1} X^T y$\n\n**Ridge(L2)**：$\\min_\\theta (\\sum(y_i - f(x_i))^2 + \\alpha\\sum\\theta_j^2)$\n\n**Lasso(L1)**：$\\min_\\theta (\\sum(y_i - f(x_i))^2 + \\alpha\\sum|\\theta_j|)$\n数据呈曲线趋势但机制不明、趋势外推（短期）、插值、基线对比",
+    "context": "【多项式拟合（最小二乘）】（预测模型）\n原理：$$y = a_0 + a_1x + a_2x^2 + \\cdots + a_mx^m + \\varepsilon$$\n\n**OLS**：$\\min_\\theta \\sum (y_i - f(x_i;\\theta))^2$，$\\theta = (X^T X)^{-1} X^T y$\n\n**Ridge(L2)**：$\\min_\\theta (\\sum(y_i - f(x_i))^2 + \\alpha\\sum\\theta_j^2)$\n\n**Lasso(L1)**：$\\min_\\theta (\\sum(y_i - f(x_i))^2 + \\alpha\\sum|\\theta_j|)$\n适用场景：数据呈曲线趋势但机制不明、趋势外推（短期）、插值、基线对比\n参考代码：\n```python\nfrom sklearn.preprocessing import PolynomialFeatures, StandardScaler\nfrom sklearn.linear_model import Ridge, Lasso\nfrom sklearn.pipeline import Pipeline\n\n# Ridge多项式拟合\ndegree = 3\npipe = Pipeline([\n    ('poly', PolynomialFeatures(degree=degree)),\n    ('scaler', StandardScaler()),\n    ('ridge', Ridge(alpha=1.0))\n])\npipe.fit(X, y)\ny_pred = pipe.predict(X_test)\n```\n\n---\n"
+  },
+  {
+    "id": "预测模型-08",
+    "title": "Logistic 模型（S曲线）",
+    "category": "预测模型",
+    "keywords": [
+      "Logistic",
+      "S曲线",
+      "预测"
+    ],
+    "search_text": "Logistic 模型（S曲线）\n**Logistic微分方程（Verhulst, 1838）**：\n$$dP/dt = rP(1 - P/K)$$\n\n**解析解（S曲线）**：\n$$P(t) = \\frac{K P_0 e^{rt}}{K + P_0(e^{rt} - 1)}$$\n\n参数：K=环境容量，P0=初始值，r=内在增长率\n\n**拐点**：$P=K/2$ 时增长率最大\n人口增长预测、传染病累计感染、市场渗透率/产品扩散、技术S曲线\n\n不适用场景：\n无上限增长、多峰/多波传播、受多重外部冲击的系统",
+    "context": "【Logistic 模型（S曲线）】（预测模型）\n原理：**Logistic微分方程（Verhulst, 1838）**：\n$$dP/dt = rP(1 - P/K)$$\n\n**解析解（S曲线）**：\n$$P(t) = \\frac{K P_0 e^{rt}}{K + P_0(e^{rt} - 1)}$$\n\n参数：K=环境容量，P0=初始值，r=内在增长率\n\n**拐点**：$P=K/2$ 时增长率最大\n适用场景：人口增长预测、传染病累计感染、市场渗透率/产品扩散、技术S曲线\n\n不适用场景：\n无上限增长、多峰/多波传播、受多重外部冲击的系统\n参考代码：\n```python\nfrom scipy.optimize import curve_fit\n\ndef logistic(t, K, P0, r):\n    return K * P0 * np.exp(r * t) / (K + P0 * (np.exp(r * t) - 1))\n\npopt, _ = curve_fit(logistic, t_data, y_data,\n                     p0=[max(y_data)*1.5, y_data[0], 0.3],\n                     maxfev=10000)\nK, P0, r = popt\ny_pred = logistic(t_future, K, P0, r)\n```\n\n---\n"
+  },
+  {
+    "id": "预测模型-09",
+    "title": "双重差分 DID",
+    "category": "预测模型",
+    "keywords": [
+      "VAR",
+      "DID",
+      "双重差分",
+      "GA"
+    ],
+    "search_text": "双重差分 DID\n$$Y_{it} = \\alpha + \\gamma \\text{Treated}_i + \\lambda \\text{Post}_t + \\delta (\\text{Treated}_i \\times \\text{Post}_t) + \\varepsilon_{it}$$\n\n$$\\text{ATT} = (\\bar{Y}_{T,Post} - \\bar{Y}_{T,Pre}) - (\\bar{Y}_{C,Post} - \\bar{Y}_{C,Pre})$$\n政策/项目实施效果评估、自然实验、有处理组和对照组的面板数据",
+    "context": "【双重差分 DID】（预测模型）\n原理：$$Y_{it} = \\alpha + \\gamma \\text{Treated}_i + \\lambda \\text{Post}_t + \\delta (\\text{Treated}_i \\times \\text{Post}_t) + \\varepsilon_{it}$$\n\n$$\\text{ATT} = (\\bar{Y}_{T,Post} - \\bar{Y}_{T,Pre}) - (\\bar{Y}_{C,Post} - \\bar{Y}_{C,Pre})$$\n适用场景：政策/项目实施效果评估、自然实验、有处理组和对照组的面板数据\n参考代码：\n```python\nimport statsmodels.formula.api as smf\n\n# 经典2x2 DID\ndf['treated_post'] = df['treated'] * df['post']\nmodel = smf.ols('Y ~ treated + post + treated_post', data=df).fit()\natt = model.params['treated_post']  # 政策净效应\n```\n\n---\n"
+  },
+  {
+    "id": "预测模型-10",
+    "title": "PSM 倾向得分匹配",
+    "category": "预测模型",
+    "keywords": [
+      "PSM",
+      "倾向得分"
+    ],
+    "search_text": "PSM 倾向得分匹配\n为每个处理组个体在对照组中找倾向得分最接近的\"替身\"，模拟随机对照实验。\n\n**倾向得分**：$e(X) = P(T=1 | X)$ — 给定协变量后接受处理的概率\n\n**CIA假设**：$Y(0), Y(1) \\perp T | X$\n政策效果评估（非随机分配）、医学治疗效果对比、营销活动归因",
+    "context": "【PSM 倾向得分匹配】（预测模型）\n原理：为每个处理组个体在对照组中找倾向得分最接近的\"替身\"，模拟随机对照实验。\n\n**倾向得分**：$e(X) = P(T=1 | X)$ — 给定协变量后接受处理的概率\n\n**CIA假设**：$Y(0), Y(1) \\perp T | X$\n适用场景：政策效果评估（非随机分配）、医学治疗效果对比、营销活动归因\n参考代码：\n```python\nfrom sklearn.linear_model import LogisticRegression\n\n# 倾向得分估计\nps_model = LogisticRegression()\nps_model.fit(X, T)\nps = ps_model.predict_proba(X)[:, 1]\n\n# 最近邻匹配（简化版）\nfrom sklearn.neighbors import NearestNeighbors\n\ntreated_ps = ps[T == 1].reshape(-1, 1)\ncontrol_ps = ps[T == 0].reshape(-1, 1)\nnn = NearestNeighbors(n_neighbors=1)\nnn.fit(control_ps)\ndistances, indices = nn.kneighbors(treated_ps)\n\n# ATT\natt = (Y[T == 1] - Y[T == 0][indices.flatten()]).mean()\n```\n\n---\n"
+  },
+  {
+    "id": "预测模型-11",
+    "title": "BP 神经网络预测",
+    "category": "预测模型",
+    "keywords": [
+      "神经网络",
+      "梯度下降",
+      "预测",
+      "权重"
+    ],
+    "search_text": "BP 神经网络预测\n**万能逼近定理**：单隐藏层+Sigmoid+线性输出，隐藏层神经元足够多，可任意精度逼近任何Borel可测函数。\n\n**正向传播**：\n- 隐层：$h = \\sigma(W_1 x + b_1)$\n- 输出：$\\hat{y} = W_2 h + b_2$\n\n**反向传播**：链式法则计算梯度 → 梯度下降更新权重\n",
+    "context": "【BP 神经网络预测】（预测模型）\n原理：**万能逼近定理**：单隐藏层+Sigmoid+线性输出，隐藏层神经元足够多，可任意精度逼近任何Borel可测函数。\n\n**正向传播**：\n- 隐层：$h = \\sigma(W_1 x + b_1)$\n- 输出：$\\hat{y} = W_2 h + b_2$\n\n**反向传播**：链式法则计算梯度 → 梯度下降更新权重\n参考代码：\n```python\nimport torch\nimport torch.nn as nn\n\nclass BPNet(nn.Module):\n    def __init__(self, input_dim, hidden_dim, output_dim=1):\n        super().__init__()\n        self.net = nn.Sequential(\n            nn.Linear(input_dim, hidden_dim),\n            nn.ReLU(),\n            nn.Dropout(0.2),\n            nn.Linear(hidden_dim, hidden_dim // 2),\n            nn.ReLU(),\n            nn.Linear(hidden_dim // 2, output_dim)\n        )\n\n    def forward(self, x):\n        return self.net(x)\n```\n\n---\n"
+  },
+  {
+    "id": "预测模型-12",
+    "title": "机器学习预测集成",
+    "category": "预测模型",
+    "keywords": [
+      "预测"
+    ],
+    "search_text": "机器学习预测集成\n12. 机器学习预测集成 四种算法核心对比 维度 随机森林 XGBoost LightGBM CatBoost : : : : : : : : 集成方式 Bagging（并行） Boosting（串行） Boosting（串行） Boosting（串行） 树生长 独立 Level wise Leaf wise Symmetric 核心创新 Bootstrap+随机特征 二阶泰勒+正则化 GOSS+EFB Ordered Boosting 类别特征 需编码 需编码 原生支持 最强支持 缺失值 需填充 自动处理 自动处理 自动处理 训练速度 ★★★★ ★★★ ★★★★★ ★★★ 预测精度 ★★★ ★★★★★ ★★★★★ ★★★★★ 调参难度 ★(简单) ★★★★(复杂) ★★★ ★★ 默认表现 ★★★ ★★★★ ★★★ ★★★★★ 选型决策 场景 首选 快速基线/高鲁棒性 随机森林 追求极致精度 XGBoost 大数据集( 10万行) LightGBM 大量类别特征 CatBoost 最少调参/开箱即用 CatBoost 关键参数调优顺序 随机森林 ：n_estimators → max_depth → min_samples_split → max_features XGBoost ：n_estimators+lr → max_depth → subsample → reg_alpha/lambda LightGBM ：num_leaves(核心) → max_depth → lr → feature_fraction → min_data_in_leaf CatBoost ：iterations+lr → depth → l2_leaf_reg → random_strength 参考代码 python 统一接口对比 from sklearn.ensemble import RandomForestRegressor from xgboost import XGBRegressor from lightgbm import LGBMRegressor from catboost import CatBoostRegressor models = { 'RF': RandomForestRegressor(n_estimators=100, random_state=42), 'XGB': XGBRegressor(n_estimators=100, learning_rate=0.1, random_state=42), 'LGB': LGBMRegressor(n_estimators=100, learning_rate=0.1, random_state=42, verbose= 1), 'CatBoost': CatBoostRegressor(iterations=100, learning_rate=0.1, random_seed=42, verbose=0), } for name, model in models.items(): model.fit(X_train, y_train) score = model.score(X_test, y_test) print(f\"{name}: R² = {score:.4f}\") 预测方法选择速查表 按数据特征 数据特征 推荐方法 原因 样本极少(<10) GM(1,1) 4个点即可 样本少(<50) + 趋势 多项式拟合 简单可解释 单变量 + 平稳 ARIMA 统计基线 单变量 ",
+    "context": "【机器学习预测集成】（预测模型）\n参考代码：\n```python\n# 统一接口对比\nfrom sklearn.ensemble import RandomForestRegressor\nfrom xgboost import XGBRegressor\nfrom lightgbm import LGBMRegressor\nfrom catboost import CatBoostRegressor\n\nmodels = {\n    'RF': RandomForestRegressor(n_estimators=100, random_state=42),\n    'XGB': XGBRegressor(n_estimators=100, learning_rate=0.1, random_state=42),\n    'LGB': LGBMRegressor(n_estimators=100, learning_rate=0.1, random_state=42, verbose=-1),\n    'CatBoost': CatBoostRegressor(iterations=100, learning_rate=0.1, random_seed=42, verbose=0),\n}\n\nfor name, model in models.items():\n    model.fit(X_train, y_train)\n    score = model.score(X_test, y_test)\n    print(f\"{name}: R² = {score:.4f}\")\n```\n\n---\n"
+  },
+  {
+    "id": "优化规划-01",
+    "title": "线性规划 (Linear Programming)",
+    "category": "优化规划",
+    "keywords": [
+      "GRA",
+      "线性规划",
+      "规划"
+    ],
+    "search_text": "线性规划 (Linear Programming)\n1. 线性规划 (Linear Programming) 1.1 数学原理 线性规划研究 线性目标函数 在线性约束条件下的极值问题。标准形式为： 目标函数 : $$\\min \\; \\mathbf{c}^T \\mathbf{x} \\quad \\text{或} \\quad \\max \\; \\mathbf{c}^T \\mathbf{x}$$ 约束条件 : $$\\begin{cases} \\mathbf{A}\\mathbf{x} \\leq \\mathbf{b} \\\\ \\mathbf{x} \\geq \\mathbf{0} \\end{cases}$$ 其中 $\\mathbf{c} \\in \\mathbb{R}^n$ 为价值系数向量，$\\mathbf{A} \\in \\mathbb{R}^{m \\times n}$ 为约束矩阵，$\\mathbf{b} \\in \\mathbb{R}^m$ 为资源约束向量。 核心定理 : 可行域是凸多面体 : 线性约束定义的交集是凸集 最优解在顶点处取得 : 若最优解存在，必在可行域的某个极点(顶点)处达到 单纯形法 (Simplex Method) : 从某一顶点出发，沿边迭代至更优顶点，直到所有检验数满足最优性条件 对偶理论 : 每个LP问题(原问题)存在对偶问题，弱对偶性和强对偶性定理保证了解的界 单纯形法核心步骤 : 1. 将问题化为标准型（引入松弛变量/剩余变量/人工变量） 2. 建立初始单纯形表 3. 计算检验数 $\\sigma_j = c_j \\mathbf{c}_B^T \\mathbf{B}^{ 1} \\mathbf{a}_j$ 4. 若所有 $\\sigma_j \\geq 0$（min问题），则当前解为最优；否则选择入基变量 5. 通过最小比值法选择出基变量: $\\theta = \\min\\left\\{\\frac{(\\mathbf{B}^{ 1}\\mathbf{b})_i}{(\\mathbf{B}^{ 1}\\mathbf{a}_k)_i} \\;\\middle \\; (\\mathbf{B}^{ 1}\\mathbf{a}_k)_i 0\\right\\}$ 6. 进行基变换（Gauss Jordan消元），转步骤3 内点法 : Karmarkar(1984)提出，从可行域内部出发逼近最优解，复杂度 $O(n^{3.5}L)$，比单纯形法在最坏情况下更优。 1.2 适用场景 场景 示例 资源分配 原材料分配、资金预算分配、人员排班 生产计划 多种产品的产量规划、利润最大化 运输问题 最小化运输成本的物资调运 配料/混合 满足营养/成分要求的最低成本配方 投资组合 在约束下最大化预期收益（简化版） 网络流 最大流问题、最小费用流问题 1.3 优点 理论成熟 : 有严格的数学理论支撑（单纯形法、对偶理论、灵敏度分析） 求解高效 : 商业求解器（Gurobi、CPLEX）和开源求解器（GLPK、HiGHS）都非常成熟 全局最优 : 凸优化问题的局部最优即全局最优 灵敏度分析 : 可以对约束右端项和目标系数进行灵敏度分析（影子价格） 确定性 : 给定相同的输入，总是得到相同的最优解 1.4 缺点 线性假设 : 实际问题往往是非线性的，线性近似可能不准确 连续变量要求 : 不允许整数约束（需转整数规划） 确定性假设 : 模型中所有参数必须是确定的（不考虑随机性） 规模限制 : 超大规模问题（百万级变量）需要专门求解器 1.5 Python代码实现 python \"\"\" 线性规划求解示例 使用 scipy.optimize.linprog",
+    "context": "【线性规划 (Linear Programming)】（优化规划）\n"
+  },
+  {
+    "id": "优化规划-02",
+    "title": "整数规划 (Integer Programming)",
+    "category": "优化规划",
+    "keywords": [
+      "GRA",
+      "整数规划",
+      "规划"
+    ],
+    "search_text": "整数规划 (Integer Programming)\n2. 整数规划 (Integer Programming) 2.1 数学原理 整数规划是在线性规划基础上，要求部分或全部决策变量取整数的一类优化问题。 分类 : 纯整数规划 (Pure IP) : 全部变量取整数 混合整数规划 (MIP) : 部分变量取整数，部分取实数 0 1规划 (Binary IP) : 变量只取 0 或 1 数学模型 : $$\\min \\; \\mathbf{c}^T \\mathbf{x}$$ $$\\text{s.t.} \\; \\mathbf{A}\\mathbf{x} \\leq \\mathbf{b}, \\quad \\mathbf{x} \\in \\mathbb{Z}^n_+$$ 核心算法——分支定界法 (Branch and Bound) : 1. 定界 (Bounding) : 松弛整数约束得到LP松弛问题，其最优值为原IP问题的下界（min问题） 2. 分支 (Branching) : 选择一个取值为分数的变量 $x_j = f$，分为两支: $x_j \\leq \\lfloor f \\rfloor$ $x_j \\geq \\lceil f \\rceil$ 3. 剪枝 (Pruning) : 三种剪枝条件: 该节点LP不可行 该节点LP解已满足整数要求 该节点LP目标值不超过当前最优值（min问题中，若下界 = 当前上界，剪枝） 核心算法——割平面法 (Cutting Plane) : 在LP松弛问题的基础上，逐次添加线性约束（割平面），\"切掉\"不含整数解的可行域部分 Gomory割 : 从最优单纯形表中导出，是最经典的割平面 0 1规划的特殊性 : 变量取值空间为 $2^n$，枚举不可行时需用隐枚举法 逻辑约束等价转换: $y = x_1 \\land x_2$: $y \\leq x_1$, $y \\leq x_2$, $y \\geq x_1 + x_2 1$ $y = x_1 \\lor x_2$: $y \\geq x_1$, $y \\geq x_2$, $y \\leq x_1 + x_2$ 互斥约束: $x_1 + x_2 \\leq 1$ 计算复杂性 : IP 是 NP hard 问题，不存在多项式时间算法。 2.2 适用场景 场景 示例 0 1背包问题 有限容量下选择最有价值的物品组合 指派问题 n个人分配n项任务的最小总成本 设施选址 在候选地中选择开设仓库的数量和位置 排班调度 护士排班、航班机组调度、考试时间表 投资组合 含固定交易费的离散投资选择 集合覆盖 选择最少的设施覆盖所有需求点 旅行商问题(TSP) 访问所有城市恰好一次的最短回路 下料/切割 一维/二维切割中的整数长度优化 2.3 优点 建模能力强 : 能处理\"是/否\"决策、逻辑约束、计数约束等离散决策问题 0 1变量灵活 : 可表示开关、选择、互斥、依赖等逻辑关系 求解器成熟 : Gurobi、CPLEX等商业求解器可高效处理中等规模的MIP 2.4 缺点 NP hard : 最坏情况下计算时间指数增长 求解时间不确定 : 同一规模的不同实例求解时间差异可能极大 大规模困难 : 变量超过10万时，需要启发式算法或分解方法 需要调整参数 : 求解器通常需要调整割平面、启发式参数等 2.5 Python代码实现 python \"\"\" 整数规划求解示例 使用 pulp (调用开源CBC求解器) 和 scipy + 手工分支定界 \"\"\" import numpy as np from scipy.optimize import linprog from iter",
+    "context": "【整数规划 (Integer Programming)】（优化规划）\n"
+  },
+  {
+    "id": "优化规划-03",
+    "title": "非线性规划 (Nonlinear Programming)",
+    "category": "优化规划",
+    "keywords": [
+      "GRA",
+      "线性规划",
+      "规划"
+    ],
+    "search_text": "非线性规划 (Nonlinear Programming)\n3. 非线性规划 (Nonlinear Programming) 3.1 数学原理 非线性规划是目标函数或约束条件中至少有一个是非线性函数的优化问题。 一般形式 : $$\\begin{aligned} \\min \\quad & f(\\mathbf{x}) \\\\ \\text{s.t.} \\quad & g_i(\\mathbf{x}) \\leq 0, \\quad i = 1, \\ldots, m \\\\ & h_j(\\mathbf{x}) = 0, \\quad j = 1, \\ldots, p \\\\ & \\mathbf{x} \\in \\mathbb{R}^n \\end{aligned}$$ KKT条件 (Karush Kuhn Tucker) — 一阶必要条件: 如果 $\\mathbf{x}^ $ 是局部最优解且满足约束品性（如LICQ），则存在拉格朗日乘子 $\\boldsymbol{\\mu} \\geq \\mathbf{0}$ 和 $\\boldsymbol{\\lambda}$，使得: $$\\nabla f(\\mathbf{x}^ ) + \\sum_{i=1}^{m} \\mu_i \\nabla g_i(\\mathbf{x}^ ) + \\sum_{j=1}^{p} \\lambda_j \\nabla h_j(\\mathbf{x}^ ) = \\mathbf{0}$$ $$\\mu_i g_i(\\mathbf{x}^ ) = 0 \\quad \\text{(互补松弛条件)}$$ $$g_i(\\mathbf{x}^ ) \\leq 0, \\quad h_j(\\mathbf{x}^ ) = 0, \\quad \\mu_i \\geq 0$$ 核心算法分类 : 1. 无约束优化 : 梯度下降法 : $\\mathbf{x}_{k+1} = \\mathbf{x}_k \\alpha_k \\nabla f(\\mathbf{x}_k)$ 牛顿法 : $\\mathbf{x}_{k+1} = \\mathbf{x}_k [\\nabla^2 f(\\mathbf{x}_k)]^{ 1} \\nabla f(\\mathbf{x}_k)$ 拟牛顿法 (BFGS/L BFGS) : 用近似Hessian矩阵代替精确Hessian 共轭梯度法 : 适用于大规模问题 2. 约束优化 : 序列二次规划 (SQP) : 每一步求解一个二次规划子问题，收敛快 内点法 : 用障碍函数将不等式约束转化为\"惩罚项\"，从可行域内部向最优解逼近 增广拉格朗日法 : 结合拉格朗日法和罚函数法 信赖域方法 : 在信赖域内用二次模型近似原问题 凸优化特殊性质 : 如果 $f$ 是凸函数，$g_i$ 是凸函数，$h_j$ 是仿射函数，则任何局部最优解就是全局最优解 凸优化可以通过内点法在多项式时间内求解 3.2 适用场景 场景 示例 参数估计 最小二乘法拟合经验模型参数 机器学习训练 神经网络、SVM、逻辑回归的损失函数最小化 工程最优设计 结构优化、形状优化、电路设计 投资组合 Markowitz均值 方差模型（二次规划） 化学平衡 Gibbs自由能最小化 最优控制 轨迹规划、燃料最省轨道 图像处理 图像去噪的TV正则化模型 3.3 优点 建模精度高 : 可精确描述真实物理/经济过程中的非线性关系 算法多样 : 针对不同问题结构(凸/非凸、光滑/非光滑)有特定算法 凸优化理论强大 : 凸问题的局部=全局性质保证了解的质量 3.4 缺点 局部最优陷阱 : 非凸问题可能陷入局部最优解 对初值敏感 : 解的质野往往依赖于初始点选择 可能",
+    "context": "【非线性规划 (Nonlinear Programming)】（优化规划）\n"
+  },
+  {
+    "id": "优化规划-04",
+    "title": "动态规划 (Dynamic Programming)",
+    "category": "优化规划",
+    "keywords": [
+      "GRA",
+      "动态规划",
+      "规划"
+    ],
+    "search_text": "动态规划 (Dynamic Programming)\n4. 动态规划 (Dynamic Programming) 4.1 数学原理 动态规划是Bellman于1950年代提出的最优化方法，核心思想是将复杂问题分解为 重叠子问题 ，通过 递推关系 自底向上求解。 最优性原理 (Bellman Optimality Principle) : 一个最优策略具有这样的性质：无论过去的状态和决策如何，对于当前决策所形成的状态而言，余下的决策必须构成一个最优子策略。 基本要素 : 1. 阶段 (Stage) $k$: 将过程划分为若干相互联系的阶段 2. 状态 (State) $s_k$: 各阶段开始时的客观条件, $s_k \\in S_k$ 3. 决策 (Decision) $x_k$: 从当前状态到下一阶段的选择, $x_k \\in D_k(s_k)$ 4. 状态转移方程 : $s_{k+1} = T_k(s_k, x_k)$ 5. 报酬函数 : $v_k(s_k, x_k)$ — 阶段k在状态$s_k$下采取决策$x_k$的即时收益 6. 最优值函数 : $f_k(s_k)$ — 从阶段k的状态$s_k$出发到过程结束的最优总收益 Bellman递推方程 : 逆推法 (从最终状态向前递推): $$f_k(s_k) = \\text{opt}_{x_k \\in D_k(s_k)} \\left\\{ v_k(s_k, x_k) + f_{k+1}(s_{k+1}) \\right\\}$$ 其中 $s_{k+1} = T_k(s_k, x_k)$, 边界条件 $f_{N+1}(s_{N+1})$ 已知。 顺推法 (从初始状态向后递推): $$f_k(s_{k+1}) = \\text{opt}_{x_k \\in D_k(s_k)} \\left\\{ v_k(s_k, x_k) + f_{k 1}(s_k) \\right\\}$$ 解法对比 : DP vs 分治法 : DP子问题重叠（用记忆化避免重复计算），分治法子问题不重叠 DP vs 贪心法 : DP保证全局最优，贪心只需局部最优选择 DP的两个实现范式 : 1. 自顶向下（记忆化递归 / Memoization） : 递归求解，用哈希表/数组缓存已计算结果 2. 自底向上（表格法 / Tabulation） : 从小到大填表，消除递归开销 维数灾难 (Curse of Dimensionality) : 当状态变量个数增加时，计算量和存储量呈指数增长，Bellman称之为\"维数灾难\"。 4.2 适用场景 场景 示例 最短路径 有向无环图(DAG)的最短路 背包问题 0 1背包、完全背包、多重背包 资源分配 多阶段资源分配决策 序列决策 设备更新、库存管理、生产调度 字符串匹配 编辑距离(Levenshtein)、最长公共子序列(LCS) 区间DP 矩阵链乘、最优二叉搜索树 树形DP 在树上做决策（独立集、支配集） 状态压缩DP TSP（Held Karp算法）、集合覆盖 概率DP/期望DP 马尔可夫决策过程(MDP)、强化学习基础 4.3 优点 保证全局最优 : 基于最优性原理，解的质量有理论保证 结构清晰 : 递推关系清晰表达了问题结构 灵活性高 : 可处理多种类型的约束和非线性关系 多解性 : 可同时得到多个阶段的最优解 4.4 缺点 维数灾难 : 高维状态空间导致计算和存储爆炸 无后效性要求 : 要求当前状态仅依赖于前一阶段，不适用的场景需要扩展 建模困难 : 复杂问题的状态定义和转移方程构建有挑战性 连续状态 : 连续状态空间需要离散化或函数近似 4.5 Py",
+    "context": "【动态规划 (Dynamic Programming)】（优化规划）\n"
+  },
+  {
+    "id": "优化规划-05",
+    "title": "多目标优化 (Multi-objective Optimization)",
+    "category": "优化规划",
+    "keywords": [
+      "多目标",
+      "优化"
+    ],
+    "search_text": "多目标优化 (Multi-objective Optimization)\n5. 多目标优化 (Multi objective Optimization) 5.1 数学原理 多目标优化研究在给定区域内，使多个可能冲突的目标函数同时达到最优的问题。 一般形式 : $$\\begin{aligned} \\min \\quad & \\mathbf{F}(\\mathbf{x}) = [f_1(\\mathbf{x}), f_2(\\mathbf{x}), \\ldots, f_m(\\mathbf{x})]^T \\\\ \\text{s.t.} \\quad & \\mathbf{x} \\in \\Omega \\end{aligned}$$ Pareto最优 (Pareto Optimality) : Pareto支配 : 解 $\\mathbf{x}^{(1)}$ 支配 $\\mathbf{x}^{(2)}$ (记作 $\\mathbf{x}^{(1)} \\prec \\mathbf{x}^{(2)}$), 当且仅当对所有 $i \\in \\{1,\\ldots,m\\}$ 有 $f_i(\\mathbf{x}^{(1)}) \\le f_i(\\mathbf{x}^{(2)})$，且至少有一个严格不等式成立 Pareto最优解 : 不存在其他解支配它的解 Pareto前沿 (Pareto Front) : 所有Pareto最优解在目标空间的映射 $$\\text{PF} = \\{ \\mathbf{F}(\\mathbf{x}) \\mid \\mathbf{x} \\in \\Omega \\text{ 是Pareto最优} \\}$$ 主要求解方法 : 方法1: 权重法 (Weighted Sum) $$\\min \\; \\sum_{i=1}^{m} w_i f_i(\\mathbf{x}), \\quad w_i \\ge 0, \\;\\sum w_i = 1$$ 改变权重可得到Pareto前沿上的不同点 局限 : 只能得到凸Pareto前沿上的点 方法2: ε 约束法 ($\\varepsilon$ Constraint) $$\\begin{aligned} \\min \\; & f_k(\\mathbf{x}) \\\\ \\text{s.t.} \\; & f_j(\\mathbf{x}) \\le \\varepsilon_j, \\quad j \\neq k \\end{aligned}$$ 将 $m 1$ 个目标转为约束 可得到任意Pareto前沿（包括非凸的） 方法3: 目标规划 (Goal Programming) $$\\min \\; \\sum_{i=1}^{m} (d_i^+ + d_i^ )$$ $$\\text{s.t.} \\quad f_i(\\mathbf{x}) + d_i^ d_i^+ = g_i, \\quad d_i^+, d_i^ \\ge 0$$ 其中 $g_i$ 是第 $i$ 个目标的理想值，$d_i^+, d_i^ $ 分别是正负偏差变量。 方法4: 多目标进化算法 (MOEA) — 见第7 10章 5.2 适用场景 场景 示例 投资组合 最大化收益 vs 最小化风险 工程优化 最大化强度 vs 最小化重量/成本 供应链 最小化成本 vs 最大化服务水平 vs 最小化碳排放 水资源管理 经济效益 vs 生态保护 vs 社会公平 车辆路径 最小化距离 vs 最小化车辆数 vs 均衡各路线 医学 最大化疗效 vs 最小化副作用 5.3 优点 全面性 : 同时考虑多个决策维度 灵活性 : 决策者可事后从Pareto前沿选择偏好解 客观性 : 不预设目标间的重要程度（权重法除外） 5.",
+    "context": "【多目标优化 (Multi-objective Optimization)】（优化规划）\n"
+  },
+  {
+    "id": "优化规划-06",
+    "title": "图论与网络优化 (Graph & Network Optimization)",
+    "category": "优化规划",
+    "keywords": [
+      "GRA",
+      "优化"
+    ],
+    "search_text": "图论与网络优化 (Graph & Network Optimization)\n6. 图论与网络优化 (Graph & Network Optimization) 6.1 数学原理 图论与网络优化研究的是以图（节点+边）为模型的优化问题。图 $G = (V, E)$ 由顶点集 $V$ 和边集 $E$ 组成。 核心问题家族 : 1. 最短路径问题 : Dijkstra算法 : 非负权图单源最短路, 贪心策略, $O( E + V \\log V )$ Bellman Ford : 可处理负权边, 检测负环, $O( V \\cdot E )$ Floyd Warshall : 所有节点对最短路, DP, $O( V ^3)$ A\\ 算法 : 启发式搜索, 用于有先验知识的场景 2. 最小生成树 (MST) : Prim算法 : 从一点开始扩展, $O( E \\log V )$ Kruskal算法 : 按边权排序, 用并查集避免环, $O( E \\log E )$ 3. 网络流 (Network Flow) : 最大流问题 : 在容量网络中使源到汇的流量最大 增广路算法: Ford Fulkerson $O( E \\cdot f_{\\max})$ Edmonds Karp (BFS选最短增广路): $O( V \\cdot E ^2)$ Dinic算法: $O( V ^2\\cdot E )$ 最小费用最大流 : 在保证最大流的前提下最小化费用 连续最短路 (Successive Shortest Path) 基于SPFA的费用流 最大流—最小割定理 : 网络中最大流的值等于最小割的容量 $$\\max\\text{ flow} = \\min\\text{ cut}$$ 4. 二分图匹配 : 匈牙利算法: $O( V \\cdot E )$ 可转化为网络流问题 5. 中国邮递员问题 (CPP) / 旅行商问题 (TSP) : CPP（经过每条边至少一次）：欧拉回路+最小权匹配 TSP（经过每个节点恰好一次）：NP hard 6.2 适用场景 场景 对应模型 示例 路径规划 最短路径 导航、AGV调度、机器人路径 网络设计 MST 通信网络布线、供电线路规划 交通流分配 网络流 城市交通拥堵分析、紧急疏散 任务分配 二分图匹配 工人—任务、学生—宿舍 供应链 最小费用流 多级配送网络优化 连通性分析 割/连通度 网络脆弱性评估、道路中断分析 中心性分析 PageRank/中心度 社交网络影响力、交通枢纽识别 6.3 优点 理论基础扎实 : 图论有数百年的数学积累 算法高效 : 多项式时间算法覆盖了大多数经典问题 可视化直观 : 网络/图结构易于理解和展示 建模灵活 : 大量实际问题可抽象为图模型 6.4 缺点 规模限制 : 超大规模图（亿级节点）需要分布式算法 动态性 : 时变网络（动态图）的优化算法更复杂 NP hard问题 : TSP等仍需要启发式求解 多目标 : 同时优化多条路径或多商品流的扩展困难 6.5 Python代码实现 python \"\"\" 图论与网络优化 — 经典算法实现 \"\"\" import numpy as np import heapq from collections import deque, defaultdict ==================== 1. Dijkstra最短路径 ==================== def dijkstra(graph, start): \"\"\" Dijkstra单源最短路径 O((V+E)logV) graph: 邻接表 {u: [(v1, w1), (v2, w2),",
+    "context": "【图论与网络优化 (Graph & Network Optimization)】（优化规划）\n"
+  },
+  {
+    "id": "优化规划-07",
+    "title": "遗传算法 (Genetic Algorithm)",
+    "category": "优化规划",
+    "keywords": [
+      "遗传算法"
+    ],
+    "search_text": "遗传算法 (Genetic Algorithm)\n7. 遗传算法 (Genetic Algorithm) 7.1 数学原理 遗传算法(GA)是受达尔文进化论启发的随机搜索算法，通过模拟自然选择和遗传机制寻找最优解。 核心概念对应关系 : 生物学 GA 种群 (Population) 一组候选解的集合 染色体 (Chromosome) 一个解的编码 (个体) 基因 (Gene) 解的每个分量 适应度 (Fitness) 目标函数值（越大越好） 选择 (Selection) 按适应度比例选优秀个体进入下一代 交叉 (Crossover) 两个父代基因素材重组产生子代 变异 (Mutation) 以较小概率随机改变某些基因 进化 (Evolution) 多代迭代，种群适应度逐渐提高 算法流程 : 1. 初始化: 随机生成规模为 N 的种群 P(0), t=0 2. 评估: 计算 P(t) 中每个个体的适应度 3. while 终止条件不满足: a. 选择 (Selection): 从 P(t) 中选 N 个个体 (有放回, 优胜劣汰) b. 交叉 (Crossover): 以概率 p_c 对选出的个体两两交叉 c. 变异 (Mutation): 以概率 p_m 对新个体每个基因变异 d. P(t+1) = 新种群 e. t = t+1 f. 评估 P(t) 的适应度 4. 输出最优个体 选择算子 : 轮盘赌选择 (Roulette Wheel) : 选择概率 $\\propto$ 适应度 $$p_i = \\frac{f_i}{\\sum_{j=1}^{N} f_j}$$ 锦标赛选择 (Tournament) : 随机选k个个体，其中最好的入选 精英保留 (Elitism) : 直接将最优的几个个体保留到下一代 交叉算子 : 单点交叉 : 在随机位置切断, 交换尾部 两点交叉 : 交换中间片段 均匀交叉 : 每个基因独立地从父代之一继承 SBX (Simulated Binary Crossover) : 实值编码的模拟二进制交叉 PMX (Partially Mapped Crossover) : 排列编码（适合TSP） 变异算子 : 位翻转变异 : 二进制编码的 bit flip 高斯变异 : 实值编码 $x_i' = x_i + \\mathcal{N}(0, \\sigma^2)$ 交换变异 : 排列编码中交换两个位置 模式定理 (Schema Theorem) / 积木块假设 (Building Block Hypothesis) : 短定义距、低阶、高于平均适应度的模式(积木块)在进化中被指数级采样 GA通过不断组合这些积木块来构建更优解 7.2 适用场景 场景 示例 组合优化 TSP、VRP、调度、排课 函数优化 不可微/多峰/黑箱目标函数的最优化 参数优化 PID控制器参数、神经网络超参 特征选择 从高维特征中选择最优子集 结构设计 桁架拓扑优化、天线设计 规则发现 交易策略规则进化 多目标 NSGA II/MOEA/D 求Pareto前沿 7.3 优点 全局搜索能力强 : 种群并行搜索,不易陷入局部最优 不需要导数信息 : 适合黑箱函数、不可微函数 灵活 : 可以很容易地处理混合变量、复杂约束 天然并行 : 种群评估可并行化 7.4 缺点 收敛速度慢 : 特别是接近最优解时 早熟收敛 (Premature Convergence) : 种群多样性丧失, 全体收敛到某个局部最优 参数敏感 : 种群大小、交叉率、变异率等超参对效果影响大 理论上弱 : 没有严格的收敛性证明（相比凸优化） 计算量大 ",
+    "context": "【遗传算法 (Genetic Algorithm)】（优化规划）\n"
+  },
+  {
+    "id": "优化规划-08",
+    "title": "模拟退火 (Simulated Annealing)",
+    "category": "优化规划",
+    "keywords": [
+      "模拟退火"
+    ],
+    "search_text": "模拟退火 (Simulated Annealing)\n8. 模拟退火 (Simulated Annealing) 8.1 数学原理 模拟退火(SA)源于固体退火的物理过程：将固体加热至高温后缓慢冷却，原子在高温时自由运动，缓慢降温时在每一温度都达到热平衡，最终形成能量最低的晶格结构。 Metropolis准则 : 在当前状态 $i$ (能量 $E_i$) 下，随机扰动产生新状态 $j$ (能量 $E_j$): 若 $E_j < E_i$ (更优), 总是接受 新状态 若 $E_j \\ge E_i$ (更劣), 以概率 $P = \\exp\\left( \\frac{E_j E_i}{kT}\\right)$ 接受新状态 其中 $T$ 为当前温度, $k$ 为Boltzmann常数（通常取 $k=1$）。 温度调度 (Cooling Schedule) : 控制收敛速度和搜索精度最关键的因素。 指数降温 : $T_{k+1} = \\alpha \\cdot T_k, \\quad \\alpha \\in (0.9, 0.99)$ 对数降温 : $T_k = \\frac{T_0}{\\log(1+k)}$ 线性降温 : $T_{k+1} = T_k \\Delta T$ 快速SA : $T_k = \\frac{T_0}{1+k}$ 算法伪代码 : 1. 初始化: x = 随机解, T = T_max, k = 0 2. while T T_min: for i = 1 to L_k (Markov链长度): y = neighbor(x) 邻域扰动 ΔE = f(y) f(x) if ΔE < 0 or random() < exp( ΔE / T): x = y T = cooling(T, k) k += 1 3. 输出 x 收敛性理论 : 在无限慢降温 (即 $T_k \\ge \\frac{C}{\\log(1+k)}$) 下，以概率1收敛到全局最优 实际操作中不可能无限慢，需要权衡速度和精度 关键超参数 : $T_0$ (初始温度): 足够高以使接受概率接近1 $\\alpha$ (降温系数): 0.85 0.99, 越接近1搜索越充分 $L_k$ (Markov链长度): 每个温度下的迭代次数 $T_{\\min}$ (终温): 低到不再接受劣解 8.2 适用场景 场景 示例 TSP/VRP 大规模旅行商/车辆路径问题 VLSI设计 芯片布局、布线优化 调度问题 Job shop调度、考试排表 图像处理 图像分割、图像恢复 机器学习 特征选择、聚类 结构优化 桁架设计、化工流程优化 组合优化 几乎所有NP hard的组合优化问题 8.3 优点 可跳出局部最优 : Metropolis准则允许以一定概率接受劣解 理论上收敛 : 在适当降温速度下保证收敛到全局最优 简单 : 算法结构简单, 易于实现和并行化 通用 : 对问题的数学性质（可微性、连续性）要求低 约束处理灵活 : 可以通过罚函数或拒绝策略处理约束 8.4 缺点 速度慢 : 充分搜索需要大量评估 参数调节困难 : 初始温度、降温率、链长度等依赖经验 可能不收敛 : 降温太快则停留在局部最优 重复运行差异 : 随机性强, 不同运行可能得到不同解 8.5 Python代码实现 python \"\"\" 模拟退火算法 (Simulated Annealing) 实现 \"\"\" import numpy as np import matplotlib matplotlib.use('Agg') import matplotlib.pyplot as plt class Si",
+    "context": "【模拟退火 (Simulated Annealing)】（优化规划）\n"
+  },
+  {
+    "id": "优化规划-09",
+    "title": "粒子群优化 (Particle Swarm Optimization)",
+    "category": "优化规划",
+    "keywords": [
+      "粒子群",
+      "优化"
+    ],
+    "search_text": "粒子群优化 (Particle Swarm Optimization)\n9. 粒子群优化 (Particle Swarm Optimization) 9.1 数学原理 粒子群优化(PSO)是Kennedy和Eberhart于1995年提出的群智能算法，模拟鸟群/鱼群的社交行为。每个粒子代表一个候选解，通过个体经验和群体信息调整搜索方向。 速度和位置更新 : $$v_i^{t+1} = w \\cdot v_i^t + c_1 r_1 \\cdot (\\mathbf{pbest}_i \\mathbf{x}_i^t) + c_2 r_2 \\cdot (\\mathbf{gbest} \\mathbf{x}_i^t)$$ $$\\mathbf{x}_i^{t+1} = \\mathbf{x}_i^t + v_i^{t+1}$$ 其中: $\\mathbf{x}_i^t$: 粒子 $i$ 在时刻 $t$ 的位置 $v_i^t$: 粒子 $i$ 在时刻 $t$ 的速度 $\\mathbf{pbest}_i$: 粒子 $i$ 的历史最优位置（个体认知） $\\mathbf{gbest}$: 整个群体的历史最优位置（社会认知） $w$: 惯性权重 — 平衡探索与开发 $c_1$: 认知加速系数 — 向个体最优学习的权重 $c_2$: 社会加速系数 — 向群体最优学习的权重 $r_1, r_2 \\sim U(0,1)$: 随机数, 增加搜索多样性 三部分含义 : $$\\text{新速度} = \\underbrace{w \\cdot v_i^t}_{\\text{惯性项}} + \\underbrace{c_1 r_1 (\\mathbf{pbest}_i \\mathbf{x}_i)}_{\\text{个人认知项}} + \\underbrace{c_2 r_2 (\\mathbf{gbest} \\mathbf{x}_i)}_{\\text{社会认知项}}$$ 参数分析与调优 : 参数 推荐值 含义 $w$ 0.4 0.9 越大越全局搜索, 越小越局部精调 $c_1, c_2$ 1.5 2.0 通常$c_1 = c_2 = 2.0$ 种群大小 20 50 越小越快, 越大越可靠 速度限制 $[ v_{\\max}, v_{\\max}]$ 防止粒子飞出搜索空间 常用改进策略 : 1. 线性递减惯性权重 (LDIW) : $$w(t) = w_{\\max} (w_{\\max} w_{\\min}) \\cdot \\frac{t}{T_{\\max}}$$ 前期大权重强探索, 后期小权重强开发 2. 收缩因子 (Constriction Factor, Clerc & Kennedy 2002) : $$v_i^{t+1} = \\chi \\left[ v_i^t + c_1 r_1 (\\mathbf{pbest}_i \\mathbf{x}_i) + c_2 r_2 (\\mathbf{gbest} \\mathbf{x}_i) \\right]$$ $$\\chi = \\frac{2}{ 2 \\varphi \\sqrt{\\varphi^2 4\\varphi} }, \\quad \\varphi = c_1 + c_2 4$$ 3. 环形拓扑 (Ring Topology / lbest) : 粒子只与其邻居比较, 减慢信息传播, 保持多样性 4. 全面学习PSO (CLPSO) : 每个维度可学习不同粒子的pbest 9.2 适用场景 场景 示例 连续参数优化 PID控制器、滤波器参数调优 神经网络训练 权重初始化、超参数搜索 工程优化 结构设计、天线阵列优化 电力系统 经济调度、无功优化",
+    "context": "【粒子群优化 (Particle Swarm Optimization)】（优化规划）\n"
+  },
+  {
+    "id": "优化规划-10",
+    "title": "蚁群优化 (Ant Colony Optimization)",
+    "category": "优化规划",
+    "keywords": [
+      "优化"
+    ],
+    "search_text": "蚁群优化 (Ant Colony Optimization)\n10. 蚁群优化 (Ant Colony Optimization) 10.1 数学原理 蚁群优化(ACO)由Dorigo于1992年提出，模拟蚂蚁觅食中通过信息素(pheromone)合作寻找最短路径的行为。蚂蚁在路径上留下信息素, 其他蚂蚁倾向于选择信息素浓度高的路径, 形成正反馈循环。 核心机制 : 路径选择概率 (Ant System, AS): 在节点 i 的蚂蚁 k 选择下一节点 j 的概率为: $$p_{ij}^k = \\begin{cases} \\frac{[\\tau_{ij}]^\\alpha \\cdot [\\eta_{ij}]^\\beta}{\\sum_{l \\in N_i^k} [\\tau_{il}]^\\alpha \\cdot [\\eta_{il}]^\\beta}, & j \\in N_i^k \\\\ 0, & \\text{otherwise} \\end{cases}$$ 其中: $\\tau_{ij}$: 边 (i,j) 上的信息素浓度 $\\eta_{ij}$: 启发式信息 (通常 $\\eta_{ij} = 1/d_{ij}$, 即距离的倒数) $\\alpha$: 信息素重要度因子 $\\beta$: 启发式信息重要度因子 $N_i^k$: 蚂蚁 k 在节点 i 的可选邻居集合 信息素更新 : $$\\tau_{ij} \\leftarrow (1 \\rho) \\cdot \\tau_{ij} + \\sum_{k=1}^{m} \\Delta\\tau_{ij}^k$$ 其中: $\\rho \\in (0, 1)$: 信息素蒸发率 $\\Delta\\tau_{ij}^k$: 第 k 只蚂蚁在边 (i,j) 上释放的信息素增量 ACO变体差异 : 变体 特点 AS (Ant System) 原始版本, 收敛慢 ACS (Ant Colony System) 收敛最快, 应用最广 MMAS (Max Min AS) 防止早熟, 性能稳定 RAS (Rank based AS) 按排名加权更新 10.2 适用场景 场景 示例 TSP 经典应用, ACO最擅长的领域 VRP (车辆路径) 带容量/时间窗的配送优化 二次分配 (QAP) 工厂选址、电路板元件布局 调度问题 Job shop调度、项目调度 网络路由 Ad hoc网络、通信路由 集合覆盖 设施选址覆盖问题 10.3 优点 正反馈机制 : 优秀解自动加强, 搜索效率高 分布式计算 : 各蚂蚁独立构造解, 天然并行 鲁棒性强 : 对参数不特别敏感, 容易适配新问题 结合局部搜索 : 可与2 opt等局部搜索算子结合成混合算法 10.4 缺点 收敛速度不确定 : 可能早熟(信息素饱和)或慢收敛 参数多 : alpha, beta, rho, q0, m 等需要调试 理论分析少 : 收敛性证明不如SA充分 主要适用于组合优化 : 连续优化需先离散化 10.5 Python代码实现 python \"\"\" 蚁群优化 (Ant Colony Optimization) TSP求解 (ACS版本) \"\"\" import numpy as np import matplotlib matplotlib.use(\"Agg\") import matplotlib.pyplot as plt class AntColonySystem: \"\"\"ACS求解TSP\"\"\" def __init__(self, dist_matrix, n_ants=20, alpha=1.0, beta=3.0, rho=0.1, q0=",
+    "context": "【蚁群优化 (Ant Colony Optimization)】（优化规划）\n"
+  },
+  {
+    "id": "优化规划-11",
+    "title": "混合整数线性规划 (Mixed Integer Linear Programming)",
+    "category": "优化规划",
+    "keywords": [
+      "GRA",
+      "线性规划",
+      "规划"
+    ],
+    "search_text": "混合整数线性规划 (Mixed Integer Linear Programming)\n11. 混合整数线性规划 (Mixed Integer Linear Programming) 11.1 数学原理 混合整数线性规划(MILP)是线性规划的扩展, 允许部分变量取整数(包括0 1变量), 其余变量取实数。MILP是运筹学和数学建模中最强大的建模工具之一。 数学模型 : $$\\begin{aligned} \\min \\quad & \\mathbf{c}^T \\mathbf{x} + \\mathbf{d}^T \\mathbf{y} \\\\ \\text{s.t.} \\quad & \\mathbf{A}\\mathbf{x} + \\mathbf{B}\\mathbf{y} \\leq \\mathbf{b} \\\\ & \\mathbf{x} \\in \\mathbb{Z}^n_+, \\; \\mathbf{y} \\in \\mathbb{R}^p_+ \\end{aligned}$$ 其中 $\\mathbf{x}$ 为整数变量, $\\mathbf{y}$ 为连续变量。 Branch and Cut (B&C) = 分支定界 + 割平面, 是现代MILP求解器的标准框架。 逻辑约束的MILP建模 : 逻辑关系 MILP等价表示 互斥: x 和 y 不能同时 0 $x \\le M \\cdot \\delta, \\; y \\le M \\cdot (1 \\delta)$ 蕴含: 若delta=1 则 ax<=b $ax \\le b + M(1 \\delta)$ 或约束 $f_1 \\le M\\delta_1, f_2 \\le M\\delta_2, \\delta_1+\\delta_2 \\ge 1$ 小M vs 大M : M应尽量小(紧), 否则LP松弛会变得很弱, 导致B&B效率极低。 11.2 适用场景 场景 建模特点 示例 设施选址 0 1决策 + 连续运输量 仓库开设、基站选址 生产计划 整数批次 + 连续产量 批量生产、配料混合 排班调度 0 1分配 + 连续时间 护士/飞行员/课程排班 网络设计 0 1链路选择 + 连续流 通信网/供应链设计 电力调度 0 1机组启停 发电机组调度 11.3 优点 建模能力极强 : 可以表达绝大多数实际优化问题 求解器成熟 : CPLEX、Gurobi每秒可处理数百万节点 最优性保证 : 在足够时间内可证明最优或给出gap保证 11.4 缺点 求解速度不稳定 : 类似规模的问题求解时间可差几个数量级 M的选择困难 : Big M太小会切断最优解, 太大会造成数值问题 大规模困难 : 变量超过百万时需要分解方法 商业求解器昂贵 : Gurobi/CPLEX许可费用高 11.5 Python代码实现 python \"\"\" 混合整数线性规划 (MILP) 求解示例 使用 pulp (CBC) \"\"\" import numpy as np try: import pulp HAS_PULP = True except ImportError: HAS_PULP = False print(\"警告: pulp未安装\") def example1_production(): \"\"\"生产计划MILP: 多种产品 + 最小批次 + 固定成本\"\"\" if not HAS_PULP: return print(\"=\" 60) print(\"示例1: 生产计划MILP\") print(\"=\" 60) products = [ {\"price\": 100, \"var_cost\": 40, \"fixed_cost\": 1000, \"min_batch\":",
+    "context": "【混合整数线性规划 (Mixed Integer Linear Programming)】（优化规划）\n"
+  },
+  {
+    "id": "优化规划-12",
+    "title": "蒙特卡洛优化 (Monte Carlo Optimization)",
+    "category": "优化规划",
+    "keywords": [
+      "蒙特卡洛",
+      "优化"
+    ],
+    "search_text": "蒙特卡洛优化 (Monte Carlo Optimization)\n12. 蒙特卡洛优化 (Monte Carlo Optimization) 12.1 数学原理 蒙特卡洛方法通过大量随机采样来近似求解确定性和随机性问题。在优化领域, 蒙特卡洛方法利用随机抽样来探索解空间, 估计最优解。 理论基础 : 大数定律 : $$\\bar{X}_n = \\frac{1}{n}\\sum_{i=1}^{n} X_i \\xrightarrow{p} \\mathbb{E}[X] \\quad \\text{as } n \\to \\infty$$ 收敛速率 : 蒙特卡洛误差以 $O(1/\\sqrt{n})$ 衰减, 与维数无关 (这是其最大优势)。 主要类型 : 1. 纯随机搜索 (PRS) : 在可行域均匀随机采样, 选最优 2. 拉丁超立方采样 (LHS) : 每个维度分成N个等概率区间, 保证更好空间填充 3. 马尔可夫链蒙特卡洛 (MCMC) : Metropolis Hastings算法构建以目标函数为稳态分布的马尔可夫链 4. 交叉熵方法 (CEM) : 维护参数化采样分布, 每代选精英更新分布参数向最优区域集中 5. 模拟退火 (第8章) MCMC的特例 12.2 适用场景 场景 示例 高维积分 贝叶斯推断中的后验期望估计 随机优化 随机需求/随机价格的供应链优化 风险分析 VaR/CVaR的模拟估计 可靠性分析 复杂系统的故障概率估计 仿真优化 离散事件系统的参数优化 全局优化 不规则可行域、多峰函数 参数估计 Bootstrap置信区间 12.3 优点 维数独立 : 收敛速率与维数无关, 高维问题优势明显 通用性强 : 几乎不需要假设条件 易于实现 : 核心逻辑简单 可并行 : 各样本独立 提供不确定性量化 : 自然产出置信区间 12.4 缺点 收敛慢 : $O(1/\\sqrt{n})$ 比确定性方法的指数收敛慢得多 精度有限 : 要达到高精度需要极大的样本量 随机误差 : 每次运行结果不同 (可通过固定种子复现) 效率取决于采样策略 : 朴素MC在低维比确定性方法差 12.5 Python代码实现 python \"\"\" 蒙特卡洛优化方法 \"\"\" import numpy as np from scipy.stats import qmc import matplotlib matplotlib.use(\"Agg\") import matplotlib.pyplot as plt import time def pure_random_search(objective, bounds, n_samples=10000): \"\"\"纯随机搜索全局优化\"\"\" dim = len(bounds) lo = np.array([b[0] for b in bounds]) hi = np.array([b[1] for b in bounds]) samples = lo + np.random.rand(n_samples, dim) (hi lo) values = np.array([objective(s) for s in samples]) best_idx = np.argmin(values) return samples[best_idx], values[best_idx], samples, values def latin_hypercube_search(objective, bounds, n_samples=10000): \"\"\"使用LHS的蒙特卡洛搜索\"\"\" dim = len(bounds) l",
+    "context": "【蒙特卡洛优化 (Monte Carlo Optimization)】（优化规划）\n"
+  },
+  {
+    "id": "统计与机器学习-01",
+    "title": "相关性分析",
+    "category": "统计与机器学习",
+    "keywords": [
+      "Pearson",
+      "Spearman",
+      "Kendall",
+      "相关性"
+    ],
+    "search_text": "相关性分析\n| 方法 | 公式 | 数据类型 | 线性关系 |\n|------|------|----------|----------|\n| Pearson | $r = \\frac{\\sum(x_i-\\bar{x})(y_i-\\bar{y})}{\\sqrt{\\sum(x_i-\\bar{x})^2\\sum(y_i-\\bar{y})^2}}$ | 连续正态 | 仅线性 |\n| Spearman | $\\rho = 1 - \\frac{6\\sum d_i^2}{n(n^2-1)}$ | 有序/秩 | 单调即可 |\n| Kendall's τ | $\\tau = \\frac{2(C-D)}{n(n-1)}$ | 有序 | 单调即可 |\n| 方法 | 适用场景 |\n|------|----------|\n| Pearson | 两连续变量，正态分布，线性相关 |\n| Spearman | 有序变量、非正态、非线性单调 |\n| Kendall | 小样本、多位次相同（ties多） |",
+    "context": "【相关性分析】（统计与机器学习）\n原理：| 方法 | 公式 | 数据类型 | 线性关系 |\n|------|------|----------|----------|\n| Pearson | $r = \\frac{\\sum(x_i-\\bar{x})(y_i-\\bar{y})}{\\sqrt{\\sum(x_i-\\bar{x})^2\\sum(y_i-\\bar{y})^2}}$ | 连续正态 | 仅线性 |\n| Spearman | $\\rho = 1 - \\frac{6\\sum d_i^2}{n(n^2-1)}$ | 有序/秩 | 单调即可 |\n| Kendall's τ | $\\tau = \\frac{2(C-D)}{n(n-1)}$ | 有序 | 单调即可 |\n适用场景：| 方法 | 适用场景 |\n|------|----------|\n| Pearson | 两连续变量，正态分布，线性相关 |\n| Spearman | 有序变量、非正态、非线性单调 |\n| Kendall | 小样本、多位次相同（ties多） |\n注意事项：1. Pearson对异常值敏感，做之前先画散点图\n2. 相关≠因果\n3. 强相关不意味着关系有意义（检查散点图）\n4. 小样本时Pearson不稳健\n参考代码：\n```python\nfrom scipy.stats import pearsonr, spearmanr, kendalltau\n\nr, p = pearsonr(x, y)\nrho, p = spearmanr(x, y)\ntau, p = kendalltau(x, y)\n```\n\n---\n"
+  },
+  {
+    "id": "统计与机器学习-02",
+    "title": "独立样本T检验",
+    "category": "统计与机器学习",
+    "keywords": [
+      "T检验"
+    ],
+    "search_text": "独立样本T检验\n$$t = \\frac{\\bar{x}_1 - \\bar{x}_2}{\\sqrt{\\frac{s_1^2}{n_1} + \\frac{s_2^2}{n_2}}}$$\n\n**方差齐性检验（Levene检验）**：p>0.05 → 方差齐 → Student's t；p<0.05 → 方差不齐 → Welch's t\n两组独立样本均值差异比较（实验组vs对照组、男女比较）",
+    "context": "【独立样本T检验】（统计与机器学习）\n原理：$$t = \\frac{\\bar{x}_1 - \\bar{x}_2}{\\sqrt{\\frac{s_1^2}{n_1} + \\frac{s_2^2}{n_2}}}$$\n\n**方差齐性检验（Levene检验）**：p>0.05 → 方差齐 → Student's t；p<0.05 → 方差不齐 → Welch's t\n适用场景：两组独立样本均值差异比较（实验组vs对照组、男女比较）\n注意事项：1. 必须先做方差齐性检验\n2. 报告效应量：Cohen's d = (mean1 - mean2) / pooled_std\n3. d=0.2小效应, 0.5中等, 0.8大效应\n参考代码：\n```python\nfrom scipy.stats import ttest_ind, levene\n\n# 方差齐性检验\nstat, p_levene = levene(group1, group2)\nequal_var = p_levene > 0.05\n\n# T检验\nt_stat, p_value = ttest_ind(group1, group2, equal_var=equal_var)\n# Cohen's d\nd = (np.mean(group1) - np.mean(group2)) / np.sqrt((np.var(group1, ddof=1) + np.var(group2, ddof=1)) / 2)\n```\n\n---\n"
+  },
+  {
+    "id": "统计与机器学习-03",
+    "title": "方差分析 ANOVA",
+    "category": "统计与机器学习",
+    "keywords": [
+      "ANOVA",
+      "方差分析"
+    ],
+    "search_text": "方差分析 ANOVA\n$$F = \\frac{MS_{between}}{MS_{within}} = \\frac{SS_{between}/(k-1)}{SS_{within}/(N-k)}$$\n\n$SS_{total} = SS_{between} + SS_{within}$（总变异 = 组间变异 + 组内变异）\n三组及以上均值差异比较",
+    "context": "【方差分析 ANOVA】（统计与机器学习）\n原理：$$F = \\frac{MS_{between}}{MS_{within}} = \\frac{SS_{between}/(k-1)}{SS_{within}/(N-k)}$$\n\n$SS_{total} = SS_{between} + SS_{within}$（总变异 = 组间变异 + 组内变异）\n适用场景：三组及以上均值差异比较\n注意事项：1. 需检验方差齐性（Levene）\n2. 残差正态性（Q-Q图或Shapiro-Wilk）\n3. 显著后必须做事后比较确定差异到底在哪里\n4. 报告η²效应量\n参考代码：\n```python\nfrom scipy.stats import f_oneway\nfrom statsmodels.stats.multicomp import pairwise_tukeyhsd\n\n# 单因素ANOVA\nF, p = f_oneway(group1, group2, group3)\n\n# Tukey HSD\ntukey = pairwise_tukeyhsd(all_values, all_labels, alpha=0.05)\nprint(tukey)\n```\n\n---\n"
+  },
+  {
+    "id": "统计与机器学习-04",
+    "title": "卡方检验",
+    "category": "统计与机器学习",
+    "keywords": [
+      "卡方检验",
+      "分类"
+    ],
+    "search_text": "卡方检验\n$$\\chi^2 = \\sum \\frac{(O_{ij} - E_{ij})^2}{E_{ij}}, \\quad E_{ij} = \\frac{R_i \\times C_j}{N}$$\n两分类变量独立性检验、拟合优度检验",
+    "context": "【卡方检验】（统计与机器学习）\n原理：$$\\chi^2 = \\sum \\frac{(O_{ij} - E_{ij})^2}{E_{ij}}, \\quad E_{ij} = \\frac{R_i \\times C_j}{N}$$\n适用场景：两分类变量独立性检验、拟合优度检验\n注意事项：1. 期望频数 < 5 的格子数不超过20%\n2. 2×2表用Yates连续性校正\n3. 小样本用Fisher精确检验\n4. 报告Cramér's V效应量\n参考代码：\n```python\nfrom scipy.stats import chi2_contingency, fisher_exact\n\nchi2, p, dof, expected = chi2_contingency(contingency_table)\n# 验证期望频数\nprint(\"最小期望频数:\", expected.min())\n```\n\n---\n"
+  },
+  {
+    "id": "统计与机器学习-05",
+    "title": "非参数检验",
+    "category": "统计与机器学习",
+    "keywords": [],
+    "search_text": "非参数检验\n5. 非参数检验 检验 参数对应 适用场景 Mann Whitney U 独立T检验 两组比较，非正态 Wilcoxon符号秩 配对T检验 配对比较，非正态 Kruskal Wallis 单因素ANOVA 多组比较，非正态 Friedman 重复测量ANOVA 重复测量，非正态 参考代码 python from scipy.stats import mannwhitneyu, wilcoxon, kruskal Mann Whitney U u_stat, p = mannwhitneyu(group1, group2, alternative='two sided') Kruskal Wallis h_stat, p = kruskal(group1, group2, group3) 第二部分：回归分析",
+    "context": "【非参数检验】（统计与机器学习）\n参考代码：\n```python\nfrom scipy.stats import mannwhitneyu, wilcoxon, kruskal\n\n# Mann-Whitney U\nu_stat, p = mannwhitneyu(group1, group2, alternative='two-sided')\n\n# Kruskal-Wallis\nh_stat, p = kruskal(group1, group2, group3)\n```\n\n---\n"
+  },
+  {
+    "id": "统计与机器学习-06",
+    "title": "线性回归 (OLS)",
+    "category": "统计与机器学习",
+    "keywords": [
+      "VAR",
+      "线性回归",
+      "OLS",
+      "回归"
+    ],
+    "search_text": "线性回归 (OLS)\n$$y = X\\beta + \\varepsilon, \\quad \\hat{\\beta} = (X^TX)^{-1}X^Ty$$\n\n$$R^2 = 1 - \\frac{SS_{res}}{SS_{tot}}$$\n线性关系、自变量与因变量均连续",
+    "context": "【线性回归 (OLS)】（统计与机器学习）\n原理：$$y = X\\beta + \\varepsilon, \\quad \\hat{\\beta} = (X^TX)^{-1}X^Ty$$\n\n$$R^2 = 1 - \\frac{SS_{res}}{SS_{tot}}$$\n适用场景：线性关系、自变量与因变量均连续\n注意事项：1. 残差检验：正态性(Q-Q)、独立性(Durbin-Watson≈2)、等方差性\n2. VIF > 10 时考虑Ridge/Lasso或删除变量\n3. 异常值：Cook's distance > 4/n需关注\n参考代码：\n```python\nimport statsmodels.api as sm\nfrom statsmodels.stats.outliers_influence import variance_inflation_factor\n\nX_sm = sm.add_constant(X)\nmodel = sm.OLS(y, X_sm).fit()\nprint(model.summary())\n\n# VIF\nvif = pd.DataFrame({'feature': X.columns,\n                     'VIF': [variance_inflation_factor(X.values, i)\n                             for i in range(X.shape[1])]})\n```\n\n---\n"
+  },
+  {
+    "id": "统计与机器学习-07",
+    "title": "岭回归 (Ridge)",
+    "category": "统计与机器学习",
+    "keywords": [
+      "VIF",
+      "多重共线性",
+      "Ridge",
+      "岭回归",
+      "回归"
+    ],
+    "search_text": "岭回归 (Ridge)\n$$\\hat{\\beta}_{ridge} = \\arg\\min_\\beta \\left\\{ \\sum (y_i - x_i\\beta)^2 + \\alpha \\sum \\beta_j^2 \\right\\}$$\n\nL2正则化将所有系数向0收缩但不归零。\n多重共线性严重（VIF>10）、特征多样本少",
+    "context": "【岭回归 (Ridge)】（统计与机器学习）\n原理：$$\\hat{\\beta}_{ridge} = \\arg\\min_\\beta \\left\\{ \\sum (y_i - x_i\\beta)^2 + \\alpha \\sum \\beta_j^2 \\right\\}$$\n\nL2正则化将所有系数向0收缩但不归零。\n适用场景：多重共线性严重（VIF>10）、特征多样本少\n参考代码：\n```python\nfrom sklearn.linear_model import RidgeCV\n\nridge = RidgeCV(alphas=[0.01, 0.1, 1, 10, 100], cv=5)\nridge.fit(X_train_scaled, y_train)\nprint(f\"最优α: {ridge.alpha_}\")\n```\n\n---\n"
+  },
+  {
+    "id": "统计与机器学习-08",
+    "title": "Lasso回归",
+    "category": "统计与机器学习",
+    "keywords": [
+      "Lasso",
+      "回归"
+    ],
+    "search_text": "Lasso回归\n$$\\hat{\\beta}_{lasso} = \\arg\\min_\\beta \\left\\{ \\sum (y_i - x_i\\beta)^2 + \\alpha \\sum |\\beta_j| \\right\\}$$\n\nL1正则化可将不重要系数直接压缩为0，具有内置特征选择。\n高维数据（p>n）、需要特征选择",
+    "context": "【Lasso回归】（统计与机器学习）\n原理：$$\\hat{\\beta}_{lasso} = \\arg\\min_\\beta \\left\\{ \\sum (y_i - x_i\\beta)^2 + \\alpha \\sum |\\beta_j| \\right\\}$$\n\nL1正则化可将不重要系数直接压缩为0，具有内置特征选择。\n适用场景：高维数据（p>n）、需要特征选择\n参考代码：\n```python\nfrom sklearn.linear_model import LassoCV\n\nlasso = LassoCV(cv=5, random_state=42, max_iter=10000)\nlasso.fit(X_train_scaled, y_train)\nselected = X.columns[lasso.coef_ != 0]\nprint(f\"选中{len(selected)}个特征: {selected.tolist()}\")\n```\n\n---\n"
+  },
+  {
+    "id": "统计与机器学习-09",
+    "title": "逻辑回归",
+    "category": "统计与机器学习",
+    "keywords": [
+      "逻辑回归",
+      "预测",
+      "分类",
+      "回归",
+      "评分"
+    ],
+    "search_text": "逻辑回归\n$$P(Y=1|X) = \\frac{1}{1 + e^{-(\\beta_0 + \\beta_1X_1 + \\cdots + \\beta_kX_k)}}$$\n\n$$\\text{Odds Ratio(OR)} = e^{\\beta_j}$$\n二分类/多分类、医学诊断、信用评分、流失预测",
+    "context": "【逻辑回归】（统计与机器学习）\n原理：$$P(Y=1|X) = \\frac{1}{1 + e^{-(\\beta_0 + \\beta_1X_1 + \\cdots + \\beta_kX_k)}}$$\n\n$$\\text{Odds Ratio(OR)} = e^{\\beta_j}$$\n适用场景：二分类/多分类、医学诊断、信用评分、流失预测\n注意事项：1. 多重共线性：VIF>10需处理\n2. 类别不平衡：SMOTE/调整class_weight\n3. Hosmer-Lemeshow拟合优度检验\n4. AUC>0.7可接受, >0.8良好, >0.9优秀\n参考代码：\n```python\nfrom sklearn.linear_model import LogisticRegression\nfrom sklearn.metrics import roc_auc_score, classification_report\n\nlr = LogisticRegression(class_weight='balanced', max_iter=1000)\nlr.fit(X_train_scaled, y_train)\ny_prob = lr.predict_proba(X_test_scaled)[:, 1]\nauc = roc_auc_score(y_test, y_prob)\nprint(f\"AUC: {auc:.4f}\")\n\n# OR值\nodds_ratios = np.exp(lr.coef_[0])\n```\n\n---\n"
+  },
+  {
+    "id": "统计与机器学习-10",
+    "title": "分层回归",
+    "category": "统计与机器学习",
+    "keywords": [
+      "分层回归",
+      "回归"
+    ],
+    "search_text": "分层回归\n将自变量按理论/时间顺序分层引入模型：\n\n**步骤**：\n1. Model 1：仅控制变量 → $R^2_1$\n2. Model 2：控制变量 + 新变量 → $R^2_2$\n3. $\\Delta R^2 = R^2_2 - R^2_1$，检验是否显著\n控制混杂因素后检验新增变量的增量解释力",
+    "context": "【分层回归】（统计与机器学习）\n原理：将自变量按理论/时间顺序分层引入模型：\n\n**步骤**：\n1. Model 1：仅控制变量 → $R^2_1$\n2. Model 2：控制变量 + 新变量 → $R^2_2$\n3. $\\Delta R^2 = R^2_2 - R^2_1$，检验是否显著\n适用场景：控制混杂因素后检验新增变量的增量解释力\n参考代码：\n```python\nimport statsmodels.api as sm\n\n# Model 1: 仅控制变量\nX1 = sm.add_constant(df[['age', 'gender']])\nm1 = sm.OLS(y, X1).fit()\n\n# Model 2: + 核心变量\nX2 = sm.add_constant(df[['age', 'gender', 'treatment']])\nm2 = sm.OLS(y, X2).fit()\n\ndelta_r2 = m2.rsquared - m1.rsquared\nprint(f\"ΔR² = {delta_r2:.4f}\")\n```\n\n---\n"
+  },
+  {
+    "id": "统计与机器学习-11",
+    "title": "K-Means 聚类",
+    "category": "统计与机器学习",
+    "keywords": [
+      "K-Means",
+      "聚类"
+    ],
+    "search_text": "K-Means 聚类\n$$\\min_{C_1,...,C_k} \\sum_{i=1}^{k} \\sum_{x \\in C_i} \\|x - \\mu_i\\|^2$$\n球形簇、大数据集、需预知K值",
+    "context": "【K-Means 聚类】（统计与机器学习）\n原理：$$\\min_{C_1,...,C_k} \\sum_{i=1}^{k} \\sum_{x \\in C_i} \\|x - \\mu_i\\|^2$$\n适用场景：球形簇、大数据集、需预知K值\n参考代码：\n```python\nfrom sklearn.cluster import KMeans\nfrom sklearn.metrics import silhouette_score\n\n# 肘部法则\ninertias = []\nfor k in range(1, 11):\n    inertias.append(KMeans(n_clusters=k, random_state=42).fit(X).inertia_)\n\n# 轮廓系数\nsilhouettes = []\nfor k in range(2, 11):\n    labels = KMeans(n_clusters=k, random_state=42).fit_predict(X)\n    silhouettes.append(silhouette_score(X, labels))\n\n# 最终聚类\nkmeans = KMeans(n_clusters=best_k, random_state=42)\nlabels = kmeans.fit_predict(X)\n```\n\n---\n"
+  },
+  {
+    "id": "统计与机器学习-12",
+    "title": "分层聚类",
+    "category": "统计与机器学习",
+    "keywords": [
+      "聚类",
+      "分层聚类"
+    ],
+    "search_text": "分层聚类\n**凝聚法（自底向上）**：每个点初始为一簇 → 逐步合并最近的簇\n需要层次结构、小数据集、不需要预知K",
+    "context": "【分层聚类】（统计与机器学习）\n原理：**凝聚法（自底向上）**：每个点初始为一簇 → 逐步合并最近的簇\n适用场景：需要层次结构、小数据集、不需要预知K\n参考代码：\n```python\nfrom scipy.cluster.hierarchy import dendrogram, linkage, fcluster\nfrom scipy.spatial.distance import pdist\n\nZ = linkage(X_scaled, method='ward')\ndendrogram(Z)\nlabels = fcluster(Z, t=n_clusters, criterion='maxclust')\n```\n\n---\n"
+  },
+  {
+    "id": "统计与机器学习-13",
+    "title": "DBSCAN 密度聚类",
+    "category": "统计与机器学习",
+    "keywords": [
+      "SA",
+      "聚类",
+      "DBSCAN",
+      "密度聚类"
+    ],
+    "search_text": "DBSCAN 密度聚类\n基于密度可达性：核心点（eps内≥min_samples）、边界点、噪声点\n任意形状簇、含噪声数据、不需预知K",
+    "context": "【DBSCAN 密度聚类】（统计与机器学习）\n原理：基于密度可达性：核心点（eps内≥min_samples）、边界点、噪声点\n适用场景：任意形状簇、含噪声数据、不需预知K\n关键参数：| 参数 | 含义 | 选择方法 |\n|------|------|----------|\n| eps | 邻域半径 | **k-distance图拐点** |\n| min_samples | 最小样本数 | ≥ 维度+1，通常2*dim |\n参考代码：\n```python\nfrom sklearn.cluster import DBSCAN\nfrom sklearn.neighbors import NearestNeighbors\n\n# k-distance图选eps\nnn = NearestNeighbors(n_neighbors=min_samples)\nnn.fit(X_scaled)\ndistances = np.sort(nn.kneighbors()[0][:, -1])\n# 找拐点...\n\ndbscan = DBSCAN(eps=eps_optimal, min_samples=min_samples)\nlabels = dbscan.fit_predict(X_scaled)\nn_noise = (labels == -1).sum()\nprint(f\"噪声点: {n_noise} ({n_noise/len(labels)*100:.1f}%)\")\n```\n\n---\n"
+  },
+  {
+    "id": "统计与机器学习-14",
+    "title": "决策树",
+    "category": "统计与机器学习",
+    "keywords": [
+      "决策树",
+      "分类",
+      "回归"
+    ],
+    "search_text": "决策树\n- **分类（CART）**：Gini指数 $Gini = 1 - \\sum p_k^2$\n- **回归（CART）**：MSE = $\\frac{1}{n}\\sum(y_i - \\bar{y})^2$\n",
+    "context": "【决策树】（统计与机器学习）\n原理：- **分类（CART）**：Gini指数 $Gini = 1 - \\sum p_k^2$\n- **回归（CART）**：MSE = $\\frac{1}{n}\\sum(y_i - \\bar{y})^2$\n参考代码：\n```python\nfrom sklearn.tree import DecisionTreeClassifier, plot_tree\n\ntree = DecisionTreeClassifier(max_depth=4, min_samples_leaf=10, random_state=42)\ntree.fit(X_train, y_train)\n# 特征重要性\nfor name, imp in zip(X.columns, tree.feature_importances_):\n    print(f\"{name}: {imp:.4f}\")\n```\n\n---\n"
+  },
+  {
+    "id": "统计与机器学习-15",
+    "title": "随机森林",
+    "category": "统计与机器学习",
+    "keywords": [
+      "随机森林",
+      "Bootstrap"
+    ],
+    "search_text": "随机森林\nBagging + 随机特征子集。Bootstrap抽样训练多棵树，每节点分裂从随机子集中选最优。\n",
+    "context": "【随机森林】（统计与机器学习）\n原理：Bagging + 随机特征子集。Bootstrap抽样训练多棵树，每节点分裂从随机子集中选最优。\n参考代码：\n```python\nfrom sklearn.ensemble import RandomForestClassifier\nfrom sklearn.model_selection import cross_val_score\n\nrf = RandomForestClassifier(n_estimators=200, max_depth=10,\n                            min_samples_leaf=5, oob_score=True,\n                            random_state=42)\nrf.fit(X_train, y_train)\nprint(f\"OOB Score: {rf.oob_score_:.4f}\")\n```\n\n---\n"
+  },
+  {
+    "id": "统计与机器学习-16",
+    "title": "支持向量机 (SVM)",
+    "category": "统计与机器学习",
+    "keywords": [
+      "神经网络",
+      "GA",
+      "SVM",
+      "支持向量机",
+      "分类"
+    ],
+    "search_text": "支持向量机 (SVM)\n**最大间隔分类器（硬间隔）**：\n$$\\min \\frac{1}{2}\\|w\\|^2 \\quad \\text{s.t.} \\quad y_i(w^Tx_i + b) \\ge 1$$\n\n**软间隔（引入松弛变量）**：\n$$\\min \\frac{1}{2}\\|w\\|^2 + C\\sum \\xi_i$$\n\n**核技巧**：$\\phi(x_i)^T\\phi(x_j) \\to K(x_i, x_j)$\n\n| 核 | K(x,y) | 适用 |\n|----|--------|------|\n| Linear | $x^T y$ | 线性可分 |\n| RBF | $\\exp(-\\gamma\\|x-y\\|^2)$ | **默认首选** |\n| Poly | $(x^Ty + r)^d$ | 已知多项式关系 |\n| Sigmoid | $\\tanh(\\gamma x^Ty + r)$ | 神经网络 |\n高维数据、小样本、复杂非线性边界",
+    "context": "【支持向量机 (SVM)】（统计与机器学习）\n原理：**最大间隔分类器（硬间隔）**：\n$$\\min \\frac{1}{2}\\|w\\|^2 \\quad \\text{s.t.} \\quad y_i(w^Tx_i + b) \\ge 1$$\n\n**软间隔（引入松弛变量）**：\n$$\\min \\frac{1}{2}\\|w\\|^2 + C\\sum \\xi_i$$\n\n**核技巧**：$\\phi(x_i)^T\\phi(x_j) \\to K(x_i, x_j)$\n\n| 核 | K(x,y) | 适用 |\n|----|--------|------|\n| Linear | $x^T y$ | 线性可分 |\n| RBF | $\\exp(-\\gamma\\|x-y\\|^2)$ | **默认首选** |\n| Poly | $(x^Ty + r)^d$ | 已知多项式关系 |\n| Sigmoid | $\\tanh(\\gamma x^Ty + r)$ | 神经网络 |\n适用场景：高维数据、小样本、复杂非线性边界\n参考代码：\n```python\nfrom sklearn.svm import SVC\nfrom sklearn.model_selection import GridSearchCV\n\nsvm = SVC(kernel='rbf', probability=True, random_state=42)\nparams = {'C': [0.1, 1, 10], 'gamma': [0.01, 0.1, 1]}\ngrid = GridSearchCV(svm, params, cv=5, scoring='accuracy')\ngrid.fit(X_train_scaled, y_train)\n```\n\n---\n"
+  },
+  {
+    "id": "统计与机器学习-17",
+    "title": "K近邻 (KNN)",
+    "category": "统计与机器学习",
+    "keywords": [
+      "KNN",
+      "K近邻",
+      "分类",
+      "回归"
+    ],
+    "search_text": "K近邻 (KNN)\n$$\\hat{y} = \\frac{1}{K}\\sum_{i \\in N_K(x)} y_i$$（回归）\n\n$$\\hat{y} = \\text{mode}\\{y_i : i \\in N_K(x)\\}$$（分类）\n",
+    "context": "【K近邻 (KNN)】（统计与机器学习）\n原理：$$\\hat{y} = \\frac{1}{K}\\sum_{i \\in N_K(x)} y_i$$（回归）\n\n$$\\hat{y} = \\text{mode}\\{y_i : i \\in N_K(x)\\}$$（分类）\n参考代码：\n```python\nfrom sklearn.neighbors import KNeighborsClassifier\nfrom sklearn.preprocessing import StandardScaler\n\n# 必须标准化\nX_scaled = StandardScaler().fit_transform(X)\n\n# K值选择\nscores = []\nfor k in range(1, 31):\n    knn = KNeighborsClassifier(n_neighbors=k)\n    scores.append(cross_val_score(knn, X_scaled, y, cv=5).mean())\nbest_k = np.argmax(scores) + 1\n```\n\n---\n"
+  },
+  {
+    "id": "统计与机器学习-18",
+    "title": "朴素贝叶斯",
+    "category": "统计与机器学习",
+    "keywords": [
+      "GA",
+      "朴素贝叶斯",
+      "预测",
+      "分类"
+    ],
+    "search_text": "朴素贝叶斯\n$$P(C_k|X) = \\frac{P(C_k)\\prod P(x_i|C_k)}{P(X)}$$\n\n**条件独立性假设**：$P(X|C_k) = \\prod P(x_i|C_k)$（\"朴素\"的来源）\n\n| 变体 | 似然假设 | 适用 |\n|------|----------|------|\n| Gaussian NB | $P(x_i|C_k) \\sim N(\\mu_{ik}, \\sigma^2_{ik})$ | 连续特征 |\n| Multinomial NB | 多项式分布 | 文本分类 |\n| Bernoulli NB | 伯努利分布 | 二元特征 |\n文本分类（垃圾邮件）、实时预测、基线模型",
+    "context": "【朴素贝叶斯】（统计与机器学习）\n原理：$$P(C_k|X) = \\frac{P(C_k)\\prod P(x_i|C_k)}{P(X)}$$\n\n**条件独立性假设**：$P(X|C_k) = \\prod P(x_i|C_k)$（\"朴素\"的来源）\n\n| 变体 | 似然假设 | 适用 |\n|------|----------|------|\n| Gaussian NB | $P(x_i|C_k) \\sim N(\\mu_{ik}, \\sigma^2_{ik})$ | 连续特征 |\n| Multinomial NB | 多项式分布 | 文本分类 |\n| Bernoulli NB | 伯努利分布 | 二元特征 |\n适用场景：文本分类（垃圾邮件）、实时预测、基线模型\n参考代码：\n```python\nfrom sklearn.naive_bayes import GaussianNB, MultinomialNB\n\ngnb = GaussianNB()\ngnb.fit(X_train, y_train)\ny_prob = gnb.predict_proba(X_test)\n```\n\n---\n"
+  },
+  {
+    "id": "统计与机器学习-19",
+    "title": "集成学习对比总结",
+    "category": "统计与机器学习",
+    "keywords": [
+      "集成学习"
+    ],
+    "search_text": "集成学习对比总结\n19. 集成学习对比总结 三大范式 范式 代表 方式 降低 Bagging 随机森林 并行独立 方差 Boosting XGB/LGB/CatBoost 串行纠错 偏差 Stacking 多层集成 元学习器融合 两者 XGBoost vs LightGBM vs CatBoost 维度 XGBoost LightGBM CatBoost : : : : : : 树生长 Level wise Leaf wise Symmetric 类别特征 需编码 原生支持 最强 缺失值 自动 自动 自动 速度 ★★★ ★★★★★ ★★★ 小数据 ★★★★ 需调参防过拟合 ★★★★ 大数据( 100K) ★★★ ★★★★★ ★★★★ 默认参数 ★★★★ ★★★ ★★★★★ 过拟合风险 ★★ ★★★★ ★★ 选型建议 1. 快速基线 ：CatBoost（默认参数好） 2. 大数据 ：LightGBM 3. 类别特征多 ：CatBoost 4. Kaggle/极致精度 ：XGBoost + 精细调参 5. 中小企业/学术 ：随机森林（简单可解释） 第五部分：问卷分析",
+    "context": "【集成学习对比总结】（统计与机器学习）\n"
+  },
+  {
+    "id": "统计与机器学习-20",
+    "title": "信度分析 (Cronbach's α)",
+    "category": "统计与机器学习",
+    "keywords": [
+      "信度分析",
+      "Cronbach"
+    ],
+    "search_text": "信度分析 (Cronbach's α)\n$$\\alpha = \\frac{k}{k-1}\\left(1 - \\frac{\\sum \\sigma^2_i}{\\sigma^2_{total}}\\right)$$\n\nk=题项数，$\\sigma^2_i$=第i题方差，$\\sigma^2_{total}$=总分方差\n",
+    "context": "【信度分析 (Cronbach's α)】（统计与机器学习）\n原理：$$\\alpha = \\frac{k}{k-1}\\left(1 - \\frac{\\sum \\sigma^2_i}{\\sigma^2_{total}}\\right)$$\n\nk=题项数，$\\sigma^2_i$=第i题方差，$\\sigma^2_{total}$=总分方差\n参考代码：\n```python\nimport pandas as pd\n\ndef cronbach_alpha(df):\n    \"\"\"Cronbach's α信度系数\"\"\"\n    k = df.shape[1]\n    item_var = df.var(axis=0, ddof=1).sum()\n    total_var = df.sum(axis=1).var(ddof=1)\n    alpha = (k / (k - 1)) * (1 - item_var / total_var)\n    return alpha\n\n# CITC（修正题总相关）\ndef citc(df):\n    total = df.sum(axis=1)\n    return [df.drop(columns=[c]).sum(axis=1).corr(df[c]) for c in df.columns]\n```\n\n---\n"
+  },
+  {
+    "id": "统计与机器学习-21",
+    "title": "效度分析 (KMO + Bartlett)",
+    "category": "统计与机器学习",
+    "keywords": [
+      "因子分析",
+      "效度分析",
+      "KMO",
+      "Bartlett"
+    ],
+    "search_text": "效度分析 (KMO + Bartlett)\n**KMO（Kaiser-Meyer-Olkin）**：\n$$KMO = \\frac{\\sum_{i \\neq j} r_{ij}^2}{\\sum_{i \\neq j} r_{ij}^2 + \\sum_{i \\neq j} a_{ij}^2}$$\n\n$r_{ij}$=相关系数，$a_{ij}$=偏相关系数\n\n| KMO | 适合度 |\n|-----|--------|\n| >0.9 | 极好 |\n| 0.8-0.9 | 良好 |\n| 0.7-0.8 | 中等 |\n| 0.6-0.7 | 勉强 |\n| <0.5 | 不适合 |\n\n**Bartlett球形检验**：H₀: 相关矩阵=单位矩阵。p<0.05 → 拒绝 → 适合因子分析。\n",
+    "context": "【效度分析 (KMO + Bartlett)】（统计与机器学习）\n原理：**KMO（Kaiser-Meyer-Olkin）**：\n$$KMO = \\frac{\\sum_{i \\neq j} r_{ij}^2}{\\sum_{i \\neq j} r_{ij}^2 + \\sum_{i \\neq j} a_{ij}^2}$$\n\n$r_{ij}$=相关系数，$a_{ij}$=偏相关系数\n\n| KMO | 适合度 |\n|-----|--------|\n| >0.9 | 极好 |\n| 0.8-0.9 | 良好 |\n| 0.7-0.8 | 中等 |\n| 0.6-0.7 | 勉强 |\n| <0.5 | 不适合 |\n\n**Bartlett球形检验**：H₀: 相关矩阵=单位矩阵。p<0.05 → 拒绝 → 适合因子分析。\n参考代码：\n```python\nfrom factor_analyzer import FactorAnalyzer\nfrom factor_analyzer.factor_analyzer import calculate_kmo, calculate_bartlett_sphericity\n\nkmo_all, kmo_model = calculate_kmo(df)\nchi2, p_bartlett = calculate_bartlett_sphericity(df)\nprint(f\"KMO: {kmo_model:.4f}\")\nprint(f\"Bartlett p值: {p_bartlett:.6f}\")\n```\n\n---\n"
+  },
+  {
+    "id": "统计与机器学习-22",
+    "title": "中介效应分析",
+    "category": "统计与机器学习",
+    "keywords": [
+      "中介效应",
+      "Bootstrap"
+    ],
+    "search_text": "中介效应分析\n**Baron & Kenny三步法**：\n1. X → Y（总效应c）：Y = cX + e₁，c必须显著\n2. X → M（a路径）：M = aX + e₂，a必须显著\n3. X + M → Y：Y = c'X + bM + e₃\n\n中介效应 = a×b，总效应 = c = c' + a×b\n\n**Bootstrap检验**（现代标准，替代Sobel）：\n- 对样本做5000次重抽样\n- 计算每次的a×b\n- 95% CI不包含0 → 中介效应显著\n检验变量间的间接影响路径",
+    "context": "【中介效应分析】（统计与机器学习）\n原理：**Baron & Kenny三步法**：\n1. X → Y（总效应c）：Y = cX + e₁，c必须显著\n2. X → M（a路径）：M = aX + e₂，a必须显著\n3. X + M → Y：Y = c'X + bM + e₃\n\n中介效应 = a×b，总效应 = c = c' + a×b\n\n**Bootstrap检验**（现代标准，替代Sobel）：\n- 对样本做5000次重抽样\n- 计算每次的a×b\n- 95% CI不包含0 → 中介效应显著\n适用场景：检验变量间的间接影响路径\n参考代码：\n```python\nimport statsmodels.api as sm\n\n# Step 1: X → Y\nm1 = sm.OLS(y, sm.add_constant(x)).fit()\nc = m1.params['x']\n\n# Step 2: X → M\nm2 = sm.OLS(m, sm.add_constant(x)).fit()\na = m2.params['x']\n\n# Step 3: X + M → Y\nX_step3 = sm.add_constant(pd.DataFrame({'x': x, 'm': m}))\nm3 = sm.OLS(y, X_step3).fit()\nb = m3.params['m']\nc_prime = m3.params['x']\n\nindirect = a * b\ndirect = c_prime\ntotal = c\nprint(f\"总效应(c)={total:.4f}, 直接效应(c')={direct:.4f}, 间接效应(a×b)={indirect:.4f}\")\n\n# Bootstrap置信区间\nimport numpy as np\nn_boot = 5000\nab_boot = []\nn = len(y)\nidx = np.arange(n)\nfor _ in range(n_boot):\n    boot_idx = np.random.choice(idx, n, replace=True)\n    # 重抽样后重算a和b...\n    ab_boot.append(a_boot * b_boot)\n\nci_low = np.percentile(ab_boot, 2.5)\nci_high = np.percentile(ab_boot, 97.5)\nsignificant = ci_low * ci_high > 0\nprint(f\"95% CI: [{ci_low:.4f}, {ci_high:.4f}], 显著: {significant}\")\n```\n\n---\n"
+  }
+]

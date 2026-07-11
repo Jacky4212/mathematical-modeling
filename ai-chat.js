@@ -5,13 +5,24 @@
 (function(){
 'use strict';
 
-// ===== SYSTEM PROMPT (全站知识库) =====
-var SYS = '你是数学建模复习系统的AI助教，已学完本网站所有知识点：\n'+
-'一、插值与拟合：插值过所有点/拟合求最小误差/Runge现象/spline vs pchip/interp1 interp2 griddata/polyfit lsqcurvefit/正规方程β=(A^TA)^-1A^Ty\n'+
-'二、蒙特卡洛：LLN+CLT/误差O(1/√N)/95%CI=±1.96σ/√N/维度无关/重要采样控制变量对偶变量分层采样QMC/π估计中子屏蔽叶片面积储油罐\n'+
-'三、线性回归：OLS b=Sxy/Sxx/R²=1-SSE/SST/调整R²/t检验F检验/多元Y=Xβ+ε/Logistic ln(p/(1-p))=Xβ/逐步回归/VIF/GM(1,1)\n'+
-'四、AI竞赛：CUMCM2025透明人为主导/三规则/四阶段提示工程/PCA建模tSNE可视化/团队分工/74h含提交/摘要≤1页/表标题上 图标题下\n'+
-'规则：优先用知识库/公式用LaTeX/回答简洁/可给MATLAB或Python代码';
+// ===== SYSTEM PROMPT =====
+// Base role instruction. When RAG is active, knowledge chunks are appended dynamically.
+var SYS_BASE =
+'你是"数学建模复习系统"的AI助教。你的知识覆盖数学建模的四大领域：\n'+
+'（1）综合评价方法（AHP/TOPSIS/熵值法/CRITIC/模糊评价/灰色关联/DEA/RSR/耦合协调度/PCA等）\n'+
+'（2）预测方法（GM(1,1)/ARIMA/SARIMA/GARCH/VAR/马尔可夫/Logistic/DID/PSM/BP神经网络/集成学习等）\n'+
+'（3）优化规划方法（单纯形法/内点法/分支定界/动态规划/GA/PSO/模拟退火/蒙特卡洛/图论优化等）\n'+
+'（4）统计与机器学习（相关分析/T检验/ANOVA/卡方检验/线性回归/Ridge/Lasso/逻辑回归/聚类/决策树/SVM/KNN/朴素贝叶斯/信效度分析/中介效应等）\n'+
+'\n'+
+'回答规范：\n'+
+'- 数学公式使用LaTeX格式（行内$...$，块级$$...$$）\n'+
+'- 优先给出Python代码示例（使用numpy/scipy/sklearn/statsmodels）\n'+
+'- 每种方法说明：适用场景、关键假设、优缺点\n'+
+'- 回答简洁准确，必要时列出对比表格\n'+
+'- 如果问题涉及模型选择，给出推荐理由和备选方案';
+
+// Fallback SYS when RAG is not available (includes condensed knowledge)
+var SYS = SYS_BASE;
 
 // ===== CSS =====
 var CSS =
@@ -103,6 +114,33 @@ keyEl.value = cfg.key || '';
 baseEl.value = cfg.base;
 modelEl.value = cfg.model;
 
+// ===== RAG INIT =====
+var ragReady = false;
+var ragStatusMsg = '';
+(function initRAG(){
+  if(typeof RAGRetriever === 'undefined'){
+    ragStatusMsg = '⚠️ 知识库引擎未加载，将使用基础模式回答问题。';
+    console.log('[AI Chat] RAGRetriever not found, running without knowledge base');
+    return;
+  }
+  RAGRetriever.init('knowledge-chunks.json?v=1').then(function(){
+    ragReady = true;
+    var n = RAGRetriever.getChunkCount();
+    var cats = RAGRetriever.getCategories();
+    var catList = Object.keys(cats).map(function(k){return k+'('+cats[k]+'条)';}).join('、');
+    ragStatusMsg = '✅ 已加载知识库：'+n+'条方法（'+catList+'）';
+    console.log('[AI Chat] RAG ready — '+n+' chunks');
+    // Update welcome message if it's still the default
+    var firstMsg = msgs.querySelector('.m.a');
+    if(firstMsg && firstMsg.textContent.indexOf('请先在设置区输入') >= 0){
+      firstMsg.innerHTML = renderMD('👋 你好！我是数学建模AI助教。\n\n'+ragStatusMsg+'\n\n请先在设置区输入 API Key 并保存，然后开始提问。');
+    }
+  }).catch(function(e){
+    ragStatusMsg = '⚠️ 知识库加载失败（'+e.message+'），使用基础模式。';
+    console.warn('[AI Chat] RAG init failed:', e.message);
+  });
+})();
+
 // ===== TOGGLE =====
 var themeBtn = document.querySelector('.theme-toggle');
 function openPanel(){
@@ -192,13 +230,50 @@ function doSend(){
   typing.className = 'typing'; typing.textContent = 'AI 思考中...';
   msgs.appendChild(typing); msgs.scrollTop = msgs.scrollHeight;
 
+  // ===== RAG RETRIEVAL =====
+  var ragContext = '';
+  if(ragReady && typeof RAGRetriever !== 'undefined'){
+    var results = RAGRetriever.retrieve(txt, 3);
+    if(results.length > 0){
+      ragContext = RAGRetriever.buildContext(results, 1500);
+      // Show retrieval indicator
+      typing.textContent = '📚 检索到 ' + results.length + ' 条相关知识，AI 思考中...';
+      // Add source note (collapsed)
+      var srcNote = '📚 **已检索相关知识库** (' + results.length + '条匹配)\n';
+      var topKw = [];
+      for(var ri=0; ri<Math.min(results.length,3); ri++){
+        if(results[ri].matchedKeywords.length > 0){
+          topKw = topKw.concat(results[ri].matchedKeywords.slice(0,3));
+        }
+      }
+      if(topKw.length > 0){
+        srcNote += '> 匹配关键词：' + topKw.slice(0,6).join('、') + '\n';
+      }
+      srcNote += '> 来源：' + results.map(function(r){return r.chunk.title;}).slice(0,3).join('、');
+      // Add a small source indicator message
+      var srcEl = document.createElement('div');
+      srcEl.className = 'm a';
+      srcEl.innerHTML = renderMD(srcNote);
+      srcEl.style.fontSize = '0.8em';
+      srcEl.style.opacity = '0.75';
+      msgs.insertBefore(srcEl, typing);
+      msgs.scrollTop = msgs.scrollHeight;
+    }
+  }
+
+  // Build augmented system prompt
+  var systemMsg = SYS;
+  if(ragContext){
+    systemMsg = SYS + '\n\n' + ragContext + '\n\n请基于以上内部知识库内容回答用户问题。如果知识库中有相关信息，优先使用知识库中的内容；如果知识库中没有相关信息，可以使用你自己的知识。';
+  }
+
   var url = cfg.base.replace(/\/+$/,'') + '/chat/completions';
   fetch(url, {
     method: 'POST',
     headers: {'Content-Type':'application/json','Authorization':'Bearer '+cfg.key},
     body: JSON.stringify({
       model: cfg.model,
-      messages: [{role:'system',content:SYS},{role:'user',content:txt}],
+      messages: [{role:'system',content:systemMsg},{role:'user',content:txt}],
       stream: true,
       temperature: 0.7,
       max_tokens: 4096
