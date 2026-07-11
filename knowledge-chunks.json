@@ -690,6 +690,23 @@
   },
   {
     "id": "统计与机器学习-22",
+    "title": "因子分析 (Factor Analysis)",
+    "category": "统计与机器学习",
+    "keywords": [
+      "AHP",
+      "主成分",
+      "因子分析",
+      "VAR",
+      "聚类",
+      "回归",
+      "赋权",
+      "权重"
+    ],
+    "search_text": "因子分析 (Factor Analysis)\n因子分析是主成分分析的推广，用有限个不可观测的**公共因子**描述原始变量间的相关关系。\n\n**正交因子模型**：$X = AF + \\varepsilon$\n\n- $X = (X_1, \\ldots, X_p)^T$：标准化后的原始变量\n- $F = (F_1, \\ldots, F_m)^T$：公共因子（$m < p$，不可观测）\n- $A = (a_{ij})_{p \\times m}$：**因子载荷矩阵**，$a_{ij} = \\text{Corr}(X_i, F_j)$（正交时）\n- $\\varepsilon$：特殊因子（变量独有部分）\n\n**关键统计量**：\n- **变量共同度**：$h_i^2 = \\sum_{j=1}^{m} a_{ij}^2$，所有公因子对 $X_i$ 的总方差贡献（越接近1越好）\n- **因子方差贡献**：$g_j^2 = \\sum_{i=1}^{p} a_{ij}^2$，$F_j$ 对所有变量的总影响（衡量因子重要性）\n- **因子得分函数**：$F_j = b_{j1}X_1 + \\cdots + b_{jp}X_p$（用变量估计因子取值）\n- 揭示隐藏的数据结构（哪些变量共享同一个潜在因素）\n- 量表/指标体系的构念效度验证\n- 客观确定多指标体系的权重（替代AHP等主观赋权）\n- 将高维指标压缩为少数因子得分，用于后续聚类或回归\n- 问卷调查的因素分析",
+    "context": "【因子分析 (Factor Analysis)】（统计与机器学习）\n原理：因子分析是主成分分析的推广，用有限个不可观测的**公共因子**描述原始变量间的相关关系。\n\n**正交因子模型**：$X = AF + \\varepsilon$\n\n- $X = (X_1, \\ldots, X_p)^T$：标准化后的原始变量\n- $F = (F_1, \\ldots, F_m)^T$：公共因子（$m < p$，不可观测）\n- $A = (a_{ij})_{p \\times m}$：**因子载荷矩阵**，$a_{ij} = \\text{Corr}(X_i, F_j)$（正交时）\n- $\\varepsilon$：特殊因子（变量独有部分）\n\n**关键统计量**：\n- **变量共同度**：$h_i^2 = \\sum_{j=1}^{m} a_{ij}^2$，所有公因子对 $X_i$ 的总方差贡献（越接近1越好）\n- **因子方差贡献**：$g_j^2 = \\sum_{i=1}^{p} a_{ij}^2$，$F_j$ 对所有变量的总影响（衡量因子重要性）\n- **因子得分函数**：$F_j = b_{j1}X_1 + \\cdots + b_{jp}X_p$（用变量估计因子取值）\n适用场景：- 揭示隐藏的数据结构（哪些变量共享同一个潜在因素）\n- 量表/指标体系的构念效度验证\n- 客观确定多指标体系的权重（替代AHP等主观赋权）\n- 将高维指标压缩为少数因子得分，用于后续聚类或回归\n- 问卷调查的因素分析\n参考代码：\n```python\nfrom factor_analyzer import FactorAnalyzer\nfrom factor_analyzer.factor_analyzer import calculate_kmo, calculate_bartlett_sphericity\nfrom sklearn.preprocessing import StandardScaler\nimport numpy as np\n\n# 1. 适用性检验\nkmo_all, kmo_model = calculate_kmo(df)\nchi2, p_value = calculate_bartlett_sphericity(df)\nprint(f\"KMO: {kmo_model:.4f}, Bartlett p: {p_value:.6f}\")\n\n# 2. 确定因子个数（特征值>1准则）\nfa_full = FactorAnalyzer(rotation=None)\nfa_full.fit(df)\nev, _ = fa_full.get_eigenvalues()\nn_factors = sum(ev > 1)\nprint(f\"特征值>1的因子数: {n_factors}\")\n\n# 3. 因子分析 + Varimax旋转\nfa = FactorAnalyzer(n_factors=n_factors, rotation='varimax')\nfa.fit(df)\n\n# 4. 因子载荷矩阵\nloadings = pd.DataFrame(\n    fa.loadings_,\n    index=df.columns,\n    columns=[f'F{i+1}' for i in range(n_factors)]\n)\nprint(\"旋转后因子载荷:\\n\", loadings)\n\n# 5. 计算因子得分\nscores = fa.transform(df)\n\n# 6. 综合得分（以方差贡献率为权重）\nvariance_ratio = fa.get_factor_variance()[0]  # 各因子方差贡献\nweights = variance_ratio / variance_ratio.sum()\ncomposite = scores @ weights\n```\n"
+  },
+  {
+    "id": "统计与机器学习-23",
     "title": "中介效应分析",
     "category": "统计与机器学习",
     "keywords": [
