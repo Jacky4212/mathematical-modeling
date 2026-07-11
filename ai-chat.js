@@ -116,27 +116,15 @@ modelEl.value = cfg.model;
 
 // ===== RAG INIT =====
 var ragReady = false;
-var ragStatusMsg = '';
 (function initRAG(){
   if(typeof RAGRetriever === 'undefined'){
-    ragStatusMsg = '⚠️ 知识库引擎未加载，将使用基础模式回答问题。';
     console.log('[AI Chat] RAGRetriever not found, running without knowledge base');
     return;
   }
   RAGRetriever.init('knowledge-chunks.json?v=1').then(function(){
     ragReady = true;
-    var n = RAGRetriever.getChunkCount();
-    var cats = RAGRetriever.getCategories();
-    var catList = Object.keys(cats).map(function(k){return k+'('+cats[k]+'条)';}).join('、');
-    ragStatusMsg = '✅ 已加载知识库：'+n+'条方法（'+catList+'）';
-    console.log('[AI Chat] RAG ready — '+n+' chunks');
-    // Update welcome message if it's still the default
-    var firstMsg = msgs.querySelector('.m.a');
-    if(firstMsg && firstMsg.textContent.indexOf('请先在设置区输入') >= 0){
-      firstMsg.innerHTML = renderMD('👋 你好！我是数学建模AI助教。\n\n'+ragStatusMsg+'\n\n请先在设置区输入 API Key 并保存，然后开始提问。');
-    }
+    console.log('[AI Chat] RAG ready — '+RAGRetriever.getChunkCount()+' chunks');
   }).catch(function(e){
-    ragStatusMsg = '⚠️ 知识库加载失败（'+e.message+'），使用基础模式。';
     console.warn('[AI Chat] RAG init failed:', e.message);
   });
 })();
