@@ -171,6 +171,9 @@ function addMsg(role, text){
   el.className = 'm ' + role;
   el.innerHTML = renderMD(text);
   msgs.appendChild(el);
+  if(window.MathJax && MathJax.typesetPromise){
+    MathJax.typesetPromise([el]).catch(function(){});
+  }
   msgs.scrollTop = msgs.scrollHeight;
 }
 
@@ -288,6 +291,10 @@ function doSend(){
         if(r.done){
           // Stream done — render accumulated text
           msgEl.innerHTML = renderMD(rawText);
+          // Re-render LaTeX with MathJax
+          if(window.MathJax && MathJax.typesetPromise){
+            MathJax.typesetPromise([msgEl]).catch(function(){});
+          }
           msgs.scrollTop = msgs.scrollHeight;
           busy=false; send.disabled=false; return;
         }
