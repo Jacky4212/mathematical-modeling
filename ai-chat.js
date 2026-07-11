@@ -55,6 +55,11 @@ var CSS =
 '#ai-panel .msgs .m.a li{margin:2px 0}'+
 '#ai-panel .msgs .m.a blockquote{border-left:3px solid var(--accent,#2d7fc1);margin:6px 0;padding:4px 10px;font-size:.9em;opacity:.85}'+
 '#ai-panel .msgs .m.a hr{border:none;border-top:1px solid var(--divider,#d9c9a0);margin:8px 0}'+
+'#ai-panel .msgs .m.a table{border-collapse:collapse;width:100%;margin:8px 0;font-size:.82em}'+
+'#ai-panel .msgs .m.a th,#ai-panel .msgs .m.a td{border:1px solid var(--card-border,#e5d5b5);padding:6px 10px;text-align:left}'+
+'#ai-panel .msgs .m.a th{background:var(--paper-dark,#f3e8d0);font-weight:600}'+
+'#ai-panel .msgs .m.a td{background:var(--card-bg,#fef9ee)}'+
+'#ai-panel .msgs .m.a p{margin:4px 0}'+
 '#ai-panel .msgs .typing{color:var(--ink-light);font-size:.8em;padding:4px 2px;font-style:italic}'+
 '#ai-panel .inp{display:flex;gap:6px;padding:10px 14px;border-top:1px solid var(--divider,#d9c9a0);flex-shrink:0}'+
 '#ai-panel .inp textarea{flex:1;padding:8px 10px;border:1px solid var(--card-border,#e5d5b5);border-radius:6px;resize:none;font-size:.85em;line-height:1.5;background:var(--card-bg,#fef9ee);color:var(--ink,#3d3525);outline:none;max-height:80px;font-family:inherit}'+
@@ -178,45 +183,34 @@ function addMsg(role, text){
 }
 
 function renderMD(t){
-  // 1) Save code blocks AND LaTeX math blocks before escaping
-  var blocks = [];
-  // 1a) Code blocks — ``` ... ```
-  t = t.replace(/```(\w*)\n([\s\S]*?)```/g, function(_,lang,code){
-    var escaped = code.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-    blocks.push('<pre><code>' + escaped.replace(/\n$/,'') + '</code></pre>');
-    return '\x00B' + (blocks.length-1) + '\x00';
+  // 1) Save LaTeX math blocks before marked processing
+  var mathBlocks = [];
+  // Display math: $$ ... $$
+  t = t.replace(/\$\$([\s\S]*?)\$\$/g, function(_, math){
+    mathBlocks.push('<span class="math display">$$' + math + '$$</span>');
+    return '\x00M' + (mathBlocks.length-1) + '\x00';
   });
-  // 1b) Display math — $$ ... $$
-  t = t.replace(/\$\$([\s\S]*?)\$\$/g, function(_,math){
-    blocks.push('<span class="math display">$$' + math + '$$</span>');
-    return '\x00B' + (blocks.length-1) + '\x00';
-  });
-  // 1c) Inline math — $ ... $ (single $, non-empty content)
-  t = t.replace(/\$(.+?)\$/g, function(_,math){
-    blocks.push('<span class="math inline">$' + math + '$</span>');
-    return '\x00B' + (blocks.length-1) + '\x00';
+  // Inline math: $ ... $
+  t = t.replace(/\$(.+?)\$/g, function(_, math){
+    mathBlocks.push('<span class="math inline">$' + math + '$</span>');
+    return '\x00M' + (mathBlocks.length-1) + '\x00';
   });
 
-  // 2) Escape HTML in the rest
-  t = t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  // 3) Inline code
-  t = t.replace(/`([^`]+)`/g, '<code>$1</code>');
-  // 4) Bold
-  t = t.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-  // 5) Headings
-  t = t.replace(/^### (.+)$/gm, '<h4>$1</h4>');
-  t = t.replace(/^## (.+)$/gm, '<h3>$1</h3>');
-  // 6) Blockquote
-  t = t.replace(/^&gt; (.+)$/gm, '<blockquote>$1</blockquote>');
-  // 7) HR
-  t = t.replace(/^---$/gm, '<hr>');
-  // 8) List items
-  t = t.replace(/^- (.+)$/gm, '<li>$1</li>');
-  // 9) Line breaks
-  t = t.replace(/\n/g,'<br>');
-  // 10) Restore all saved blocks (code + math)
-  t = t.replace(/\x00B(\d+)\x00/g, function(_,i){ return blocks[parseInt(i)]; });
-  return t;
+  // 2) Use marked.js for full GFM markdown → HTML
+  var html;
+  if(typeof marked !== 'undefined' && marked.parse){
+    html = marked.parse(t, {gfm: true, breaks: true});
+  } else {
+    // Fallback: basic HTML escape + line breaks
+    html = t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+  }
+
+  // 3) Restore math blocks
+  html = html.replace(/\x00M(\d+)\x00/g, function(_, i){
+    return mathBlocks[parseInt(i)];
+  });
+
+  return html;
 }
 
 function doSend(){
