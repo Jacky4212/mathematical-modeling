@@ -125,6 +125,14 @@ def extract_chunks(filepath, category):
         if code:
             full_context += f"参考代码：\n{code[:2000]}\n"
 
+        # Fallback: if structured extraction failed, inject raw section text
+        if len(full_context.strip()) < 200:
+            raw = section[:3000]
+            # Clean up markdown syntax but keep code blocks and structure
+            raw = re.sub(r'#{2,4}\s*', '', raw)  # strip heading markers
+            raw = re.sub(r'\n{3,}', '\n\n', raw)  # collapse blank lines
+            full_context = f"【{title}】（{category}）\n{raw.strip()[:2500]}"
+
         chunks.append({
             "id": f"{category}-{len(chunks)+1:02d}",
             "title": title,
