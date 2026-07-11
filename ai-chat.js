@@ -111,6 +111,7 @@ var clearBtn=document.getElementById('ai-clear');
 
 // ===== STATE =====
 var busy = false;
+var chatHistory = [];  // conversation memory: [{role, content}, ...]
 var cfg = {};
 try{ cfg = JSON.parse(localStorage.getItem('ai-cfg')||'{}'); }catch(e){}
 if(!cfg.base) cfg.base = 'https://api.openai.com/v1';
@@ -296,11 +297,16 @@ function doSend(){
     }
   }
 
-  // Build augmented system prompt
+  // Build messages: system + history + current user msg
   var systemMsg = SYS;
   if(ragContext){
     systemMsg = SYS + '\n\n' + ragContext + '\n\n请基于以上内部知识库内容回答用户问题。如果知识库中有相关信息，优先使用知识库中的内容；如果知识库中没有相关信息，可以使用你自己的知识。';
   }
+  var messages = [{role:'system', content:systemMsg}];
+  // Append recent history (last 30 messages = 15 exchanges, avoid token bloat)
+  var recentHistory = chatHistory.slice(-30);
+  messages = messages.concat(recentHistory);
+  messages.push({role:'user', content:txt});
 
   var url = cfg.base.replace(/\/+$/,'') + '/chat/completions';
   fetch(url, {
@@ -308,7 +314,7 @@ function doSend(){
     headers: {'Content-Type':'application/json','Authorization':'Bearer '+cfg.key},
     body: JSON.stringify({
       model: cfg.model,
-      messages: [{role:'system',content:systemMsg},{role:'user',content:txt}],
+      messages: messages,
       stream: true,
       temperature: 0.7,
       max_tokens: 4096
@@ -340,6 +346,11 @@ function doSend(){
             MathJax.typesetPromise([msgEl]).catch(function(){});
           }
           msgs.scrollTop = msgs.scrollHeight;
+          // Save to conversation history
+          chatHistory.push({role:'user', content:txt});
+          chatHistory.push({role:'assistant', content:rawText});
+          // Limit history to last 40 messages (20 exchanges)
+          if(chatHistory.length > 40) chatHistory = chatHistory.slice(-40);
           busy=false; send.disabled=false; return;
         }
         buf += decoder.decode(r.value, {stream:true});
