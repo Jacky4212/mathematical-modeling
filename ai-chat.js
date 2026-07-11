@@ -206,7 +206,32 @@ function renderMD(t){
     return B + (blocks.length-1) + B;
   });
 
-  // 3) Use marked.js for full GFM markdown → HTML
+  // 3) Fix broken table rows: newlines inside cells break GFM table parsing
+  //    Strategy: if a line starts with | but doesn't end with |, keep joining
+  //    subsequent lines until we get a | at line end.
+  var lines = t.split('\n');
+  var merged = [];
+  var buf = '';
+  for(var i = 0; i < lines.length; i++){
+    var line = lines[i];
+    if(buf){
+      // We're inside a broken table row — accumulate until line ends with |
+      buf += ' ' + line;
+      if(/\|$/.test(line)){
+        merged.push(buf);
+        buf = '';
+      }
+    } else if(/^\|.*[^|]$/.test(line)){
+      // Table row starts with | but doesn't end with | → start accumulating
+      buf = line;
+    } else {
+      merged.push(line);
+    }
+  }
+  if(buf) merged.push(buf);  // safety: flush any unclosed buffer
+  t = merged.join('\n');
+
+  // 4) Use marked.js for full GFM markdown → HTML
   var html;
   if(typeof marked !== 'undefined' && marked.parse){
     html = marked.parse(t, {gfm: true, breaks: true});
