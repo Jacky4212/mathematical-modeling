@@ -373,6 +373,10 @@ COMPARISONS = [
              ["适用场景","平稳/可差分平稳","金融波动率","小样本指数型"]]},
 ]
 
+def esc(text):
+    """转义HTML特殊字符，防止渲染错乱"""
+    return text.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
+
 # ============================================================
 # HTML 生成（格式完全匹配现有网站）
 # ============================================================
@@ -393,18 +397,18 @@ def gen_html():
 
         # 章节内容
         sections_html += f'\n<div class="section" id="{sec_id}">\n'
-        sections_html += f'<h2>{icon} {cat_name}</h2>\n'
-        sections_html += f'<p>{cat_data["intro"]}</p>\n'
+        sections_html += f'<h2>{icon} {esc(cat_name)}</h2>\n'
+        sections_html += f'<p>{esc(cat_data["intro"])}</p>\n'
 
         for m in cat_data["methods"]:
             m_id = m["name"].replace(" ", "_").replace("(","").replace(")","").replace("/","_")[:30]
             nav_items += f'<a href="#{m_id}" style="padding-left:28px;font-size:.82em">{m["name"][:20]}</a>\n'
             chap_nav += f'<a href="#{m_id}" style="padding-left:12px;font-size:.82em"><span class="num">·</span>{m["name"][:18]}</a>\n'
 
-            sections_html += f'\n<h3 id="{m_id}">{m["name"]}</h3>\n'
+            sections_html += f'\n<h3 id="{m_id}">{esc(m["name"])}</h3>\n'
 
             # 定义
-            sections_html += f'<div class="def-box"><div class="def-title">核心原理</div><p>{m["principle"]}</p></div>\n'
+            sections_html += f'<div class="def-box"><div class="def-title">核心原理</div><p>{esc(m["principle"])}</p></div>\n'
 
             # 公式（清理数据中的$分隔符后统一用$$包裹）
             formula = m.get("formula", "")
@@ -413,9 +417,9 @@ def gen_html():
                 sections_html += f'<div class="formula">$${clean_f}$$</div>\n'
 
             # 场景+优缺点 表格
-            sc = m["scenarios"].split("|")
-            ad = m["adv"].split("|")
-            di = m["dis"].split("|")
+            sc = [esc(s) for s in m["scenarios"].split("|")]
+            ad = [esc(s) for s in m["adv"].split("|")]
+            di = [esc(s) for s in m["dis"].split("|")]
             max_rows = max(len(sc), len(ad), len(di))
 
             sections_html += '<table><tr><th style="width:25%">适用场景</th><th style="width:37%">优点</th><th style="width:38%">缺点</th></tr>\n'
@@ -432,10 +436,10 @@ def gen_html():
                 sections_html += f'\n<h3>📊 对比：{comp["title"]}</h3>\n'
                 sections_html += '<table><tr>'
                 for h in comp["headers"]:
-                    sections_html += f'<th>{h}</th>'
+                    sections_html += f'<th>{esc(h)}</th>'
                 sections_html += '</tr>\n'
                 for row in comp["rows"]:
-                    sections_html += '<tr>' + ''.join(f'<td>{c}</td>' for c in row) + '</tr>\n'
+                    sections_html += '<tr>' + ''.join(f'<td>{esc(c)}</td>' for c in row) + '</tr>\n'
                 sections_html += '</table>\n'
 
         sections_html += '</div>\n'

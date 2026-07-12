@@ -190,7 +190,7 @@ code{font-family:"Cascadia Code","JetBrains Mono","Consolas",monospace;font-size
 <p>综合评价方法用于对多个方案/对象在多个指标下进行综合排序或分级。核心流程为：指标构建→赋权→聚合排序。赋权分为主观赋权（AHP）、客观赋权（熵值法/CRITIC）和组合赋权三类。</p>
 
 <h3 id="层次分析法AHP">层次分析法(AHP)</h3>
-<div class="def-box"><div class="def-title">核心原理</div><p>通过Saaty 1-9标度法两两比较构造判断矩阵，求最大特征值对应特征向量为权重，CR<0.1通过一致性检验。</p></div>
+<div class="def-box"><div class="def-title">核心原理</div><p>通过Saaty 1-9标度法两两比较构造判断矩阵，求最大特征值对应特征向量为权重，CR&lt;0.1通过一致性检验。</p></div>
 <div class="formula">$$AW=\lambda_{max}W,\ CR=CI/RI$$</div>
 <table><tr><th style="width:25%">适用场景</th><th style="width:37%">优点</th><th style="width:38%">缺点</th></tr>
 <tr><td>多准则决策（选址、供应商评估）</td><td>结构化，定性定量结合</td><td>主观性强</td></tr>
@@ -247,7 +247,7 @@ code{font-family:"Cascadia Code","JetBrains Mono","Consolas",monospace;font-size
 <div class="def-box"><div class="def-title">核心原理</div><p>比较序列曲线几何相似度。Deng's GRA通过灰关联系数衡量各点差异，分辨系数ρ=0.5。</p></div>
 <div class="formula">$$\zeta_i(k)=\frac{\Delta_{min}+\rho\Delta_{max}}{\Delta_{0i}+\rho\Delta_{max}},\ \gamma=\frac{1}{n}\sum\zeta_i(k)$$</div>
 <table><tr><th style="width:25%">适用场景</th><th style="width:37%">优点</th><th style="width:38%">缺点</th></tr>
-<tr><td>小样本(n<10)评价</td><td>对数据量和分布无要求</td><td>ρ选取缺客观标准</td></tr>
+<tr><td>小样本(n&lt;10)评价</td><td>对数据量和分布无要求</td><td>ρ选取缺客观标准</td></tr>
 <tr><td>贫信息系统</td><td>计算量小</td><td>不反映负相关</td></tr>
 <tr><td>多因素影响分析</td><td>适合小样本</td><td>多因素时关联度趋近</td></tr>
 </table>
@@ -295,7 +295,7 @@ code{font-family:"Cascadia Code","JetBrains Mono","Consolas",monospace;font-size
 <tr><td>多指标综合评价</td><td>客观赋权</td><td>只保留线性结构</td></tr>
 <tr><td>高维可视化</td><td>消除共线性</td><td>主成分意义难解释</td></tr>
 <tr><td>消除共线性</td><td>降维可视化</td><td>对异常值敏感</td></tr>
-<tr><td>p>n降维</td><td></td><td></td></tr>
+<tr><td>p&gt;n降维</td><td></td><td></td></tr>
 </table>
 </div>
 
@@ -402,7 +402,7 @@ code{font-family:"Cascadia Code","JetBrains Mono","Consolas",monospace;font-size
 <div class="formula">$$\hat{y}_{RF}=\frac{1}{B}\sum T_b(x),\ \hat{y}_{GB}=\sum\eta f_m(x)$$</div>
 <table><tr><th style="width:25%">适用场景</th><th style="width:37%">优点</th><th style="width:38%">缺点</th></tr>
 <tr><td>结构化表格数据—通用</td><td>精度极高(Boosting)</td><td>可解释弱于统计模型</td></tr>
-<tr><td>大数据(>10万→LGB)</td><td>自动处理缺失/类别</td><td>LGB小样本过拟合</td></tr>
+<tr><td>大数据(&gt;10万→LGB)</td><td>自动处理缺失/类别</td><td>LGB小样本过拟合</td></tr>
 <tr><td>多类别特征(→CatBoost)</td><td>抗过拟合</td><td>XGB调参复杂</td></tr>
 <tr><td>快速基线(→RF)</td><td>特征重要性</td><td></td></tr>
 </table>
@@ -476,7 +476,7 @@ code{font-family:"Cascadia Code","JetBrains Mono","Consolas",monospace;font-size
 <div class="def-box"><div class="def-title">核心原理</div><p>Pareto最优：无法在不损害其他目标下改进任一目标。NSGA-II：非支配排序+拥挤距离+精英保留。</p></div>
 <div class="formula">$$\min\{f_1(x),f_2(x),...,f_k(x)\}$$</div>
 <table><tr><th style="width:25%">适用场景</th><th style="width:37%">优点</th><th style="width:38%">缺点</th></tr>
-<tr><td>成本vs质量</td><td>承认目标冲突现实</td><td>前沿可视化困难(k>3)</td></tr>
+<tr><td>成本vs质量</td><td>承认目标冲突现实</td><td>前沿可视化困难(k&gt;3)</td></tr>
 <tr><td>风险vs收益</td><td>Pareto前沿提供决策信息</td><td>权重法依赖先验</td></tr>
 <tr><td>环保vs经济</td><td>NSGA-II成熟高效</td><td>Pareto解集可能很大</td></tr>
 <tr><td>多目标决策</td><td></td><td></td></tr>
@@ -559,7 +559,7 @@ code{font-family:"Cascadia Code","JetBrains Mono","Consolas",monospace;font-size
 <p>从经典统计推断到现代机器学习的完整谱系。涵盖假设检验、回归分析(OLS/Ridge/Lasso/Logistic)、聚类(K-Means/DBSCAN/分层)、分类(RF/SVM/KNN/NB)、降维(PCA/FA)和问卷分析。方法论核心：特征工程→多模型对比→交叉验证→可解释性。</p>
 
 <h3 id="OLS线性回归">OLS线性回归</h3>
-<div class="def-box"><div class="def-title">核心原理</div><p>最小化残差平方和，闭式解。五大经典假设：线性、严格外生、无完全多重共线(VIF<10)、球面误差(同方差+无自相关)、正态性。</p></div>
+<div class="def-box"><div class="def-title">核心原理</div><p>最小化残差平方和，闭式解。五大经典假设：线性、严格外生、无完全多重共线(VIF&lt;10)、球面误差(同方差+无自相关)、正态性。</p></div>
 <div class="formula">$$\hat{\beta}=(X^TX)^{-1}X^T y,\ R^2=1-SS_{res}/SS_{tot}$$</div>
 <table><tr><th style="width:25%">适用场景</th><th style="width:37%">优点</th><th style="width:38%">缺点</th></tr>
 <tr><td>线性关系预测</td><td>可解释性最强</td><td>只捕捉线性关系</td></tr>
@@ -581,7 +581,7 @@ code{font-family:"Cascadia Code","JetBrains Mono","Consolas",monospace;font-size
 <div class="def-box"><div class="def-title">核心原理</div><p>L1正则化→某些系数精确归零→自动特征选择。λ越大越稀疏。LARS算法高效求解。</p></div>
 <div class="formula">$$\hat{\beta}=\arg\min\{\|y-X\beta\|^2+\lambda\sum|\beta_j|\}$$</div>
 <table><tr><th style="width:25%">适用场景</th><th style="width:37%">优点</th><th style="width:38%">缺点</th></tr>
-<tr><td>高维特征选择(p>>n)</td><td>自动特征选择(稀疏解)</td><td>共线性→随机选一个</td></tr>
+<tr><td>高维特征选择(p&gt;&gt;n)</td><td>自动特征选择(稀疏解)</td><td>共线性→随机选一个</td></tr>
 <tr><td>需稀疏模型</td><td>降维+预测一步完成</td><td>λ选择需CV</td></tr>
 <tr><td>可解释性重要</td><td>可解释</td><td>预测精度可能不如Ridge</td></tr>
 </table>
@@ -676,7 +676,7 @@ code{font-family:"Cascadia Code","JetBrains Mono","Consolas",monospace;font-size
 </table>
 
 <h3 id="因子分析FA">因子分析(FA)</h3>
-<div class="def-box"><div class="def-title">核心原理</div><p>假设存在不可观测的公共因子F驱动观测变量X。Varimax旋转使因子可解释。KMO>0.5+Bartlett Sig<0.05适用。</p></div>
+<div class="def-box"><div class="def-title">核心原理</div><p>假设存在不可观测的公共因子F驱动观测变量X。Varimax旋转使因子可解释。KMO&gt;0.5+Bartlett Sig&lt;0.05适用。</p></div>
 <div class="formula">$$X=\mu+\Lambda F+\varepsilon,\ \Lambda$为载荷矩阵$$</div>
 <table><tr><th style="width:25%">适用场景</th><th style="width:37%">优点</th><th style="width:38%">缺点</th></tr>
 <tr><td>潜在构念挖掘</td><td>因子可命名(业务解释)</td><td>需KMO/Bartlett适用性检验</td></tr>
@@ -753,7 +753,7 @@ code{font-family:"Cascadia Code","JetBrains Mono","Consolas",monospace;font-size
 </table>
 
 <h3 id="Floyd-Warshall全源最短路径">Floyd-Warshall全源最短路径</h3>
-<div class="def-box"><div class="def-title">核心原理</div><p>三重循环DP→任意两点最短路径。O(V³)。可检测负环(d[i][i]<0)。</p></div>
+<div class="def-box"><div class="def-title">核心原理</div><p>三重循环DP→任意两点最短路径。O(V³)。可检测负环(d[i][i]&lt;0)。</p></div>
 <div class="formula">$$d[i][j]=\min(d[i][j],d[i][k]+d[k][j])$$</div>
 <table><tr><th style="width:25%">适用场景</th><th style="width:37%">优点</th><th style="width:38%">缺点</th></tr>
 <tr><td>任意两点最短距离</td><td>全源一次求出</td><td>O(V³)→大图极慢</td></tr>
