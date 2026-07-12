@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>图与网络 — 数学建模学习平台</title>
+<script>
+MathJax = { tex: { inlineMath: [['$','$'],['\\(','\\)']], displayMath: [['$$','$$'],['\\[','\\]']], processEscapes: true } };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" async></script>
+<style>
+/* ===== CSS Variables ===== */
+:root {
+  --paper: #fdf6e3;
+  --paper-dark: #f3e8d0;
+  --ink: #3d3525;
+  --ink-light: #6b5f48;
+  --accent: #2d7fc1;
+  --accent-hover: #1d4ed8;
+  --divider: #d9c9a0;
+  --card-bg: #fef9ee;
+  --card-border: #e5d5b5;
+  --sidebar-bg: #f5ebd5;
+  --sidebar-border: #e5d5b5;
+  --code-bg: #ede0c5;
+  --highlight-bg: #fefce8;
+  --highlight-border: #eab308;
+  --highlight-strong: #92400e;
+  --tag-must-bg: #dbeafe; --tag-must-color: #1e40af;
+  --tag-key-bg: #fef3c7; --tag-key-color: #92400e;
+  --tag-freq-bg: #dbeafe; --tag-freq-color: #1e40af;
+  --tag-info-bg: #f0fdf4; --tag-info-color: #166534;
+  --heading-color: #1a3a5c;
+  --code-text: #8a4b1e;
+  --radius: 8px;
+  --font: "Microsoft YaHei","PingFang SC","Noto Sans SC",sans-serif;
+}
+.dark-mode {
+  --paper: #1a1a2e; --paper-dark: #22223a;
+  --ink: #e0e0ec; --ink-light: #8888aa;
+  --accent: #6a82f0; --accent-hover: #5a72e0;
+  --divider: #2d2d45;
+  --card-bg: #24243a; --card-border: #33334d;
+  --sidebar-bg: #1a1a2e; --sidebar-border: #2d2d45;
+  --code-bg: #2a2a3e;
+  --highlight-bg: #1e2a3a; --highlight-border: #6a82f0; --highlight-strong: #8ab8f0;
+  --tag-must-bg: #1a2a3d; --tag-must-color: #80b8e0;
+  --tag-key-bg: #1e2a3d; --tag-key-color: #80b8e0;
+  --tag-freq-bg: #1a2a3d; --tag-freq-color: #80b8e0;
+  --tag-info-bg: #1a3d2a; --tag-info-color: #80c090;
+  --heading-color: var(--ink);
+  --code-text: #8ab8c0;
+  background-color: var(--paper);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font);font-size:12pt;font-weight:500;line-height:1.8;color:var(--ink);background:var(--paper);display:flex;min-height:100vh}
+a{color:var(--accent);text-decoration:none;transition:color .2s}
+a:hover{color:var(--accent-hover)}
+ul,ol{padding-left:1.5em}
+li{margin-bottom:.3em}
+table{border-collapse:collapse;width:100%;margin:12px 0;font-size:.95em}
+th,td{border:1px solid var(--card-border);padding:8px 12px;text-align:center}
+th{background:var(--paper-dark);font-weight:600}
+td{background:var(--card-bg)}
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-thumb{background:var(--ink-light);border-radius:3px}
+.sidebar{position:fixed;top:0;left:0;width:210px;height:100vh;background:var(--sidebar-bg);border-right:1px solid var(--sidebar-border);overflow-y:auto;z-index:100;padding:0 0 20px}
+.sidebar-header{padding:22px 16px 16px;border-bottom:1px solid var(--sidebar-border)}
+.sidebar-header .site-name{font-size:1.15em;font-weight:700;color:var(--accent)}
+.sidebar-header .site-sub{font-size:.75em;color:var(--ink-light);margin-top:2px}
+.sidebar-nav{padding:8px 0}
+.sidebar-nav .group-label{font-size:.7em;text-transform:uppercase;letter-spacing:1px;color:var(--ink-light);padding:12px 16px 4px;font-weight:600}
+.sidebar-nav a{display:flex;align-items:center;padding:7px 16px;font-size:.9em;color:var(--ink);gap:8px;border-left:3px solid transparent;transition:background .15s,border-color .15s}
+.sidebar-nav a:hover{background:var(--paper-dark);color:var(--accent)}
+.sidebar-nav a.current{background:var(--highlight-bg);border-left-color:var(--accent);color:var(--accent);font-weight:600}
+.sidebar-nav .tag{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:var(--paper-dark);font-size:.75em;font-weight:600;flex-shrink:0}
+.sidebar-nav a.current .tag{background:var(--accent);color:#fff}
+.theme-toggle{position:fixed;top:56px;right:20px;z-index:200;background:var(--card-bg);border:1px solid var(--card-border);border-radius:50%;width:38px;height:38px;font-size:1.1em;cursor:pointer;line-height:1;transition:transform .2s}
+.theme-toggle:hover{transform:scale(1.1)}
+.main-wrap{flex:1;margin-left:210px;display:flex;flex-direction:column;min-height:100vh}
+.topbar{position:sticky;top:0;z-index:90;background:linear-gradient(135deg, #1a3a5c, var(--accent));padding:0}
+.topbar-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:14px 28px}
+.topbar-inner h2{color:#fff;font-size:1.15em;font-weight:600}
+.topbar-inner a{color:rgba(255,255,255,.85);font-size:.9em;padding:5px 12px;border-radius:4px;transition:background .2s}
+.topbar-inner a:hover{background:rgba(255,255,255,.15);color:#fff}
+.container{max-width:1100px;margin:0 auto;padding:28px 28px 40px;width:100%}
+.section{background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--radius);padding:24px 28px;margin-bottom:22px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.section h2{font-size:1.3em;color:var(--heading-color);margin-bottom:16px;padding-bottom:8px;border-bottom:2px solid var(--divider)}
+.section h3{font-size:1.08em;color:var(--accent);margin:20px 0 10px;padding-bottom:6px;border-bottom:1px dashed var(--divider)}
+.section h4{font-size:1em;color:var(--ink);font-weight:600;margin:14px 0 6px}
+.section p{margin-bottom:10px}
+.highlight{background:var(--highlight-bg);border-left:4px solid var(--highlight-border);padding:12px 16px;margin:14px 0;border-radius:0 6px 6px 0;font-size:.95em}
+.highlight strong{color:var(--highlight-strong)}
+.def-box{background:var(--code-bg);border:1px solid var(--card-border);border-radius:6px;padding:14px 18px;margin:12px 0}
+.def-box .def-title{font-weight:700;color:var(--accent);margin-bottom:4px;font-size:.92em}
+.formula{text-align:center;background:var(--code-bg);padding:12px 20px;margin:14px 0;border-radius:6px}
+mjx-container[display="true"]{max-width:100%;overflow-x:auto;overflow-y:hidden}
+.code-block{background:var(--code-bg);border:1px solid var(--card-border);border-radius:6px;padding:16px 20px;margin:12px 0;overflow-x:auto;font-family:"Cascadia Code","Consolas","Courier New",monospace;font-size:.88em;line-height:1.65;color:var(--ink);white-space:pre}
+.code-block .kw{color:#82502e;font-weight:600}
+.code-block .fn{color:#7b5ea7}
+.code-block .str{color:#5a7a3a}
+.code-block .co{color:#8a8070;font-style:italic}
+.code-block .num{color:#a06030}
+.dark-mode .code-block .kw{color:#80c0e0}
+.dark-mode .code-block .fn{color:#c8a8e0}
+.dark-mode .code-block .str{color:#80c080}
+.dark-mode .code-block .co{color:#8890a0}
+.dark-mode .code-block .num{color:#80b8d0}
+code{font-family:"Cascadia Code","JetBrains Mono","Consolas",monospace;font-size:.88em;background:var(--code-bg);color:var(--code-text);padding:1px 6px;border-radius:4px}
+.tag-must,.tag-key,.tag-freq,.tag-info{display:inline-block;padding:1px 8px;border-radius:3px;font-size:.8em;font-weight:600;margin:0 2px}
+.tag-must{background:var(--tag-must-bg);color:var(--tag-must-color)}
+.tag-key{background:var(--tag-key-bg);color:var(--tag-key-color)}
+.tag-freq{background:var(--tag-freq-bg);color:var(--tag-freq-color)}
+.tag-info{background:var(--tag-info-bg);color:var(--tag-info-color)}
+.nav-links{display:flex;justify-content:space-between;align-items:center;margin-top:30px;padding:16px 0}
+.nav-links a{padding:8px 18px;border:1px solid var(--card-border);border-radius:6px;background:var(--card-bg);font-size:.9em;transition:all .2s}
+.nav-links a:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
+.back2top{position:fixed;right:24px;bottom:30px;z-index:90;width:42px;height:42px;background:linear-gradient(135deg, #1a3a5c, var(--accent));color:#fff;border:none;border-radius:50%;font-size:1.2em;cursor:pointer;opacity:.75;transition:all .2s;box-shadow:0 2px 10px rgba(0,0,0,.18)}
+.back2top:hover{opacity:1}
+.chapter-nav-toggle{position:fixed;right:0;top:50%;transform:translateY(-50%);z-index:95;background:linear-gradient(135deg, #1a3a5c, var(--accent));color:#fff;border:none;border-radius:8px 0 0 8px;padding:14px 8px;font-size:1.1em;cursor:pointer;writing-mode:vertical-lr;letter-spacing:2px;opacity:.8;transition:all .2s;box-shadow:-2px 0 10px rgba(0,0,0,.15)}
+.chapter-nav-panel{position:fixed;right:-260px;top:0;width:250px;height:100vh;z-index:150;background:var(--sidebar-bg);border-left:1px solid var(--sidebar-border);overflow-y:auto;transition:right .35s cubic-bezier(.4,0,.2,1);padding:20px 0}
+.chapter-nav-panel.open{right:0}
+.chapter-nav-panel .nav-header{padding:12px 20px 16px;border-bottom:1px solid var(--sidebar-border);font-weight:700;color:var(--accent);font-size:1.05em}
+.chapter-nav-panel .nav-section{padding:8px 20px 2px;font-size:.7em;text-transform:uppercase;letter-spacing:1px;color:var(--ink-light);font-weight:600}
+.chapter-nav-panel a{display:flex;align-items:center;padding:7px 20px;font-size:.9em;color:var(--ink);gap:8px;transition:background .15s}
+.chapter-nav-panel a:hover{background:var(--paper-dark);color:var(--accent)}
+.chapter-nav-panel a.current{color:var(--accent);font-weight:600}
+.chapter-nav-panel .num{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:var(--paper-dark);font-size:.75em;font-weight:600;flex-shrink:0}
+.footer{text-align:center;padding:20px;color:var(--ink-light);font-size:.82em;border-top:1px solid var(--divider);margin-top:auto}
+@media(max-width:768px){
+  .sidebar{display:none}
+  .main-wrap{margin-left:0}
+  body{font-size:10.5pt}
+  .topbar-inner h2{font-size:1em}
+  .topbar-inner{padding:10px 14px}
+}
+@media(max-width:640px){
+  .section{padding:18px 16px}
+  .chapter-nav-panel{width:200px}
+  table{font-size:.85em}
+  th,td{padding:5px 8px}
+  .back2top{right:10px;bottom:20px;width:38px;height:38px}
+  .container{padding:16px 12px 30px}
+}
+@media print{.sidebar,.topbar,.theme-toggle,.chapter-nav-toggle,.chapter-nav-panel,.back2top,.nav-links,.footer{display:none}.main-wrap{margin-left:0}}
+</style>
+</head>
+<body>
+
+<nav class="sidebar">
+  <div class="sidebar-header">
+    <div class="site-name">📐 数学建模</div>
+    <div class="site-sub">学习平台</div>
+  </div>
+  <div class="sidebar-nav">
+    <div class="group-label">核心方法</div>
+    <a href="插值与拟合.html"><span class="tag">1</span>插值与拟合</a>
+    <a href="蒙特卡洛.html"><span class="tag">2</span>蒙特卡洛方法</a>
+    <a href="线性回归.html"><span class="tag">3</span>线性回归</a>
+    <a href="主成分与因子分析.html"><span class="tag">5</span>主成分与因子分析</a>
+    <a href="时间序列.html"><span class="tag">6</span>时间序列分析</a>
+    <a href="图与网络.html" class="current"><span class="tag">7</span>图与网络</a>
+    <div class="group-label">综合专题</div>
+    <a href="AI与建模.html"><span class="tag">4</span>AI与数学建模</a>
+    <a href="index.html" style="margin-top:6px;border-top:1px solid var(--sidebar-border);padding-top:8px"><span class="tag">⌂</span>返回首页</a>
+  </div>
+</nav>
+
+<button class="theme-toggle no-print" onclick="toggleTheme()" title="切换暗黑模式">🌙</button>
+
+<div class="main-wrap">
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <a href="时间序列.html">← 时间序列分析</a>
+    <h2>7. 图与网络</h2>
+    <a href="AI与建模.html">AI与数学建模 →</a>
+  </div>
+</div>
+
+<div class="container">
+
+<!-- §1: 基础概念 -->
+<div class="section">
+<h2>1. 图与网络基础概念</h2>
+
+<div class="def-box">
+  <div class="def-title">📖 图 (Graph)</div>
+  <p>图 $G = (V, E)$ 由<strong>顶点集</strong> $V = \{v_1, v_2, \dots, v_n\}$ 和<strong>边集</strong> $E = \{e_1, e_2, \dots, e_m\}$ 组成。每条边连接两个顶点，可带方向（有向图）或不带方向（无向图），可带权重（赋权图）。</p>
+</div>
+
+<h3>1.1 图的分类</h3>
+<table>
+<tr><th>类型</th><th>特点</th><th>典型应用</th></tr>
+<tr><td><strong>无向图</strong></td><td>边无方向，$(u,v)$ 和 $(v,u)$ 是同一对</td><td>道路网络、社交关系</td></tr>
+<tr><td><strong>有向图</strong></td><td>边有方向，$(u \to v)$ 单向通行</td><td>交通流向、任务依赖</td></tr>
+<tr><td><strong>赋权图</strong></td><td>每条边有数值权重 $w(e)$</td><td>距离、成本、时间</td></tr>
+<tr><td><strong>连通图</strong></td><td>任意两顶点间存在路径</td><td>—</td></tr>
+<tr><td><strong>树</strong></td><td>连通无环图，$m = n-1$</td><td>层级结构、最优布线</td></tr>
+<tr><td><strong>二分图</strong></td><td>顶点可分为两部分，边只连接不同部分的顶点</td><td>任务分配、匹配问题</td></tr>
+</table>
+
+<h3>1.2 图的存储方式</h3>
+<table>
+<tr><th>方法</th><th>空间</th><th>适用</th></tr>
+<tr><td><strong>邻接矩阵</strong></td><td>$O(n^2)$</td><td>稠密图、快速判断连通性</td></tr>
+<tr><td><strong>邻接表</strong></td><td>$O(n+m)$</td><td>稀疏图、遍历邻接点</td></tr>
+<tr><td><strong>边列表</strong></td><td>$O(m)$</td><td>Kruskal 等需要按边排序的算法</td></tr>
+</table>
+</div>
+
+<!-- §2: 最短路 -->
+<div class="section">
+<h2>2. 最短路问题 <span class="tag-must">竞赛高频</span></h2>
+
+<div class="highlight">
+<strong>📌 问题描述</strong>：在赋权图中，找从起点 $s$ 到终点 $t$ 的<strong>权重之和最小</strong>的路径。
+</div>
+
+<h3>2.1 Dijkstra 算法（非负权）</h3>
+<p><strong>核心思想</strong>：贪心 + 松弛。每次从未确定最短路的顶点中选 $d[v]$ 最小的标记为"已确定"，并更新其邻居的距离。</p>
+
+<div class="def-box">
+  <div class="def-title">算法步骤</div>
+  <ol>
+    <li>初始化 $d[s]=0$，其他 $d[v]=\infty$；全部顶点未标记</li>
+    <li>选未标记中 $d[v]$ 最小的 $v$，标记为已确定</li>
+    <li>对 $v$ 的每条出边 $(v, u, w)$：若 $d[v] + w < d[u]$，则 $d[u] = d[v] + w$</li>
+    <li>重复 2-3 直到所有顶点已确定或 $t$ 被标记</li>
+  </ol>
+  <p><strong>复杂度</strong>：朴素 $O(n^2)$，二叉堆优化 $O((n+m)\log n)$。</p>
+</div>
+
+<h3>2.2 Floyd 算法（全源最短路）</h3>
+<p><strong>核心思想</strong>：动态规划。$d[i][j]^{(k)}$ = 只经过前 $k$ 个顶点的 $i$ 到 $j$ 最短距离。</p>
+<div class="formula">
+$$d[i][j] = \min(d[i][j],\; d[i][k] + d[k][j])$$
+</div>
+<p><strong>复杂度</strong>：$O(n^3)$。适合 $n \leq 200$、需要所有点对距离的场景。</p>
+
+<table>
+<tr><th>算法</th><th>适用</th><th>复杂度</th></tr>
+<tr><td><strong>Dijkstra</strong></td><td>非负权，单源</td><td>$O(n^2)$ / $O((n+m)\log n)$</td></tr>
+<tr><td><strong>Floyd</strong></td><td>任意权（无负环），全源</td><td>$O(n^3)$</td></tr>
+<tr><td><strong>Bellman-Ford</strong></td><td>可含负权边，单源</td><td>$O(nm)$</td></tr>
+<tr><td><strong>SPFA</strong></td><td>Bellman-Ford 的队列优化</td><td>$O(km)$，最坏 $O(nm)$</td></tr>
+</table>
+</div>
+
+<!-- §3: 最小生成树 -->
+<div class="section">
+<h2>3. 最小生成树 (MST) <span class="tag-key">必掌握</span></h2>
+
+<div class="highlight">
+<strong>📌 问题描述</strong>：在连通赋权无向图中，找一棵包含所有顶点的树，使边的权重之和<strong>最小</strong>。典型场景：最优布线、管网设计、聚类。
+</div>
+
+<h3>3.1 Kruskal 算法（边贪心）</h3>
+<p>将所有边按权重<strong>升序排列</strong>，依次取边——若该边的两端点不在同一连通分量中（用<strong>并查集</strong>判断），则加入生成树。</p>
+<p><strong>复杂度</strong>：$O(m \log m)$（排序主导）。适合<strong>稀疏图</strong>。</p>
+
+<h3>3.2 Prim 算法（点贪心）</h3>
+<p>从任意顶点出发，每次选<strong>连接已选集合和未选集合的最小权重边</strong>，将其加入。</p>
+<p><strong>复杂度</strong>：$O(n^2)$ / $O((n+m)\log n)$。适合<strong>稠密图</strong>。</p>
+
+<table>
+<tr><th>算法</th><th>策略</th><th>适合</th><th>复杂度</th></tr>
+<tr><td><strong>Kruskal</strong></td><td>边贪心 + 并查集</td><td>稀疏图</td><td>$O(m\log m)$</td></tr>
+<tr><td><strong>Prim</strong></td><td>点贪心 + 优先队列</td><td>稠密图</td><td>$O((n+m)\log n)$</td></tr>
+</table>
+</div>
+
+<!-- §4: 网络流 -->
+<div class="section">
+<h2>4. 网络流 <span class="tag-must">竞赛重点</span></h2>
+
+<h3>4.1 最大流问题</h3>
+<div class="highlight">
+<strong>📌 问题描述</strong>：在有向图中，每条边有容量 $c(e)$。从源点 $s$ 到汇点 $t$，在不超过边容量的前提下，<strong>最大能输送多少流量</strong>？
+</div>
+
+<p><strong>Ford-Fulkerson 方法（增广路）</strong>：不断在残余网络中找 $s \to t$ 的路径，沿路径增加流量，直到不存在增广路。</p>
+<ul>
+  <li><strong>Edmonds-Karp</strong>：用 BFS 找最短增广路，复杂度 $O(n m^2)$</li>
+  <li><strong>Dinic</strong>：分层图 + 多路增广，复杂度 $O(n^2 m)$，实际很快</li>
+</ul>
+
+<h3>4.2 最小费用最大流</h3>
+<p>在最大流基础上，每条边还有单位费用。求在<strong>流量最大</strong>的前提下<strong>费用最小</strong>的流。</p>
+<p>方法：用 SPFA/Dijkstra 代替 BFS 找<strong>费用最小的增广路</strong>。</p>
+
+<h3>4.3 典型应用</h3>
+<table>
+<tr><th>应用</th><th>建模方式</th></tr>
+<tr><td><strong>二分图最大匹配</strong></td><td>源连左部，右部连汇，容量 1</td></tr>
+<tr><td><strong>最小割</strong></td><td>最大流 = 最小割容量</td></tr>
+<tr><td><strong>任务分配</strong></td><td>源→任务→工人→汇</td></tr>
+<tr><td><strong>运输调度</strong></td><td>源→仓库→中转→需求点→汇</td></tr>
+</table>
+</div>
+
+<!-- §5: 关键路径 -->
+<div class="section">
+<h2>5. 关键路径 (CPM) <span class="tag-key">项目管理必用</span></h2>
+
+<div class="highlight">
+<strong>📌 问题描述</strong>：给定一系列有先后依赖关系的任务（AOV 网），找决定整个项目周期的<strong>最长路径</strong>（关键路径）。关键路径上的任务不能延误。
+</div>
+
+<p><strong>计算步骤</strong>：</p>
+<ol>
+  <li>对 AOV 网做<strong>拓扑排序</strong>，确保每个任务的前驱已计算</li>
+  <li><strong>顺推</strong>：计算每个任务的最早开始时间 $ES[v] = \max(ES[u] + w(u,v))$</li>
+  <li><strong>逆推</strong>：计算最晚开始时间 $LS[u] = \min(LS[v] - w(u,v))$</li>
+  <li><strong>松弛时间</strong>：$slack = LS[v] - ES[v]$。$slack = 0$ 的顶点构成<strong>关键路径</strong></li>
+</ol>
+</div>
+
+<!-- §6: TSP 与 邮递员 -->
+<div class="section">
+<h2>6. 旅行商 (TSP) 与 中国邮递员问题</h2>
+
+<h3>6.1 旅行商问题 (TSP)</h3>
+<div class="def-box">
+  <div class="def-title">NP-Hard 经典问题</div>
+  <p>给定 $n$ 个城市和两两之间的距离，找一条经过<strong>每个城市恰好一次</strong>且回到起点的<strong>最短回路</strong>。</p>
+</div>
+<p><strong>竞赛实用方法</strong>：</p>
+<table>
+<tr><th>方法</th><th>特点</th></tr>
+<tr><td><strong>贪心 + 2-opt 局部优化</strong></td><td>简单有效，$n \leq 100$ 可用</td></tr>
+<tr><td><strong>遗传算法 / 模拟退火</strong></td><td>$n \leq 200$，论文推荐</td></tr>
+<tr><td><strong>动态规划 (Held-Karp)</strong></td><td>$O(n^2 2^n)$，$n \leq 20$</td></tr>
+<tr><td><strong>LKH 启发式</strong></td><td>$n$ 可达数千，工业级</td></tr>
+</table>
+
+<h3>6.2 中国邮递员问题 (CPP)</h3>
+<div class="def-box">
+  <div class="def-title">区别于 TSP</div>
+  <p>邮递员从邮局出发，<strong>每条街道至少走一次</strong>，回到邮局的最短回路。本质是<strong>在图中添加边使其变为欧拉图</strong>。</p>
+</div>
+<p><strong>解法</strong>：找出所有奇数度顶点 → 求它们之间的最短路径（Floyd）→ 做最小权完美匹配 → 将匹配路径对应的边"加倍" → 在欧拉图上找欧拉回路。</p>
+</div>
+
+<!-- §7: 二分图匹配 -->
+<div class="section">
+<h2>7. 二分图与匹配问题</h2>
+
+<h3>7.1 最大匹配</h3>
+<div class="highlight">
+<strong>📌 问题描述</strong>：二分图 $G = (L \cup R, E)$，找最多的边使得<strong>每个顶点最多属于一条匹配边</strong>。
+</div>
+<p><strong>匈牙利算法 (Hungarian)</strong>：基于增广路的贪心算法，复杂度 $O(nm)$。DFS 找增广路 → 反转路径上的匹配状态 → 匹配数 +1。</p>
+
+<h3>7.2 最优匹配 / 指派问题</h3>
+<p>每条匹配边有代价，找<strong>代价最小</strong>的完美匹配。</p>
+<p><strong>Kuhn-Munkres 算法 (KM / Hungarian)</strong>：复杂度 $O(n^3)$。通过调整顶点标号（potential）使相等子图逐渐扩大，直到找到完美匹配。</p>
+</div>
+
+<!-- §8: 案例 -->
+<div class="section">
+<h2>8. 竞赛建模案例</h2>
+
+<h3>8.1 加油车调度问题</h3>
+<div class="def-box">
+  <div class="def-title">问题描述</div>
+  <p>多个加油站有订单需求，加油车从车场出发，在满足各油站需求的前提下使<strong>运输总距离最短</strong>。涉及：</p>
+  <ol>
+    <li><strong>车辆路径问题 (VRP)</strong>：多辆车、多站点、容量约束 → 最短路 + 分配 + TSP 的组合</li>
+    <li><strong>紧急调度</strong>（油价上涨/地震/洪水）：加时间窗约束 → VRPTW</li>
+    <li><strong>车辆检测</strong>：部分车辆下线检测 → 动态调度 / 重新分配</li>
+  </ol>
+</div>
+
+<h3>8.2 建模思路</h3>
+<ol>
+  <li><strong>阶段一（日常调度）</strong>：以各油站需求为顶点，车场为源点，建立带容量约束的 VRP 模型 → 聚类分配油站 → 每辆车跑 TSP</li>
+  <li><strong>阶段二（紧急事件）</strong>：加入时间窗约束 $[a_i, b_i]$，优先满足紧急需求 → 带时间窗的 VRP (VRPTW)</li>
+  <li><strong>阶段三（车辆检测）</strong>：下线车辆对应的路线重新分配给其他车辆 → 增量式更新方案</li>
+</ol>
+</div>
+
+<!-- §9: Python -->
+<div class="section">
+<h2>9. Python 代码实现</h2>
+
+<h3>9.1 Dijkstra + Floyd</h3>
+<div class="code-block"><span class="kw">import</span> heapq, numpy <span class="kw">as</span> np
+
+<span class="co"># Dijkstra 单源最短路 (堆优化)</span>
+<span class="kw">def</span> <span class="fn">dijkstra</span>(graph, start, n):
+    dist = [<span class="kw">float</span>(<span class="str">'inf'</span>)] * n
+    dist[start] = <span class="num">0</span>
+    pq = [(<span class="num">0</span>, start)]
+    <span class="kw">while</span> pq:
+        d, u = heapq.heappop(pq)
+        <span class="kw">if</span> d > dist[u]: <span class="kw">continue</span>
+        <span class="kw">for</span> v, w <span class="kw">in</span> graph[u]:
+            <span class="kw">if</span> dist[u] + w < dist[v]:
+                dist[v] = dist[u] + w
+                heapq.heappush(pq, (dist[v], v))
+    <span class="kw">return</span> dist
+
+<span class="co"># Floyd 全源最短路</span>
+<span class="kw">def</span> <span class="fn">floyd</span>(adj, n):
+    d = adj.copy()
+    <span class="kw">for</span> k <span class="kw">in</span> <span class="kw">range</span>(n):
+        <span class="kw">for</span> i <span class="kw">in</span> <span class="kw">range</span>(n):
+            <span class="kw">for</span> j <span class="kw">in</span> <span class="kw">range</span>(n):
+                d[i][j] = <span class="kw">min</span>(d[i][j], d[i][k] + d[k][j])
+    <span class="kw">return</span> d
+</div>
+
+<h3>9.2 MST (Kruskal)</h3>
+<div class="code-block"><span class="co"># Kruskal 最小生成树</span>
+<span class="kw">class</span> <span class="fn">DSU</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="kw">self</span>, n):
+        <span class="kw">self</span>.p = <span class="kw">list</span>(<span class="kw">range</span>(n))
+    <span class="kw">def</span> <span class="fn">find</span>(<span class="kw">self</span>, x):
+        <span class="kw">if</span> <span class="kw">self</span>.p[x] != x:
+            <span class="kw">self</span>.p[x] = <span class="kw">self</span>.find(<span class="kw">self</span>.p[x])
+        <span class="kw">return</span> <span class="kw">self</span>.p[x]
+    <span class="kw">def</span> <span class="fn">union</span>(<span class="kw">self</span>, a, b):
+        <span class="kw">self</span>.p[<span class="kw">self</span>.find(a)] = <span class="kw">self</span>.find(b)
+
+<span class="kw">def</span> <span class="fn">kruskal</span>(edges, n):
+    edges.sort(key=<span class="kw">lambda</span> e: e[<span class="num">2</span>])
+    dsu, mst, total = DSU(n), [], <span class="num">0</span>
+    <span class="kw">for</span> u, v, w <span class="kw">in</span> edges:
+        <span class="kw">if</span> dsu.find(u) != dsu.find(v):
+            dsu.union(u, v)
+            mst.append((u, v, w))
+            total += w
+    <span class="kw">return</span> mst, total
+</div>
+
+<h3>9.3 匈牙利算法 (二分图匹配)</h3>
+<div class="code-block"><span class="kw">def</span> <span class="fn">hungarian</span>(adj, n_left, n_right):
+    match_r = [-<span class="num">1</span>] * n_right
+    <span class="kw">def</span> <span class="fn">dfs</span>(u, visited):
+        <span class="kw">for</span> v <span class="kw">in</span> adj[u]:
+            <span class="kw">if</span> <span class="kw">not</span> visited[v]:
+                visited[v] = <span class="kw">True</span>
+                <span class="kw">if</span> match_r[v] == -<span class="num">1</span> <span class="kw">or</span> dfs(match_r[v], visited):
+                    match_r[v] = u
+                    <span class="kw">return</span> <span class="kw">True</span>
+        <span class="kw">return</span> <span class="kw">False</span>
+    result = <span class="num">0</span>
+    <span class="kw">for</span> u <span class="kw">in</span> <span class="kw">range</span>(n_left):
+        <span class="kw">if</span> dfs(u, [<span class="kw">False</span>]*n_right):
+            result += <span class="num">1</span>
+    <span class="kw">return</span> result, match_r
+</div>
+
+<h3>9.4 网络流 (Dinic)</h3>
+<div class="code-block"><span class="co"># pip install networkx -i https://pypi.tuna.tsinghua.edu.cn/simple</span>
+<span class="kw">import</span> networkx <span class="kw">as</span> nx
+
+G = nx.DiGraph()
+G.add_edge(<span class="str">'s'</span>, <span class="str">'a'</span>, capacity=<span class="num">10</span>)
+G.add_edge(<span class="str">'a'</span>, <span class="str">'t'</span>, capacity=<span class="num">5</span>)
+max_flow = nx.maximum_flow(G, <span class="str">'s'</span>, <span class="str">'t'</span>)[<span class="num">0</span>]
+
+<span class="co"># 最小费用最大流</span>
+G.add_edge(<span class="str">'s'</span>, <span class="str">'a'</span>, capacity=<span class="num">10</span>, weight=<span class="num">3</span>)
+flow_dict = nx.max_flow_min_cost(G, <span class="str">'s'</span>, <span class="str">'t'</span>)
+
+<span class="co"># TSP 启发式</span>
+<span class="kw">from</span> networkx.algorithms.approximation <span class="kw">import</span> traveling_salesman_problem
+tour = traveling_salesman_problem(G, cycle=<span class="kw">True</span>)
+</div>
+</div>
+
+<!-- §10: 竞赛要点 -->
+<div class="section">
+<h2>10. 数学建模竞赛应用要点</h2>
+
+<h3>问题类型 → 图论方法速查</h3>
+<table>
+<tr><th>赛题场景</th><th>对应图论模型</th><th>核心算法</th></tr>
+<tr><td>最短路径 / 最优路线</td><td>最短路</td><td>Dijkstra / Floyd</td></tr>
+<tr><td>最优布线 / 管网设计 / 聚类</td><td>最小生成树</td><td>Kruskal / Prim</td></tr>
+<tr><td>最大运输量 / 通信带宽</td><td>最大流</td><td>Dinic / EK</td></tr>
+<tr><td>运输调度（多车多站）</td><td>VRP</td><td>聚类 + TSP 启发式</td></tr>
+<tr><td>项目管理 / 工序安排</td><td>关键路径 CPM</td><td>拓扑排序 + DP</td></tr>
+<tr><td>任务分配 / 人员匹配</td><td>二分图匹配</td><td>匈牙利算法 / KM</td></tr>
+<tr><td>遍历所有点回起点</td><td>TSP</td><td>贪心 + 2-opt / GA / SA</td></tr>
+<tr><td>遍历所有边回起点</td><td>中国邮递员 CPP</td><td>奇度点匹配 + 欧拉回路</td></tr>
+</table>
+
+<h3>常见陷阱</h3>
+<table>
+<tr><th>陷阱</th><th>后果</th><th>对策</th></tr>
+<tr><td>负权边用 Dijkstra</td><td>结果错误</td><td>有负权边用 Bellman-Ford / SPFA</td></tr>
+<tr><td>TSP 求精确解（$n>20$）</td><td>时间爆炸</td><td>用启发式（GA/SA/2-opt），论文写清"近似解"</td></tr>
+<tr><td>最大流问题忽略反向边</td><td>无法反悔，得不到最优</td><td>残余网络必须建反向边</td></tr>
+<tr><td>VRP 问题当 TSP 处理</td><td>忽略容量约束，方案不可行</td><td>先聚类分配，再逐车 TSP</td></tr>
+</table>
+</div>
+
+<div class="nav-links">
+  <a href="时间序列.html">← 6. 时间序列分析</a>
+  <a href="AI与建模.html">4. AI与数学建模 →</a>
+</div>
+
+</div>
+
+<div class="footer"><p>📐 数学建模学习平台 &copy; 2026 Jacky</p></div>
+</div>
+
+<button class="back2top" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="回到顶部">↑</button>
+<button class="chapter-nav-toggle" onclick="toggleChapterNav()" title="章节导航">📖 章节导航</button>
+<div class="chapter-nav-panel" id="chapterNav">
+  <div class="nav-header">📐 目录导航</div>
+  <div class="nav-section">核心方法</div>
+  <a href="插值与拟合.html"><span class="num">1</span>插值与拟合</a>
+  <a href="蒙特卡洛.html"><span class="num">2</span>蒙特卡洛方法</a>
+  <a href="线性回归.html"><span class="num">3</span>线性回归</a>
+  <a href="主成分与因子分析.html"><span class="num">5</span>主成分与因子分析</a>
+  <a href="时间序列.html"><span class="num">6</span>时间序列分析</a>
+  <a href="图与网络.html" class="current"><span class="num">7</span>图与网络</a>
+  <div class="nav-section">综合专题</div>
+  <a href="AI与建模.html"><span class="num">4</span>AI与数学建模</a>
+  <a href="index.html" style="border-top:1px solid var(--sidebar-border);margin-top:6px;padding-top:10px"><span class="num">⌂</span>返回首页</a>
+</div>
+
+<script>
+(function(){
+  var v='250712d';
+  if(localStorage.getItem('mm-gn')!==v){localStorage.setItem('mm-gn',v);location.reload(true);}
+})();
+(function(){
+  var p = window.location.pathname.split('/').pop() || 'index.html';
+  document.querySelectorAll('.sidebar-nav a').forEach(function(a){
+    if(a.getAttribute('href') === p) a.classList.add('current');
+  });
+})();
+(function(){
+  var d = localStorage.getItem('mathmodel-theme');
+  if(d === 'dark'){
+    document.body.classList.add('dark-mode');
+    document.querySelector('.theme-toggle').textContent = '☀️';
+  }
+})();
+function toggleTheme(){
+  var b = document.body; b.classList.toggle('dark-mode');
+  var btn = document.querySelector('.theme-toggle');
+  var isDark = b.classList.contains('dark-mode');
+  btn.textContent = isDark ? '☀️' : '🌙';
+  localStorage.setItem('mathmodel-theme', isDark ? 'dark' : 'light');
+}
+function toggleChapterNav(){
+  var panel = document.getElementById('chapterNav');
+  panel.classList.toggle('open');
+}
+document.addEventListener('click', function(e){
+  var panel = document.getElementById('chapterNav');
+  var btn = document.querySelector('.chapter-nav-toggle');
+  if(panel && panel.classList.contains('open') && !panel.contains(e.target) && !btn.contains(e.target)){
+    panel.classList.remove('open');
+  }
+});
+document.addEventListener('DOMContentLoaded', function(){
+  var path = window.location.pathname.split('/').pop() || 'index.html';
+  var panel = document.getElementById('chapterNav');
+  if(!panel) return;
+  panel.querySelectorAll('a').forEach(function(a){
+    if(a.getAttribute('href') === path) a.classList.add('current');
+  });
+});
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="rag-retriever.js?v=1"></script>
+<script src="ai-chat.js?v=7"></script>
+</body>
+</html>
