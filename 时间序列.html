@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>时间序列分析 — 数学建模学习平台</title>
+<script>
+MathJax = { tex: { inlineMath: [['$','$'],['\\(','\\)']], displayMath: [['$$','$$'],['\\[','\\]']], processEscapes: true } };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" async></script>
+<style>
+/* ===== CSS Variables ===== */
+:root {
+  --paper: #fdf6e3;
+  --paper-dark: #f3e8d0;
+  --ink: #3d3525;
+  --ink-light: #6b5f48;
+  --accent: #2d7fc1;
+  --accent-hover: #1d4ed8;
+  --divider: #d9c9a0;
+  --card-bg: #fef9ee;
+  --card-border: #e5d5b5;
+  --sidebar-bg: #f5ebd5;
+  --sidebar-border: #e5d5b5;
+  --code-bg: #ede0c5;
+  --highlight-bg: #fefce8;
+  --highlight-border: #eab308;
+  --highlight-strong: #92400e;
+  --checkpoint-bg: #eff6ff;
+  --checkpoint-border: #bfdbfe;
+  --checkpoint-color: #1e40af;
+  --tag-must-bg: #dbeafe; --tag-must-color: #1e40af;
+  --tag-key-bg: #fef3c7; --tag-key-color: #92400e;
+  --tag-freq-bg: #dbeafe; --tag-freq-color: #1e40af;
+  --tag-info-bg: #f0fdf4; --tag-info-color: #166534;
+  --heading-color: #1a3a5c;
+  --code-text: #8a4b1e;
+  --radius: 8px;
+  --font: "Microsoft YaHei","PingFang SC","Noto Sans SC",sans-serif;
+}
+.dark-mode {
+  --paper: #1a1a2e; --paper-dark: #22223a;
+  --ink: #e0e0ec; --ink-light: #8888aa;
+  --accent: #6a82f0; --accent-hover: #5a72e0;
+  --divider: #2d2d45;
+  --card-bg: #24243a; --card-border: #33334d;
+  --sidebar-bg: #1a1a2e; --sidebar-border: #2d2d45;
+  --code-bg: #2a2a3e;
+  --highlight-bg: #1e2a3a; --highlight-border: #6a82f0; --highlight-strong: #8ab8f0;
+  --checkpoint-bg: #1e2a3a; --checkpoint-border: #2d4a5a; --checkpoint-color: #6a82f0;
+  --tag-must-bg: #1a2a3d; --tag-must-color: #80b8e0;
+  --tag-key-bg: #1e2a3d; --tag-key-color: #80b8e0;
+  --tag-freq-bg: #1a2a3d; --tag-freq-color: #80b8e0;
+  --tag-info-bg: #1a3d2a; --tag-info-color: #80c090;
+  --heading-color: var(--ink);
+  --code-text: #8ab8c0;
+  background-color: var(--paper);
+}
+
+/* ===== Reset & Base ===== */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font);font-size:12pt;font-weight:500;line-height:1.8;color:var(--ink);background:var(--paper);display:flex;min-height:100vh}
+a{color:var(--accent);text-decoration:none;transition:color .2s}
+a:hover{color:var(--accent-hover)}
+ul,ol{padding-left:1.5em}
+li{margin-bottom:.3em}
+table{border-collapse:collapse;width:100%;margin:12px 0;font-size:.95em}
+th,td{border:1px solid var(--card-border);padding:8px 12px;text-align:center}
+th{background:var(--paper-dark);font-weight:600}
+td{background:var(--card-bg)}
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-thumb{background:var(--ink-light);border-radius:3px}
+
+/* ===== Sidebar ===== */
+.sidebar{position:fixed;top:0;left:0;width:210px;height:100vh;background:var(--sidebar-bg);border-right:1px solid var(--sidebar-border);overflow-y:auto;z-index:100;padding:0 0 20px}
+.sidebar-header{padding:22px 16px 16px;border-bottom:1px solid var(--sidebar-border)}
+.sidebar-header .site-name{font-size:1.15em;font-weight:700;color:var(--accent)}
+.sidebar-header .site-sub{font-size:.75em;color:var(--ink-light);margin-top:2px}
+.sidebar-nav{padding:8px 0}
+.sidebar-nav .group-label{font-size:.7em;text-transform:uppercase;letter-spacing:1px;color:var(--ink-light);padding:12px 16px 4px;font-weight:600}
+.sidebar-nav a{display:flex;align-items:center;padding:7px 16px;font-size:.9em;color:var(--ink);gap:8px;border-left:3px solid transparent;transition:background .15s,border-color .15s}
+.sidebar-nav a:hover{background:var(--paper-dark);color:var(--accent)}
+.sidebar-nav a.current{background:var(--highlight-bg);border-left-color:var(--accent);color:var(--accent);font-weight:600}
+.sidebar-nav .tag{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:var(--paper-dark);font-size:.75em;font-weight:600;flex-shrink:0}
+.sidebar-nav a.current .tag{background:var(--accent);color:#fff}
+
+/* ===== Theme Toggle ===== */
+.theme-toggle{position:fixed;top:12px;right:20px;z-index:200;background:var(--card-bg);border:1px solid var(--card-border);border-radius:50%;width:38px;height:38px;font-size:1.1em;cursor:pointer;line-height:1;transition:transform .2s}
+.theme-toggle:hover{transform:scale(1.1)}
+
+/* ===== Main Area ===== */
+.main-wrap{flex:1;margin-left:210px;display:flex;flex-direction:column;min-height:100vh}
+
+/* ===== Header (Hero) ===== */
+.header{background:linear-gradient(135deg, #0d7377, #14a3a8);padding:60px 20px 50px;text-align:center;color:#fff}
+.header h1{font-size:2em;margin-bottom:8px}
+.header .subtitle{opacity:.85;font-size:1.1em}
+.header .breadcrumb{font-size:.85em;opacity:.75;margin-top:10px}
+.header .breadcrumb a{color:#fff;text-decoration:underline}
+
+/* ===== Container ===== */
+.container{max-width:1100px;margin:0 auto;padding:28px 28px 40px;width:100%}
+
+/* ===== Content Blocks ===== */
+.section{background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--radius);padding:24px 28px;margin-bottom:22px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.section h2{font-size:1.3em;color:var(--heading-color);margin-bottom:16px;padding-bottom:8px;border-bottom:2px solid var(--divider)}
+.section h3{font-size:1.08em;color:var(--accent);margin:20px 0 10px;padding-bottom:6px;border-bottom:1px dashed var(--divider)}
+.section h4{font-size:1em;color:var(--ink);font-weight:600;margin:14px 0 6px}
+.section p{margin-bottom:10px}
+
+.highlight{background:var(--highlight-bg);border-left:4px solid var(--highlight-border);padding:12px 16px;margin:14px 0;border-radius:0 6px 6px 0;font-size:.95em}
+.highlight strong{color:var(--highlight-strong)}
+
+.def-box{background:var(--code-bg);border:1px solid var(--card-border);border-radius:6px;padding:14px 18px;margin:12px 0}
+.def-box .def-title{font-weight:700;color:var(--accent);margin-bottom:4px;font-size:.92em}
+
+.formula{text-align:center;background:var(--code-bg);padding:12px 20px;margin:14px 0;border-radius:6px}
+mjx-container[display="true"]{max-width:100%;overflow-x:auto;overflow-y:hidden}
+
+.code-block{background:var(--code-bg);border:1px solid var(--card-border);border-radius:6px;padding:16px 20px;margin:12px 0;overflow-x:auto;font-family:"Cascadia Code","Consolas","Courier New",monospace;font-size:.88em;line-height:1.65;color:var(--ink);white-space:pre}
+code{font-family:"Cascadia Code","JetBrains Mono","Consolas",monospace;font-size:.88em;background:var(--code-bg);color:var(--code-text);padding:1px 6px;border-radius:4px}
+
+.checkpoint{background:var(--checkpoint-bg);border:1px solid var(--checkpoint-border);border-radius:6px;padding:14px 18px;margin:14px 0}
+.checkpoint::before{content:"🧠 自查练习：";font-weight:700;color:var(--checkpoint-color);display:block;margin-bottom:6px}
+.checkpoint ol,.checkpoint ul{margin-bottom:0}
+
+.tag-must,.tag-key,.tag-freq,.tag-info{display:inline-block;padding:1px 8px;border-radius:3px;font-size:.8em;font-weight:600;margin:0 2px}
+.tag-must{background:var(--tag-must-bg);color:var(--tag-must-color)}
+.tag-key{background:var(--tag-key-bg);color:var(--tag-key-color)}
+.tag-freq{background:var(--tag-freq-bg);color:var(--tag-freq-color)}
+.tag-info{background:var(--tag-info-bg);color:var(--tag-info-color)}
+
+/* ===== Bottom Nav ===== */
+.nav-links{display:flex;justify-content:space-between;align-items:center;margin-top:30px;padding:16px 0}
+.nav-links a{padding:8px 18px;border:1px solid var(--card-border);border-radius:6px;background:var(--card-bg);font-size:.9em;transition:all .2s}
+.nav-links a:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+/* ===== Back to Top ===== */
+.back2top{position:fixed;right:24px;bottom:30px;z-index:90;width:42px;height:42px;background:linear-gradient(135deg, #0d7377, #14a3a8);color:#fff;border:none;border-radius:50%;font-size:1.2em;cursor:pointer;opacity:.75;transition:all .2s;box-shadow:0 2px 10px rgba(0,0,0,.18)}
+.back2top:hover{opacity:1}
+
+/* ===== Chapter Nav Panel ===== */
+.chapter-nav-toggle{position:fixed;right:0;top:50%;transform:translateY(-50%);z-index:95;background:linear-gradient(135deg, #0d7377, #14a3a8);color:#fff;border:none;border-radius:8px 0 0 8px;padding:14px 8px;font-size:1.1em;cursor:pointer;writing-mode:vertical-lr;letter-spacing:2px;opacity:.8;transition:all .2s;box-shadow:-2px 0 10px rgba(0,0,0,.15)}
+.chapter-nav-panel{position:fixed;right:-260px;top:0;width:250px;height:100vh;z-index:150;background:var(--sidebar-bg);border-left:1px solid var(--sidebar-border);overflow-y:auto;transition:right .35s cubic-bezier(.4,0,.2,1);padding:20px 0}
+.chapter-nav-panel.open{right:0}
+.chapter-nav-panel .nav-header{padding:12px 20px 16px;border-bottom:1px solid var(--sidebar-border);font-weight:700;color:var(--accent);font-size:1.05em}
+.chapter-nav-panel .nav-section{padding:8px 20px 2px;font-size:.7em;text-transform:uppercase;letter-spacing:1px;color:var(--ink-light);font-weight:600}
+.chapter-nav-panel a{display:flex;align-items:center;padding:7px 20px;font-size:.9em;color:var(--ink);gap:8px;transition:background .15s}
+.chapter-nav-panel a:hover{background:var(--paper-dark);color:var(--accent)}
+.chapter-nav-panel a.current{color:var(--accent);font-weight:600}
+.chapter-nav-panel .num{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:var(--paper-dark);font-size:.75em;font-weight:600;flex-shrink:0}
+
+/* ===== Footer ===== */
+.footer{text-align:center;padding:20px;color:var(--ink-light);font-size:.82em;border-top:1px solid var(--divider);margin-top:auto}
+
+/* ===== Responsive ===== */
+@media(max-width:768px){
+  .sidebar{display:none}
+  .main-wrap{margin-left:0}
+  body{font-size:10.5pt}
+  .header{padding:40px 16px 32px}
+  .header h1{font-size:1.5em}
+}
+@media(max-width:640px){
+  .section{padding:18px 16px}
+  .chapter-nav-panel{width:200px}
+  table{font-size:.85em}
+  th,td{padding:5px 8px}
+  .back2top{right:10px;bottom:20px;width:38px;height:38px}
+  .container{padding:16px 12px 30px}
+}
+@media print{.sidebar,.header,.theme-toggle,.chapter-nav-toggle,.chapter-nav-panel,.back2top,.nav-links,.footer{display:none}.main-wrap{margin-left:0}}
+</style>
+</head>
+<body>
+
+<!-- ===== Sidebar ===== -->
+<nav class="sidebar">
+  <div class="sidebar-header">
+    <div class="site-name">📐 数学建模</div>
+    <div class="site-sub">学习平台</div>
+  </div>
+  <div class="sidebar-nav">
+    <div class="group-label">核心方法</div>
+    <a href="插值与拟合.html"><span class="tag">1</span>插值与拟合</a>
+    <a href="蒙特卡洛.html"><span class="tag">2</span>蒙特卡洛方法</a>
+    <a href="线性回归.html"><span class="tag">3</span>线性回归</a>
+    <a href="主成分与因子分析.html"><span class="tag">5</span>主成分与因子分析</a>
+    <a href="时间序列.html" class="current"><span class="tag">6</span>时间序列分析</a>
+    <div class="group-label">综合专题</div>
+    <a href="AI与建模.html"><span class="tag">4</span>AI与数学建模</a>
+    <a href="index.html" style="margin-top:6px;border-top:1px solid var(--sidebar-border);padding-top:8px"><span class="tag">⌂</span>返回首页</a>
+  </div>
+</nav>
+
+<!-- ===== Theme Toggle ===== -->
+<button class="theme-toggle no-print" onclick="toggleTheme()" title="切换暗黑模式">🌙</button>
+
+<!-- ===== Main ===== -->
+<div class="main-wrap">
+
+<div class="header">
+  <h1>⏱️ 时间序列分析</h1>
+  <div class="subtitle">平稳性检验 · 平滑预测 · 趋势建模 · ARMA/ARIMA</div>
+  <div class="breadcrumb"><a href="index.html">首页</a> &rsaquo; 时间序列分析</div>
+</div>
+
+<div class="container">
+
+<!-- ===== 1. 概述 ===== -->
+<div class="section">
+<h2>1. 时间序列概述</h2>
+
+<div class="def-box">
+  <div class="def-title">📖 定义</div>
+  <p><strong>时间序列 (Time Series)</strong>：按时间顺序记录的一组数据。观测时间 $t$ 可以是年份、季度、月份或任何时间单位，观测值记为 $Y_t$。</p>
+</div>
+
+<h3>1.1 时间序列的四种成分</h3>
+
+<table>
+<tr><th>成分</th><th>英文</th><th>特征</th><th>典型场景</th></tr>
+<tr><td><strong>趋势 T</strong></td><td>Trend</td><td>持续向上或向下的长期变动</td><td>GDP增长、人口增长</td></tr>
+<tr><td><strong>季节变动 S</strong></td><td>Seasonal</td><td>一年内重复出现的周期性波动</td><td>空调销量（夏高冬低）</td></tr>
+<tr><td><strong>循环波动 C</strong></td><td>Cyclical</td><td>非固定长度的周期性变动（>1年）</td><td>经济周期（繁荣→衰退）</td></tr>
+<tr><td><strong>不规则波动 I</strong></td><td>Irregular</td><td>随机波动，不可预测</td><td>自然灾害、突发事件</td></tr>
+</table>
+
+<div class="highlight">
+<strong>🔑 乘法模型</strong>：$Y_i = T_i \times S_i \times C_i \times I_i$<br>
+<strong>加法模型</strong>：$Y_i = T_i + S_i + C_i + I_i$<br>
+<strong>平稳序列</strong>：只含不规则波动、不含趋势的序列。均值不随时间变化。
+</div>
+</div>
+
+<!-- ===== 2. 平稳性 ===== -->
+<div class="section">
+<h2>2. 平稳时间序列理论</h2>
+
+<h3>2.1 严平稳 vs 宽平稳</h3>
+
+<div class="def-box">
+  <div class="def-title">严平稳 (Strict Stationarity)</div>
+  <p>序列<strong>所有</strong>统计性质都不会随时间推移而变化。任意 $m$ 个时刻的联合分布与时间平移 $\tau$ 后的联合分布完全相同：</p>
+  <p style="text-align:center">$F(x_{t_1}, \dots, x_{t_m}) = F(x_{t_1+\tau}, \dots, x_{t_m+\tau})$</p>
+  <p>⚠️ 条件严格，实际数据<strong>太难达到</strong>。</p>
+</div>
+
+<div class="def-box">
+  <div class="def-title">宽平稳 (Weak Stationarity) <span class="tag-key">竞赛最常用</span></div>
+  <p>只保证序列低阶矩（均值、方差、协方差）的平稳性，满足三个条件：</p>
+  <ol>
+    <li>$E(X_t) = \mu$（常数均值）</li>
+    <li>$E(X_t^2) < \infty$（二阶矩存在）</li>
+    <li>$\gamma(t, s) = \gamma(k)$，$k = |t-s|$（自协方差只依赖于时间间隔）</li>
+  </ol>
+</div>
+
+<h3>2.2 平稳性的意义</h3>
+<ol>
+  <li>极大减少随机变量的个数，增加待估参数的样本容量</li>
+  <li>历史数据的参数估计结果稳定，可直接用于未来预测</li>
+  <li>简化难度 + 提高精度</li>
+</ol>
+</div>
+
+<!-- ===== 3. 平稳序列预测 ===== -->
+<div class="section">
+<h2>3. 平稳序列的预测方法（平滑法）</h2>
+
+<div class="highlight">
+<strong>📌 适用条件</strong>：序列不含趋势和季节变动，波动主要来自随机成分。通过<strong>平滑</strong>消除随机波动。
+</div>
+
+<h3>3.1 移动平均法 (Moving Average)</h3>
+
+<p>选择固定移动间隔 $k$，将最近 $k$ 期数据的<strong>简单平均</strong>作为下一期预测值：</p>
+
+<div class="formula">
+$$F_{t+1} = \frac{Y_t + Y_{t-1} + \dots + Y_{t-k+1}}{k}$$
+</div>
+
+<p><strong>特点</strong>：</p>
+<ul>
+  <li>每期数据<strong>等权重</strong></li>
+  <li>只用最近 $k$ 期，旧数据自动丢弃</li>
+  <li>$k$ 越大 → 越平滑但越滞后；$k$ 越小 → 越敏感但噪声大</li>
+  <li>选 $k$ 方法：试验使 <strong>MSE 最小</strong>的 $k$</li>
+</ul>
+
+<h3>3.2 简单指数平滑法 (Simple Exponential Smoothing)</h3>
+
+<p>基本思想：<strong>近期数据权重大，远期数据权重呈指数衰减</strong>。</p>
+
+<div class="formula">
+$$F_{t+1} = \alpha Y_t + (1-\alpha)F_t$$
+</div>
+
+<p>其中 $\alpha \in (0,1)$ 为<strong>平滑系数</strong>：</p>
+<table>
+<tr><th>$\alpha$ 取值</th><th>效果</th><th>适用场景</th></tr>
+<tr><td>$\alpha \to 1$</td><td>侧重近期值，响应快</td><td>波动大、需要快速跟踪</td></tr>
+<tr><td>$\alpha \to 0$</td><td>侧重历史值，更平滑</td><td>随机波动较大时</td></tr>
+</table>
+
+<div class="highlight">
+<strong>🔑 移动平均 vs 指数平滑</strong><br>
+移动平均：等权重、固定窗口、旧数据突然丢弃<br>
+指数平滑：指数衰减权重、无限记忆、平滑过渡<br>
+<span class="tag-freq">竞赛建议</span>：两种都试，选 MSE 更小的。
+</div>
+</div>
+
+<!-- ===== 4. 趋势预测 ===== -->
+<div class="section">
+<h2>4. 趋势序列的预测</h2>
+
+<h3>4.1 线性趋势预测</h3>
+
+<p>时间序列按固定斜率增长或下降时，拟合线性趋势方程：</p>
+
+<div class="formula">
+$$\hat{Y}_t = b_0 + b_1 t$$
+</div>
+
+<p>用最小二乘法估计 $b_0$（截距）和 $b_1$（斜率）。预测时直接将未来时刻 $t$ 代入方程。</p>
+
+<h3>4.2 Holt 双参数指数平滑 <span class="tag-key">有趋势时必用</span></h3>
+
+<p>简单指数平滑在序列有趋势时会<strong>系统滞后</strong>。Holt 模型用两个平滑系数同时跟踪<strong>水平</strong>和<strong>趋势</strong>：</p>
+
+<div class="formula">
+$$\begin{aligned}
+L_t &= \alpha Y_t + (1-\alpha)(L_{t-1} + b_{t-1}) \quad &\text{（水平方程）}\\
+b_t &= \gamma(L_t - L_{t-1}) + (1-\gamma)b_{t-1} \quad &\text{（趋势方程）}\\
+F_{t+m} &= L_t + b_t \cdot m \quad &\text{（m 步预测）}
+\end{aligned}$$
+</div>
+
+<p>$\alpha$ 控制水平平滑，$\gamma \in (0,1)$ 控制趋势平滑。两个参数都通过最小化 MSE 选择。</p>
+
+<h3>4.3 非线性趋势预测</h3>
+
+<p>当序列不是线性增长时，可选用：</p>
+<ul>
+  <li><strong>指数曲线</strong>：$Y_t = b_0 e^{b_1 t}$（几何级数增长/衰减）</li>
+  <li><strong>多项式曲线</strong>：$Y_t = b_0 + b_1 t + b_2 t^2 + \dots$（二次、三次等）</li>
+  <li><strong>Logistic 曲线</strong>：$Y_t = \frac{K}{1 + ae^{-rt}}$（S 型增长，有上限）</li>
+</ul>
+</div>
+
+<!-- ===== 5. ARMA/ARIMA ===== -->
+<div class="section">
+<h2>5. Box-Jenkins 方法：ARMA / ARIMA <span class="tag-must">竞赛重点</span></h2>
+
+<div class="highlight">
+<strong>📌 核心思想</strong>：不直接拟合时间 $t$ 的函数，而是利用序列自身的<strong>自相关结构</strong>建模。
+</div>
+
+<h3>5.1 模型族</h3>
+
+<table>
+<tr><th>模型</th><th>全称</th><th>适用</th><th>数学形式</th></tr>
+<tr><td><strong>AR(p)</strong></td><td>自回归</td><td>当前值与过去值相关</td><td>$X_t = c + \sum_{i=1}^p \phi_i X_{t-i} + \varepsilon_t$</td></tr>
+<tr><td><strong>MA(q)</strong></td><td>移动平均</td><td>当前值与过去误差相关</td><td>$X_t = \mu + \varepsilon_t + \sum_{i=1}^q \theta_i \varepsilon_{t-i}$</td></tr>
+<tr><td><strong>ARMA(p,q)</strong></td><td>自回归移动平均</td><td>平稳序列</td><td>$X_t = c + \sum_{i=1}^p \phi_i X_{t-i} + \varepsilon_t + \sum_{i=1}^q \theta_i \varepsilon_{t-i}$</td></tr>
+<tr><td><strong>ARIMA(p,d,q)</strong></td><td>差分自回归移动平均</td><td>非平稳→差分后平稳</td><td>$d$ 阶差分后变 ARMA</td></tr>
+<tr><td><strong>SARIMA</strong></td><td>季节 ARIMA</td><td>有季节周期</td><td>ARIMA × 季节差分</td></tr>
+</table>
+
+<h3>5.2 ARIMA 建模流程</h3>
+
+<div class="def-box">
+<ol>
+  <li><strong>平稳性检验</strong>：ADF 检验（$H_0$: 非平稳，p<0.05 拒绝 → 平稳）</li>
+  <li><strong>差分</strong>：若不平稳，做 $d$ 阶差分直到通过 ADF 检验</li>
+  <li><strong>确定 p, q</strong>：观察 ACF（截尾→MA）和 PACF（截尾→AR）图的拖尾/截尾模式；或用 AIC/BIC 自动选择</li>
+  <li><strong>参数估计</strong>：最大似然或最小二乘</li>
+  <li><strong>残差诊断</strong>：残差应为白噪声（Ljung-Box 检验 p>0.05）</li>
+  <li><strong>预测</strong>：用拟合模型做点预测和区间预测</li>
+</ol>
+</div>
+
+<h3>5.3 ACF / PACF 定阶规则</h3>
+
+<table>
+<tr><th>模型</th><th>ACF（自相关）</th><th>PACF（偏自相关）</th></tr>
+<tr><td>AR(p)</td><td>拖尾（指数衰减或振荡）</td><td><strong>截尾</strong>于 p 阶</td></tr>
+<tr><td>MA(q)</td><td><strong>截尾</strong>于 q 阶</td><td>拖尾（指数衰减或振荡）</td></tr>
+<tr><td>ARMA(p,q)</td><td>拖尾</td><td>拖尾</td></tr>
+</table>
+</div>
+
+<!-- ===== 6. 评估 ===== -->
+<div class="section">
+<h2>6. 预测方法的选择与评估</h2>
+
+<h3>6.1 方法选择路线</h3>
+
+<table>
+<tr><th>序列特征</th><th>推荐方法</th><th>备选</th></tr>
+<tr><td>平稳（无趋势/无季节）</td><td>移动平均 / 指数平滑</td><td>ARMA</td></tr>
+<tr><td>有线性趋势</td><td>Holt 双参数平滑</td><td>线性回归 / ARIMA</td></tr>
+<tr><td>有趋势+季节</td><td>Winter 三参数平滑</td><td>SARIMA</td></tr>
+<tr><td>非线性趋势</td><td>指数/多项式曲线拟合</td><td>Logistic</td></tr>
+<tr><td>复杂非平稳</td><td>ARIMA / SARIMA</td><td>Prophet / 深度学习</td></tr>
+</table>
+
+<h3>6.2 误差度量</h3>
+
+<div class="formula">
+$$\begin{aligned}
+\text{MAE} &= \frac{1}{n}\sum |Y_t - F_t| \\
+\text{MSE} &= \frac{1}{n}\sum (Y_t - F_t)^2 \\
+\text{MAPE} &= \frac{100\%}{n}\sum \left|\frac{Y_t - F_t}{Y_t}\right|
+\end{aligned}$$
+</div>
+
+<p><span class="tag-must">竞赛首选 MSE</span>，MAPE 适合跨量纲比较。</p>
+</div>
+
+<!-- ===== 7. 代码实现 ===== -->
+<div class="section">
+<h2>7. Python 代码实现</h2>
+
+<h3>7.1 移动平均与指数平滑</h3>
+<div class="code-block"><span class="co"># 移动平均</span>
+<span class="kw">import</span> pandas <span class="kw">as</span> pd
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+
+<span class="co"># 简单移动平均 k=3</span>
+df[<span class="str">'MA_3'</span>] = df[<span class="str">'value'</span>].rolling(window=<span class="num">3</span>).mean()
+
+<span class="co"># 简单指数平滑 (α=0.3)</span>
+<span class="kw">from</span> statsmodels.tsa.holtwinters <span class="kw">import</span> SimpleExpSmoothing
+model = SimpleExpSmoothing(df[<span class="str">'value'</span>]).fit(
+    smoothing_level=<span class="num">0.3</span>, optimized=<span class="kw">False</span>
+)
+df[<span class="str">'SES'</span>] = model.fittedvalues
+
+<span class="co"># Holt 双参数平滑</span>
+<span class="kw">from</span> statsmodels.tsa.holtwinters <span class="kw">import</span> Holt
+model = Holt(df[<span class="str">'value'</span>]).fit()
+forecast = model.forecast(<span class="num">5</span>)  <span class="co"># 预测未来5期</span>
+</div>
+
+<h3>7.2 ARIMA 建模</h3>
+<div class="code-block"><span class="kw">from</span> statsmodels.tsa.arima.model <span class="kw">import</span> ARIMA
+<span class="kw">from</span> statsmodels.tsa.stattools <span class="kw">import</span> adfuller
+
+<span class="co"># 1. ADF 平稳性检验</span>
+result = adfuller(df[<span class="str">'value'</span>])
+<span class="kw">print</span>(<span class="str">'ADF p-value: {:.4f}'</span>.format(result[<span class="num">1</span>]))
+
+<span class="co"># 2. 若不平稳，做差分</span>
+df[<span class="str">'diff1'</span>] = df[<span class="str">'value'</span>].diff()  <span class="co"># 一阶差分</span>
+
+<span class="co"># 3. 拟合 ARIMA(1,1,1)</span>
+model = ARIMA(df[<span class="str">'value'</span>], order=(<span class="num">1</span>, <span class="num">1</span>, <span class="num">1</span>))
+result = model.fit()
+<span class="kw">print</span>(result.summary())
+
+<span class="co"># 4. 预测</span>
+forecast = result.forecast(steps=<span class="num">5</span>)
+
+<span class="co"># 5. 残差诊断</span>
+<span class="kw">from</span> statsmodels.stats.diagnostic <span class="kw">import</span> acorr_ljungbox
+lb_test = acorr_ljungbox(result.resid, lags=[<span class="num">10</span>])
+<span class="kw">print</span>(lb_test)  <span class="co"># p>0.05 → 残差为白噪声 ✓</span>
+</div>
+
+<h3>7.3 自动 ARIMA</h3>
+<div class="code-block"><span class="co"># pip install pmdarima -i https://pypi.tuna.tsinghua.edu.cn/simple</span>
+<span class="kw">from</span> pmdarima <span class="kw">import</span> auto_arima
+
+model = auto_arima(df[<span class="str">'value'</span>],
+    start_p=<span class="num">0</span>, start_q=<span class="num">0</span>, max_p=<span class="num">5</span>, max_q=<span class="num">5</span>,
+    seasonal=<span class="kw">True</span>, m=<span class="num">12</span>,  <span class="co"># m=周期（如月度数据 m=12）</span>
+    trace=<span class="kw">True</span>,             <span class="co"># 打印搜索过程</span>
+    information_criterion=<span class="str">'aic'</span>
+)
+<span class="kw">print</span>(model.summary())
+</div>
+</div>
+
+<!-- ===== 8. 竞赛要点 ===== -->
+<div class="section">
+<h2>8. 数学建模竞赛应用要点</h2>
+
+<div class="highlight">
+<strong>🎯 什么时候用时间序列方法？</strong><br>
+赛题涉及"预测未来数值"且数据是按时间顺序排列的（如历年GDP、月度销量、日温记录）。
+</div>
+
+<h3>竞赛快速决策路线</h3>
+<ol>
+  <li><strong>画图</strong> → 观察趋势、季节、周期</li>
+  <li><strong>ADF 检验</strong> → 判断是否平稳</li>
+  <li>平稳 → ARMA / 指数平滑</li>
+  <li>非平稳 → 差分后 ARIMA / Holt / SARIMA</li>
+  <li>多方法对比 → 选 MSE/MAPE 最小的</li>
+  <li><strong>残差检验</strong> → 确保残差为白噪声</li>
+</ol>
+
+<table>
+<tr><th>常见陷阱</th><th>解决方案</th></tr>
+<tr><td>直接把非平稳序列放进 ARMA</td><td>先做 ADF 检验 + 差分</td></tr>
+<tr><td>只看 AIC 不看残差</td><td>残差白噪声检验是必须的</td></tr>
+<tr><td>过度差分（d 太大）</td><td>ADF p<0.05 就停，不要差分过度</td></tr>
+<tr><td>样本太小（n<30）</td><td>用简单方法（指数平滑/灰色预测），别硬上 ARIMA</td></tr>
+<tr><td>不考虑季节因素</td><td>月度/季度数据 → 必须考虑 SARIMA 或季节差分</td></tr>
+</table>
+
+<div class="checkpoint">
+<ol>
+  <li>平稳序列和平稳性的定义是什么？严平稳和宽平稳有什么区别？</li>
+  <li>简单指数平滑和 Holt 模型的核心区别是什么？各适用于什么场景？</li>
+  <li>如何用 ACF 和 PACF 图确定 ARMA(p,q) 的阶数？</li>
+  <li>ARIMA(p,d,q) 中 d 的含义是什么？如何确定 d？</li>
+  <li>预测完成后，如何判断模型拟合是否充分？</li>
+</ol>
+</div>
+</div>
+
+<!-- Back/Next Navigation -->
+<div class="nav-links">
+  <a href="主成分与因子分析.html">← 5. 主成分与因子分析</a>
+  <a href="AI与建模.html">4. AI与数学建模 →</a>
+</div>
+
+</div><!-- .container -->
+
+<div class="footer"><p>📐 数学建模学习平台 &copy; 2026 Jacky</p></div>
+</div><!-- .main-wrap -->
+
+<button class="back2top" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="回到顶部">↑</button>
+
+<button class="chapter-nav-toggle" onclick="toggleChapterNav()" title="章节导航">📖 章节导航</button>
+<div class="chapter-nav-panel" id="chapterNav">
+  <div class="nav-header">📐 目录导航</div>
+  <div class="nav-section">核心方法</div>
+  <a href="插值与拟合.html"><span class="num">1</span>插值与拟合</a>
+  <a href="蒙特卡洛.html"><span class="num">2</span>蒙特卡洛方法</a>
+  <a href="线性回归.html"><span class="num">3</span>线性回归</a>
+  <a href="主成分与因子分析.html"><span class="num">5</span>主成分与因子分析</a>
+  <a href="时间序列.html" class="current"><span class="num">6</span>时间序列分析</a>
+  <div class="nav-section">综合专题</div>
+  <a href="AI与建模.html"><span class="num">4</span>AI与数学建模</a>
+  <a href="index.html" style="border-top:1px solid var(--sidebar-border);margin-top:6px;padding-top:10px"><span class="num">⌂</span>返回首页</a>
+</div>
+
+<script>
+(function(){
+  var v='250712a';
+  if(localStorage.getItem('mm-ts')!==v){localStorage.setItem('mm-ts',v);location.reload(true);}
+})();
+(function(){
+  var p = window.location.pathname.split('/').pop() || 'index.html';
+  document.querySelectorAll('.sidebar-nav a').forEach(function(a){
+    if(a.getAttribute('href') === p) a.classList.add('current');
+  });
+})();
+(function(){
+  var d = localStorage.getItem('mathmodel-theme');
+  if(d === 'dark'){
+    document.body.classList.add('dark-mode');
+    document.querySelector('.theme-toggle').textContent = '☀️';
+  }
+})();
+function toggleTheme(){
+  var b = document.body; b.classList.toggle('dark-mode');
+  var btn = document.querySelector('.theme-toggle');
+  var isDark = b.classList.contains('dark-mode');
+  btn.textContent = isDark ? '☀️' : '🌙';
+  localStorage.setItem('mathmodel-theme', isDark ? 'dark' : 'light');
+}
+function toggleChapterNav(){
+  var panel = document.getElementById('chapterNav');
+  panel.classList.toggle('open');
+}
+document.addEventListener('click', function(e){
+  var panel = document.getElementById('chapterNav');
+  var btn = document.querySelector('.chapter-nav-toggle');
+  if(panel && panel.classList.contains('open') && !panel.contains(e.target) && !btn.contains(e.target)){
+    panel.classList.remove('open');
+  }
+});
+document.addEventListener('DOMContentLoaded', function(){
+  var path = window.location.pathname.split('/').pop() || 'index.html';
+  var panel = document.getElementById('chapterNav');
+  if(!panel) return;
+  panel.querySelectorAll('a').forEach(function(a){
+    if(a.getAttribute('href') === path) a.classList.add('current');
+  });
+});
+</script>
+
+</body>
+</html>
