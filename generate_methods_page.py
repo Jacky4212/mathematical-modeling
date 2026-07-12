@@ -406,9 +406,11 @@ def gen_html():
             # 定义
             sections_html += f'<div class="def-box"><div class="def-title">核心原理</div><p>{m["principle"]}</p></div>\n'
 
-            # 公式
-            if m.get("formula"):
-                sections_html += f'<div class="formula">$${m["formula"]}$$</div>\n'
+            # 公式（清理数据中的$分隔符后统一用$$包裹）
+            formula = m.get("formula", "")
+            if formula:
+                clean_f = formula.strip().strip('$').strip()
+                sections_html += f'<div class="formula">$${clean_f}$$</div>\n'
 
             # 场景+优缺点 表格
             sc = m["scenarios"].split("|")
