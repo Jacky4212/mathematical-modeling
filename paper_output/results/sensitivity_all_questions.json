@@ -1,0 +1,396 @@
+{
+  "Q3": [
+    {
+      "parameter": "飞行方向角(°)",
+      "perturbation": "-20%",
+      "base_value": 0.05,
+      "perturbed_value": -3.38,
+      "duration": 0.0,
+      "change_pct": -100.0
+    },
+    {
+      "parameter": "飞行方向角(°)",
+      "perturbation": "-10%",
+      "base_value": 0.05,
+      "perturbed_value": -0.38,
+      "duration": 5.88,
+      "change_pct": -48.42
+    },
+    {
+      "parameter": "飞行方向角(°)",
+      "perturbation": "+10%",
+      "base_value": 0.05,
+      "perturbed_value": 5.62,
+      "duration": 9.42,
+      "change_pct": -17.37
+    },
+    {
+      "parameter": "飞行方向角(°)",
+      "perturbation": "+20%",
+      "base_value": 0.05,
+      "perturbed_value": 8.62,
+      "duration": 7.04,
+      "change_pct": -38.25
+    },
+    {
+      "parameter": "飞行速度(m/s)",
+      "perturbation": "-20%",
+      "base_value": 70.02,
+      "perturbed_value": 70,
+      "duration": 11.38,
+      "change_pct": -0.18
+    },
+    {
+      "parameter": "飞行速度(m/s)",
+      "perturbation": "-10%",
+      "base_value": 70.02,
+      "perturbed_value": 70,
+      "duration": 11.38,
+      "change_pct": -0.18
+    },
+    {
+      "parameter": "飞行速度(m/s)",
+      "perturbation": "+10%",
+      "base_value": 70.02,
+      "perturbed_value": 77.02,
+      "duration": 10.74,
+      "change_pct": -5.79
+    },
+    {
+      "parameter": "飞行速度(m/s)",
+      "perturbation": "+20%",
+      "base_value": 70.02,
+      "perturbed_value": 84.02,
+      "duration": 9.94,
+      "change_pct": -12.81
+    }
+  ],
+  "Q4": [
+    {
+      "drone": "FY1",
+      "parameter": "飞行方向角(°)",
+      "perturbation": "-20%",
+      "base_value": 4.73,
+      "perturbed_value": -1.27,
+      "duration": 11.24,
+      "change_pct": -21.07
+    },
+    {
+      "drone": "FY1",
+      "parameter": "飞行方向角(°)",
+      "perturbation": "-10%",
+      "base_value": 4.73,
+      "perturbed_value": 1.73,
+      "duration": 13.58,
+      "change_pct": -4.63
+    },
+    {
+      "drone": "FY1",
+      "parameter": "飞行方向角(°)",
+      "perturbation": "+10%",
+      "base_value": 4.73,
+      "perturbed_value": 7.73,
+      "duration": 13.04,
+      "change_pct": -8.43
+    },
+    {
+      "drone": "FY1",
+      "parameter": "飞行方向角(°)",
+      "perturbation": "+20%",
+      "base_value": 4.73,
+      "perturbed_value": 10.73,
+      "duration": 11.16,
+      "change_pct": -21.63
+    },
+    {
+      "drone": "FY1",
+      "parameter": "飞行速度(m/s)",
+      "perturbation": "-20%",
+      "base_value": 91.02,
+      "perturbed_value": 72.82,
+      "duration": 14.18,
+      "change_pct": -0.42
+    },
+    {
+      "drone": "FY1",
+      "parameter": "飞行速度(m/s)",
+      "perturbation": "-10%",
+      "base_value": 91.02,
+      "perturbed_value": 81.92,
+      "duration": 14.2,
+      "change_pct": -0.28
+    },
+    {
+      "drone": "FY1",
+      "parameter": "飞行速度(m/s)",
+      "perturbation": "+10%",
+      "base_value": 91.02,
+      "perturbed_value": 100.12,
+      "duration": 13.86,
+      "change_pct": -2.67
+    },
+    {
+      "drone": "FY1",
+      "parameter": "飞行速度(m/s)",
+      "perturbation": "+20%",
+      "base_value": 91.02,
+      "perturbed_value": 109.22,
+      "duration": 13.48,
+      "change_pct": -5.34
+    },
+    {
+      "drone": "FY2",
+      "parameter": "飞行方向角(°)",
+      "perturbation": "-20%",
+      "base_value": -79.84,
+      "perturbed_value": -85.84,
+      "duration": 13.58,
+      "change_pct": -4.63
+    },
+    {
+      "drone": "FY2",
+      "parameter": "飞行方向角(°)",
+      "perturbation": "-10%",
+      "base_value": -79.84,
+      "perturbed_value": -82.84,
+      "duration": 13.8,
+      "change_pct": -3.09
+    },
+    {
+      "drone": "FY2",
+      "parameter": "飞行方向角(°)",
+      "perturbation": "+10%",
+      "base_value": -79.84,
+      "perturbed_value": -76.84,
+      "duration": 9.84,
+      "change_pct": -30.9
+    },
+    {
+      "drone": "FY2",
+      "parameter": "飞行方向角(°)",
+      "perturbation": "+20%",
+      "base_value": -79.84,
+      "perturbed_value": -73.84,
+      "duration": 9.4,
+      "change_pct": -33.99
+    },
+    {
+      "drone": "FY2",
+      "parameter": "飞行速度(m/s)",
+      "perturbation": "-20%",
+      "base_value": 124.46,
+      "perturbed_value": 99.57,
+      "duration": 9.4,
+      "change_pct": -33.99
+    },
+    {
+      "drone": "FY2",
+      "parameter": "飞行速度(m/s)",
+      "perturbation": "-10%",
+      "base_value": 124.46,
+      "perturbed_value": 112.01,
+      "duration": 9.4,
+      "change_pct": -33.99
+    },
+    {
+      "drone": "FY2",
+      "parameter": "飞行速度(m/s)",
+      "perturbation": "+10%",
+      "base_value": 124.46,
+      "perturbed_value": 136.91,
+      "duration": 9.4,
+      "change_pct": -33.99
+    },
+    {
+      "drone": "FY2",
+      "parameter": "飞行速度(m/s)",
+      "perturbation": "+20%",
+      "base_value": 124.46,
+      "perturbed_value": 140,
+      "duration": 9.4,
+      "change_pct": -33.99
+    },
+    {
+      "drone": "FY3",
+      "parameter": "飞行方向角(°)",
+      "perturbation": "-20%",
+      "base_value": 106.81,
+      "perturbed_value": 100.81,
+      "duration": 9.58,
+      "change_pct": -32.72
+    },
+    {
+      "drone": "FY3",
+      "parameter": "飞行方向角(°)",
+      "perturbation": "-10%",
+      "base_value": 106.81,
+      "perturbed_value": 103.81,
+      "duration": 9.58,
+      "change_pct": -32.72
+    },
+    {
+      "drone": "FY3",
+      "parameter": "飞行方向角(°)",
+      "perturbation": "+10%",
+      "base_value": 106.81,
+      "perturbed_value": 109.81,
+      "duration": 9.58,
+      "change_pct": -32.72
+    },
+    {
+      "drone": "FY3",
+      "parameter": "飞行方向角(°)",
+      "perturbation": "+20%",
+      "base_value": 106.81,
+      "perturbed_value": 112.81,
+      "duration": 9.58,
+      "change_pct": -32.72
+    },
+    {
+      "drone": "FY3",
+      "parameter": "飞行速度(m/s)",
+      "perturbation": "-20%",
+      "base_value": 111.47,
+      "perturbed_value": 89.18,
+      "duration": 9.58,
+      "change_pct": -32.72
+    },
+    {
+      "drone": "FY3",
+      "parameter": "飞行速度(m/s)",
+      "perturbation": "-10%",
+      "base_value": 111.47,
+      "perturbed_value": 100.32,
+      "duration": 9.58,
+      "change_pct": -32.72
+    },
+    {
+      "drone": "FY3",
+      "parameter": "飞行速度(m/s)",
+      "perturbation": "+10%",
+      "base_value": 111.47,
+      "perturbed_value": 122.62,
+      "duration": 9.58,
+      "change_pct": -32.72
+    },
+    {
+      "drone": "FY3",
+      "parameter": "飞行速度(m/s)",
+      "perturbation": "+20%",
+      "base_value": 111.47,
+      "perturbed_value": 133.76,
+      "duration": 9.58,
+      "change_pct": -32.72
+    }
+  ],
+  "Q5": [
+    {
+      "drone": "FY1",
+      "target": "M1",
+      "parameter": "飞行方向角(°)",
+      "perturbation": "-20%",
+      "original_new_s": 14.24,
+      "perturbed_new_s": 2.56,
+      "change_pct": -82.02
+    },
+    {
+      "drone": "FY1",
+      "target": "M1",
+      "parameter": "飞行方向角(°)",
+      "perturbation": "-10%",
+      "original_new_s": 14.24,
+      "perturbed_new_s": 12.22,
+      "change_pct": -14.19
+    },
+    {
+      "drone": "FY1",
+      "target": "M1",
+      "parameter": "飞行方向角(°)",
+      "perturbation": "+10%",
+      "original_new_s": 14.24,
+      "perturbed_new_s": 8.08,
+      "change_pct": -43.26
+    },
+    {
+      "drone": "FY1",
+      "target": "M1",
+      "parameter": "飞行方向角(°)",
+      "perturbation": "+20%",
+      "original_new_s": 14.24,
+      "perturbed_new_s": 2.08,
+      "change_pct": -85.39
+    },
+    {
+      "drone": "FY3",
+      "target": "M1",
+      "parameter": "飞行方向角(°)",
+      "perturbation": "-20%",
+      "original_new_s": 13.739999999999998,
+      "perturbed_new_s": 0.0,
+      "change_pct": -100.0
+    },
+    {
+      "drone": "FY3",
+      "target": "M1",
+      "parameter": "飞行方向角(°)",
+      "perturbation": "-10%",
+      "original_new_s": 13.739999999999998,
+      "perturbed_new_s": 0.0,
+      "change_pct": -100.0
+    },
+    {
+      "drone": "FY3",
+      "target": "M1",
+      "parameter": "飞行方向角(°)",
+      "perturbation": "+10%",
+      "original_new_s": 13.739999999999998,
+      "perturbed_new_s": 0.0,
+      "change_pct": -100.0
+    },
+    {
+      "drone": "FY3",
+      "target": "M1",
+      "parameter": "飞行方向角(°)",
+      "perturbation": "+20%",
+      "original_new_s": 13.739999999999998,
+      "perturbed_new_s": 0.0,
+      "change_pct": -100.0
+    },
+    {
+      "drone": "FY2",
+      "target": "M3",
+      "parameter": "飞行方向角(°)",
+      "perturbation": "-20%",
+      "original_new_s": 11.84,
+      "perturbed_new_s": 7.42,
+      "change_pct": -37.33
+    },
+    {
+      "drone": "FY2",
+      "target": "M3",
+      "parameter": "飞行方向角(°)",
+      "perturbation": "-10%",
+      "original_new_s": 11.84,
+      "perturbed_new_s": 6.8,
+      "change_pct": -42.57
+    },
+    {
+      "drone": "FY2",
+      "target": "M3",
+      "parameter": "飞行方向角(°)",
+      "perturbation": "+10%",
+      "original_new_s": 11.84,
+      "perturbed_new_s": 2.08,
+      "change_pct": -82.43
+    },
+    {
+      "drone": "FY2",
+      "target": "M3",
+      "parameter": "飞行方向角(°)",
+      "perturbation": "+20%",
+      "original_new_s": 11.84,
+      "perturbed_new_s": 0.0,
+      "change_pct": -100.0
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "schema_version": "1.0",
+  "optimizer": "PSO+GA (v4)",
+  "questions": {
+    "Q1": {
+      "key_metric": "duration_s",
+      "value": 1.42,
+      "unit": "s"
+    },
+    "Q2": {
+      "key_metric": "duration_s",
+      "value": 4.76,
+      "unit": "s",
+      "improvement_vs_Q1": "235%"
+    },
+    "Q3": {
+      "key_metric": "total_duration_s",
+      "value": 11.4,
+      "unit": "s",
+      "vs_Q2": "+139%"
+    },
+    "Q4": {
+      "key_metric": "total_duration_s",
+      "value": 14.24,
+      "unit": "s"
+    },
+    "Q5": {
+      "key_metric": "total_duration_s",
+      "value": 39.82,
+      "unit": "s"
+    }
+  }
+}

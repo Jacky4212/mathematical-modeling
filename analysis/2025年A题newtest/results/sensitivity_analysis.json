@@ -1,0 +1,139 @@
+{
+  "base_duration": 4.76,
+  "sensitivity_table": [
+    {
+      "parameter": "飞行方向角(°)",
+      "perturbation": "-20%",
+      "base_value": 6.193622829017959,
+      "perturbed_value": -2.8063771709820413,
+      "duration": 0.0,
+      "change_pct": -100.0
+    },
+    {
+      "parameter": "飞行方向角(°)",
+      "perturbation": "-10%",
+      "base_value": 6.193622829017959,
+      "perturbed_value": 1.6936228290179587,
+      "duration": 3.9,
+      "change_pct": -18.07
+    },
+    {
+      "parameter": "飞行方向角(°)",
+      "perturbation": "+10%",
+      "base_value": 6.193622829017959,
+      "perturbed_value": 10.693622829017958,
+      "duration": 3.04,
+      "change_pct": -36.13
+    },
+    {
+      "parameter": "飞行方向角(°)",
+      "perturbation": "+20%",
+      "base_value": 6.193622829017959,
+      "perturbed_value": 15.193622829017958,
+      "duration": 0.0,
+      "change_pct": -100.0
+    },
+    {
+      "parameter": "飞行速度(m/s)",
+      "perturbation": "-20%",
+      "base_value": 98.9657496699066,
+      "perturbed_value": 79.17259973592529,
+      "duration": 4.7,
+      "change_pct": -1.26
+    },
+    {
+      "parameter": "飞行速度(m/s)",
+      "perturbation": "-10%",
+      "base_value": 98.9657496699066,
+      "perturbed_value": 89.06917470291594,
+      "duration": 4.72,
+      "change_pct": -0.84
+    },
+    {
+      "parameter": "飞行速度(m/s)",
+      "perturbation": "+10%",
+      "base_value": 98.9657496699066,
+      "perturbed_value": 108.86232463689727,
+      "duration": 4.42,
+      "change_pct": -7.14
+    },
+    {
+      "parameter": "飞行速度(m/s)",
+      "perturbation": "+20%",
+      "base_value": 98.9657496699066,
+      "perturbed_value": 118.75889960388791,
+      "duration": 4.06,
+      "change_pct": -14.71
+    },
+    {
+      "parameter": "投放时刻(s)",
+      "perturbation": "-20%",
+      "base_value": 0.38160888887892613,
+      "perturbed_value": 0.30528711110314094,
+      "duration": 4.74,
+      "change_pct": -0.42
+    },
+    {
+      "parameter": "投放时刻(s)",
+      "perturbation": "-10%",
+      "base_value": 0.38160888887892613,
+      "perturbed_value": 0.34344799999103354,
+      "duration": 4.74,
+      "change_pct": -0.42
+    },
+    {
+      "parameter": "投放时刻(s)",
+      "perturbation": "+10%",
+      "base_value": 0.38160888887892613,
+      "perturbed_value": 0.4197697777668188,
+      "duration": 4.64,
+      "change_pct": -2.52
+    },
+    {
+      "parameter": "投放时刻(s)",
+      "perturbation": "+20%",
+      "base_value": 0.38160888887892613,
+      "perturbed_value": 0.4579306666547113,
+      "duration": 4.48,
+      "change_pct": -5.88
+    },
+    {
+      "parameter": "起爆延迟(s)",
+      "perturbation": "-20%",
+      "base_value": 0.668476650183549,
+      "perturbed_value": 0.5347813201468392,
+      "duration": 4.7,
+      "change_pct": -1.26
+    },
+    {
+      "parameter": "起爆延迟(s)",
+      "perturbation": "-10%",
+      "base_value": 0.668476650183549,
+      "perturbed_value": 0.601628985165194,
+      "duration": 4.72,
+      "change_pct": -0.84
+    },
+    {
+      "parameter": "起爆延迟(s)",
+      "perturbation": "+10%",
+      "base_value": 0.668476650183549,
+      "perturbed_value": 0.7353243152019039,
+      "duration": 4.46,
+      "change_pct": -6.3
+    },
+    {
+      "parameter": "起爆延迟(s)",
+      "perturbation": "+20%",
+      "base_value": 0.668476650183549,
+      "perturbed_value": 0.8021719802202587,
+      "duration": 4.1,
+      "change_pct": -13.87
+    }
+  ],
+  "sensitivity_ranking": {
+    "飞行方向角(°)": 100.0,
+    "飞行速度(m/s)": 14.71,
+    "起爆延迟(s)": 13.87,
+    "投放时刻(s)": 5.88
+  }
+}

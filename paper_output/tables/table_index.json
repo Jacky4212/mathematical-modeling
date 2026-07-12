@@ -1,0 +1,23 @@
+{
+  "schema_version": "1.0",
+  "tables": {
+    "table_q1": {
+      "title": "Q1 Results",
+      "path": "results/result1.xlsx",
+      "status": "verified",
+      "exists": true
+    },
+    "table_q4": {
+      "title": "Q4 Results",
+      "path": "results/result2.xlsx",
+      "status": "verified",
+      "exists": true
+    },
+    "table_q5": {
+      "title": "Q5 Results",
+      "path": "results/result3.xlsx",
+      "status": "verified",
+      "exists": true
+    }
+  }
+}

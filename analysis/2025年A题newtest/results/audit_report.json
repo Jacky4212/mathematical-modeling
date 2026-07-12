@@ -1,0 +1,53 @@
+{
+  "title": "2025 CUMCM A题 建模审计报告",
+  "generated_at": "2026-07-12T11:38:24",
+  "results_summary": {
+    "Q1": "1.42s (baseline)",
+    "Q2": "4.76s (PSO)",
+    "Q3": "11.40s (GA, 3/3 bombs)",
+    "Q4_PSO_GA": "14.24s",
+    "Q4_DE": "8.88s (验证)",
+    "Q5": "39.82s (PSO+GA)"
+  },
+  "geometric_accessibility": {
+    "key_finding": "FY1→M1是唯一天然可达组合(仅20m), 其他14对距航线585-3188m",
+    "A_grade": [
+      "FY1→M1 (20m)"
+    ],
+    "B_grade": [
+      "FY1→M2",
+      "FY1→M3"
+    ],
+    "C_grade": [
+      "FY2→M1",
+      "FY2→M2"
+    ],
+    "D_grade": [
+      "FY2→M3",
+      "FY4→M1",
+      "FY4→M2",
+      "FY4→M3",
+      "FY5→M1",
+      "FY5→M2",
+      "FY5→M3"
+    ],
+    "F_grade": [
+      "FY3→M1",
+      "FY3→M2",
+      "FY3→M3"
+    ]
+  },
+  "sensitivity": {
+    "Q2_finding": "飞行方向角最敏感(±100%), 速度/延迟中等(±14%), 投放时刻稳健(±6%)",
+    "Q3_Q5": "详见 sensitivity_all_questions.json"
+  },
+  "method_comparison": {
+    "Q4_PSO_vs_DE": "PSO+GA=14.24s vs DE=8.88s, 差异=5.36s"
+  },
+  "remaining_work": [
+    "三维轨迹图中标注烟幕球体半径(10m)",
+    "Q3/Q4/Q5逐题与题意约束对照表",
+    "论文中插入几何可达性矩阵作为模型假设支撑",
+    "收敛曲线放入附录"
+  ]
+}

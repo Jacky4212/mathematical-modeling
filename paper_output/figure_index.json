@@ -1,0 +1,20 @@
+{
+  "schema_version": "1.0",
+  "figures": {
+    "fig_q1_1.png": {
+      "question_id": "fig",
+      "path": "paper_output/figures/fig_q1_1.png",
+      "exists": true
+    },
+    "fig_q2_1.png": {
+      "question_id": "fig",
+      "path": "paper_output/figures/fig_q2_1.png",
+      "exists": true
+    },
+    "fig_q3_1.png": {
+      "question_id": "fig",
+      "path": "paper_output/figures/fig_q3_1.png",
+      "exists": true
+    }
+  }
+}

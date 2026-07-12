@@ -1,0 +1,32 @@
+{
+  "schema_version": "1.0",
+  "generated_by": "paper-workflow-orchestrator/scripts/preflight_check.py",
+  "generated_at": "2026-07-11T23:15:19",
+  "root": "D:/code/cherry studio/数学建模",
+  "entries": [
+    {
+      "path": "problem_files/2025年A题.pdf",
+      "ext": ".pdf",
+      "bytes": 314617,
+      "sha256": "e0cef7f1f4951c4dbf8ea235ff037a5da427d66c9960b44fda921241fc67e818",
+      "role": "problem_statement",
+      "role_confidence": 0.85,
+      "usable_for_modeling": false,
+      "requires_user_confirmation": false,
+      "warnings": [],
+      "errors": [],
+      "extractable": true,
+      "char_count": 1607
+    }
+  ],
+  "summary": {
+    "file_count": 1,
+    "role_counts": {
+      "problem_statement": 1
+    },
+    "problem_statement_count": 1,
+    "raw_data_count": 0,
+    "result_template_count": 0,
+    "requires_user_confirmation": false
+  }
+}

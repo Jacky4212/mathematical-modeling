@@ -136,3 +136,60 @@ git push -u origin main
 3. **代码可复现**: 设置随机种子，记录依赖版本
 4. **论文写作**: 需要生成 Word 报告时调用 `word-report-gen` skill
 5. **PPT 提取**: 需要从课件提取知识点时调用 `ppt-extract` skill
+
+---
+
+## MathModel Skill 工作流（数学建模竞赛）
+
+当用户要求"开始生成""跑一下这个题""生成数学建模论文"时，按 MathModel Skill 工作流完成：
+
+```
+读题 -> 拆题 -> 模型路线 -> 判断附件性质 -> 生成/修改赛题专用代码 -> 运行代码 -> 真实图表/表格/结果 -> 证据门禁 -> 正式 outline -> Agent 全局写作 -> Word 排版 -> 格式门禁 -> 最终 QA
+```
+
+### Start Rule
+
+任何数学建模论文任务都先读取总控 skill：
+
+```
+.claude/skills/paper-workflow-orchestrator/SKILL.md
+```
+
+### 输入输出约定
+
+- 赛题与附件放入 `problem_files/`
+- 外部补充数据放入 `crawled_data/`
+- 当前赛题专用代码写入 `paper_output/code/`，不要写回 `.claude/skills/`
+- 最终交付物：`paper_output/final_paper.docx`
+
+### 执行规则
+
+- 不要跳过 `quality-assurance-auditor`
+- 证据门禁未通过（`evidence_status` 为 `missing`/`needs_real_modeling`/`scaffold_result_needs_review`），不得把 Word 称为最终稿
+- 格式门禁未通过，不得把 Word 称为最终稿
+- 正式赛题不要先跑 quickstart；quickstart 只用于安装验证
+
+### 可选验证命令
+
+```bash
+# 安装验证（非正式比赛）
+python .claude/skills/paper-workflow-orchestrator/scripts/quickstart_run.py
+
+# 检查当前进度
+python .claude/skills/paper-workflow-orchestrator/scripts/workflow_guard.py --status
+```
+
+### 已安装的 MathModel Skills（10个）
+
+| Skill | 功能 |
+|-------|------|
+| `paper-workflow-orchestrator` | 总入口，S0-S8 阶段路由 |
+| `problem-doc-model-selector` | 赛题解析 + 模型选型 |
+| `modeling-paper-rubric-and-model-selector` | 模型路线 + 评分闭环 |
+| `authoritative-data-harvester` | 权威数据采集 |
+| `data-cleaning-and-visualization` | 数据清洗 + 论文图表 |
+| `model-code-and-result-generator` | 建模代码 + 结果契约 |
+| `quality-assurance-auditor` | 证据门禁 + 8维度审计 |
+| `paper-formal-writer` | 正式成稿 + Word OMML 公式 |
+| `paper-micro-unit-generator` | 微单元提示词资产 |
+| `context-memory-keeper` | 断点记忆恢复 |

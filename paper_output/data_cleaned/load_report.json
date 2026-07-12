@@ -1,0 +1,33 @@
+{
+  "schema_version": "1.0",
+  "generated_by": "data-cleaning-and-visualization/scripts/robust_loader.py",
+  "generated_at": "2026-07-12T09:37:49",
+  "status": "PASS",
+  "input_dirs": [
+    "problem_files",
+    "crawled_data"
+  ],
+  "input_manifest_used": true,
+  "input_manifest": "analysis/2025年A题newtest/input_manifest.json",
+  "input_manifest_sha256": "70bbf2300fe709e6151796a03936bdbf28c1f6d379c318a836bf9645fee51ee5",
+  "skipped_files": [
+    {
+      "path": "problem_files/2025年A题.pdf",
+      "role": "problem_statement",
+      "reason": "not_raw_modeling_data"
+    }
+  ],
+  "data_files": [],
+  "pdf_diagnostics": [],
+  "summary": {
+    "file_count_scanned": 0,
+    "data_file_count": 0,
+    "readable_data_file_count": 0,
+    "pdf_file_count": 0
+  },
+  "warnings": [
+    "problem_files/2025年A题.pdf: 跳过 role=problem_statement（not_raw_modeling_data）。",
+    "未发现 xlsx/xls/csv/tsv/json 数据文件；若数据在 PDF 中，请先人工核对并转为 CSV/XLSX。"
+  ],
+  "errors": []
+}

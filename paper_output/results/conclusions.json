@@ -1,0 +1,21 @@
+{
+  "schema_version": "1.0",
+  "optimization_method": "PSO + GA (v4 upgrade from MC+greedy)",
+  "questions": {
+    "Q1": {
+      "conclusion": "1.42s baseline shielding"
+    },
+    "Q2": {
+      "conclusion": "4.76s optimal via PSO, 235% improvement"
+    },
+    "Q3": {
+      "conclusion": "11.40s via GA joint optimization, 3/3 bombs effective"
+    },
+    "Q4": {
+      "conclusion": "14.24s via GA cooperative optimization, 3/3 drones effective"
+    },
+    "Q5": {
+      "conclusion": "39.82s total, M1=27.98s M2=0.00s M3=11.84s"
+    }
+  }
+}

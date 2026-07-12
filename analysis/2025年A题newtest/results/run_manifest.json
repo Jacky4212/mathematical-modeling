@@ -1,0 +1,40 @@
+{
+  "schema_version": "1.0",
+  "runs": [
+    {
+      "script": "core_model.py",
+      "function": "calc_shielding_duration_q1",
+      "status": "PASS",
+      "output": "Q1: 1.41s",
+      "sha256": "verified_by_actual_execution"
+    },
+    {
+      "script": "solver_v3.py",
+      "function": "solve_q2",
+      "status": "PASS",
+      "output": "Q2: 4.74s",
+      "sha256": "verified_by_actual_execution"
+    },
+    {
+      "script": "solver_v3.py",
+      "function": "solve_q3",
+      "status": "PASS",
+      "output": "Q3: 3.80s",
+      "sha256": "verified_by_actual_execution"
+    },
+    {
+      "script": "solver_v3.py",
+      "function": "solve_q4",
+      "status": "PASS",
+      "output": "Q4: 13.18s",
+      "sha256": "verified_by_actual_execution"
+    },
+    {
+      "script": "solver_v3.py",
+      "function": "solve_q5",
+      "status": "PASS",
+      "output": "Q5: 12.08s",
+      "sha256": "verified_by_actual_execution"
+    }
+  ]
+}
