@@ -29,9 +29,6 @@ MathJax = { tex: { inlineMath: [['$','$'],['\\(','\\)']], displayMath: [['$$','$
   --highlight-bg: #fefce8;
   --highlight-border: #eab308;
   --highlight-strong: #92400e;
-  --checkpoint-bg: #eff6ff;
-  --checkpoint-border: #bfdbfe;
-  --checkpoint-color: #1e40af;
   --tag-must-bg: #dbeafe; --tag-must-color: #1e40af;
   --tag-key-bg: #fef3c7; --tag-key-color: #92400e;
   --tag-freq-bg: #dbeafe; --tag-freq-color: #1e40af;
@@ -50,7 +47,6 @@ MathJax = { tex: { inlineMath: [['$','$'],['\\(','\\)']], displayMath: [['$$','$
   --sidebar-bg: #1a1a2e; --sidebar-border: #2d2d45;
   --code-bg: #2a2a3e;
   --highlight-bg: #1e2a3a; --highlight-border: #6a82f0; --highlight-strong: #8ab8f0;
-  --checkpoint-bg: #1e2a3a; --checkpoint-border: #2d4a5a; --checkpoint-color: #6a82f0;
   --tag-must-bg: #1a2a3d; --tag-must-color: #80b8e0;
   --tag-key-bg: #1e2a3d; --tag-key-color: #80b8e0;
   --tag-freq-bg: #1a2a3d; --tag-freq-color: #80b8e0;
@@ -133,10 +129,6 @@ mjx-container[display="true"]{max-width:100%;overflow-x:auto;overflow-y:hidden}
 .dark-mode .code-block .num{color:#80b8d0}
 code{font-family:"Cascadia Code","JetBrains Mono","Consolas",monospace;font-size:.88em;background:var(--code-bg);color:var(--code-text);padding:1px 6px;border-radius:4px}
 
-.checkpoint{background:var(--checkpoint-bg);border:1px solid var(--checkpoint-border);border-radius:6px;padding:14px 18px;margin:14px 0}
-.checkpoint::before{content:"🧠 自查练习：";font-weight:700;color:var(--checkpoint-color);display:block;margin-bottom:6px}
-.checkpoint ol,.checkpoint ul{margin-bottom:0}
-
 .tag-must,.tag-key,.tag-freq,.tag-info{display:inline-block;padding:1px 8px;border-radius:3px;font-size:.8em;font-weight:600;margin:0 2px}
 .tag-must{background:var(--tag-must-bg);color:var(--tag-must-color)}
 .tag-key{background:var(--tag-key-bg);color:var(--tag-key-color)}
@@ -212,7 +204,6 @@ code{font-family:"Cascadia Code","JetBrains Mono","Consolas",monospace;font-size
 <!-- ===== Main ===== -->
 <div class="main-wrap">
 
-<!-- Topbar -->
 <div class="topbar">
   <div class="topbar-inner">
     <a href="主成分与因子分析.html">← 主成分与因子分析</a>
@@ -223,13 +214,13 @@ code{font-family:"Cascadia Code","JetBrains Mono","Consolas",monospace;font-size
 
 <div class="container">
 
-<!-- ===== 1. 概述 ===== -->
+<!-- ===== §1: 时间序列概述 ===== -->
 <div class="section">
 <h2>1. 时间序列概述</h2>
 
 <div class="def-box">
   <div class="def-title">📖 定义</div>
-  <p><strong>时间序列 (Time Series)</strong>：按时间顺序记录的一组数据。观测时间 $t$ 可以是年份、季度、月份或任何时间单位，观测值记为 $Y_t$。</p>
+  <p><strong>时间序列 (Time Series)</strong>：按时间顺序记录的一组数据 $\{Y_t, t=1,2,\dots,n\}$。观测时间 $t$ 可以是年份、季度、月份或任何时间单位。</p>
 </div>
 
 <h3>1.1 时间序列的四种成分</h3>
@@ -243,54 +234,120 @@ code{font-family:"Cascadia Code","JetBrains Mono","Consolas",monospace;font-size
 </table>
 
 <div class="highlight">
-<strong>🔑 乘法模型</strong>：$Y_i = T_i \times S_i \times C_i \times I_i$<br>
-<strong>加法模型</strong>：$Y_i = T_i + S_i + C_i + I_i$<br>
-<strong>平稳序列</strong>：只含不规则波动、不含趋势的序列。均值不随时间变化。
+<strong>🔑 乘法模型</strong>：$Y_i = T_i \times S_i \times C_i \times I_i$ — 四种成分相互影响，常用且符合实际<br>
+<strong>加法模型</strong>：$Y_i = T_i + S_i + C_i + I_i$ — 四种成分相互独立<br>
+<strong>平稳序列 (Stationary Series)</strong>：不含趋势的序列，波动主要来自随机成分。均值不随时间变化。
 </div>
 </div>
 
-<!-- ===== 2. 平稳性 ===== -->
+<!-- ===== §2: 平稳性理论 ===== -->
 <div class="section">
-<h2>2. 平稳时间序列理论</h2>
+<h2>2. 平稳时间序列理论 <span class="tag-must">必须掌握</span></h2>
 
 <h3>2.1 严平稳 vs 宽平稳</h3>
 
 <div class="def-box">
   <div class="def-title">严平稳 (Strict Stationarity)</div>
-  <p>序列<strong>所有</strong>统计性质都不会随时间推移而变化。任意 $m$ 个时刻的联合分布与时间平移 $\tau$ 后的联合分布完全相同：</p>
+  <p>序列<strong>所有</strong>统计性质不随时间推移而变化。任意 $m$ 个时刻的联合分布与平移 $\tau$ 后的联合分布完全相同：</p>
   <p style="text-align:center">$F(x_{t_1}, \dots, x_{t_m}) = F(x_{t_1+\tau}, \dots, x_{t_m+\tau})$</p>
-  <p>⚠️ 条件严格，实际数据<strong>太难达到</strong>。</p>
+  <p>⚠️ 条件严格，实际数据<strong>太难达到</strong>，竞赛用宽平稳即可。</p>
 </div>
 
 <div class="def-box">
   <div class="def-title">宽平稳 (Weak Stationarity) <span class="tag-key">竞赛最常用</span></div>
-  <p>只保证序列低阶矩（均值、方差、协方差）的平稳性，满足三个条件：</p>
+  <p>只保证序列低阶矩的平稳性，满足三个条件：</p>
   <ol>
-    <li>$E(X_t) = \mu$（常数均值）</li>
-    <li>$E(X_t^2) < \infty$（二阶矩存在）</li>
-    <li>$\gamma(t, s) = \gamma(k)$，$k = |t-s|$（自协方差只依赖于时间间隔）</li>
+    <li>$E(X_t) = \mu$（常数均值，与 $t$ 无关）</li>
+    <li>$E(X_t^2) < \infty$（二阶矩存在，方差有限）</li>
+    <li>$\gamma(t, s) = \gamma(k)$，$k = |t-s|$（自协方差仅依赖于时间间隔 $k$，与起止点无关）</li>
   </ol>
+  <p><strong>推论</strong>：宽平稳序列的均值和方差为常数，自相关系数 $\rho_k = \gamma_k / \gamma_0$ 只依赖于滞后阶数 $k$。</p>
 </div>
 
 <h3>2.2 平稳性的意义</h3>
 <ol>
-  <li>极大减少随机变量的个数，增加待估参数的样本容量</li>
-  <li>历史数据的参数估计结果稳定，可直接用于未来预测</li>
-  <li>简化难度 + 提高精度</li>
+  <li><strong>减少变量个数</strong>：$n$ 个观测 → 仅需估计 $\mu$ 和 $\gamma_k$（$k=0,1,\dots$），大幅增加样本容量</li>
+  <li><strong>估计稳定</strong>：历史数据的参数估计可直接用于未来预测</li>
+  <li><strong>简化难度 + 提高精度</strong></li>
 </ol>
+
+<h3>2.3 平稳性检验方法 <span class="tag-key">必考</span></h3>
+
+<table>
+<tr><th>方法</th><th>原理</th><th>判定标准</th></tr>
+<tr>
+  <td><strong>时序图检验</strong></td>
+  <td>肉眼观察序列是否在常数值附近随机波动</td>
+  <td>波动范围有界、无明显趋势和周期 → 平稳</td>
+</tr>
+<tr>
+  <td><strong>自相关图检验</strong></td>
+  <td>平稳序列具有短期相关性：ACF 随延迟 $k$ 增大<strong>快速衰减到 0</strong></td>
+  <td>ACF 快速落入 2 倍标准差内 → 平稳<br>ACF 缓慢衰减或不衰减 → 非平稳</td>
+</tr>
+<tr>
+  <td><strong>ADF 单位根检验</strong></td>
+  <td>$H_0$: 存在单位根（非平稳）</td>
+  <td>p-value < 0.05 → 拒绝 $H_0$ → 平稳</td>
+</tr>
+</table>
+
+<div class="highlight">
+<strong>📌 非平稳序列的典型特征</strong>：<br>
+1. 时序图有明显趋势或周期性 → 非平稳<br>
+2. ACF 图衰减缓慢，长时间不落入 2 倍标准差 → 非平稳<br>
+3. 平稳序列的 ACF 通常在 $k \leq 3$ 内就衰减到 0 附近
+</div>
 </div>
 
-<!-- ===== 3. 平稳序列预测 ===== -->
+<!-- ===== §3: 纯随机性检验 ===== -->
 <div class="section">
-<h2>3. 平稳序列的预测方法（平滑法）</h2>
+<h2>3. 纯随机性检验（白噪声检验）<span class="tag-must">建模前必做</span></h2>
+
+<h3>3.1 白噪声序列</h3>
+
+<div class="def-box">
+  <div class="def-title">纯随机序列（白噪声 White Noise）</div>
+  <p>序列值彼此之间<strong>没有任何相依性</strong>——没有记忆，过去行为对将来发展没有影响。满足：</p>
+  <p style="text-align:center">$E(X_t) = \mu,\quad Var(X_t) = \sigma^2,\quad \gamma(k) = 0 \; (\forall k \neq 0)$</p>
+</div>
+
+<h3>3.2 白噪声检验的两个时机</h3>
+<ol>
+  <li><strong>建模前</strong>：检验序列是否有分析价值。若为白噪声 → 无规律可提取 → 终止分析</li>
+  <li><strong>建模后</strong>：检验残差是否为白噪声。若残差是白噪声 → 有用信息提取充分，模型成功；否则 → 信息未提取完 → 重新建模</li>
+</ol>
+
+<h3>3.3 检验统计量</h3>
+
+<div class="formula">
+$$\begin{aligned}
+Q_{BP} &= n \sum_{k=1}^{m} \hat{\rho}_k^2 \sim \chi^2(m) \quad &\text{(Box-Pierce)}\\
+Q_{LB} &= n(n+2) \sum_{k=1}^{m} \frac{\hat{\rho}_k^2}{n-k} \sim \chi^2(m) \quad &\text{(Ljung-Box, 小样本矫正)}
+\end{aligned}$$
+</div>
+
+<p>其中 $n$ 为观测期数，$m$ 为指定延迟期数，$\hat{\rho}_k$ 为延迟 $k$ 阶的样本自相关系数。</p>
+
+<div class="highlight">
+<strong>假设检验框架</strong>：<br>
+$H_0: \rho_1 = \rho_2 = \dots = \rho_m = 0$（序列为纯随机/白噪声）<br>
+$H_1:$ 至少存在某个 $\rho_k \neq 0$（序列非白噪声）<br>
+<strong>判定</strong>：$Q$ 统计量的 p-value < $\alpha$ → 拒绝 $H_0$ → 序列<strong>非白噪声</strong>，有分析价值 ✓
+</div>
+</div>
+
+<!-- ===== §4: 平稳序列预测 ===== -->
+<div class="section">
+<h2>4. 平稳序列的预测方法（平滑法）</h2>
 
 <div class="highlight">
 <strong>📌 适用条件</strong>：序列不含趋势和季节变动，波动主要来自随机成分。通过<strong>平滑</strong>消除随机波动。
 </div>
 
-<h3>3.1 移动平均法 (Moving Average)</h3>
+<h3>4.1 移动平均法 (Moving Average)</h3>
 
-<p>选择固定移动间隔 $k$，将最近 $k$ 期数据的<strong>简单平均</strong>作为下一期预测值：</p>
+<p>选择固定移动间隔 $k$，将最近 $k$ 期的<strong>简单平均</strong>作为下一期预测值：</p>
 
 <div class="formula">
 $$F_{t+1} = \frac{Y_t + Y_{t-1} + \dots + Y_{t-k+1}}{k}$$
@@ -298,247 +355,322 @@ $$F_{t+1} = \frac{Y_t + Y_{t-1} + \dots + Y_{t-k+1}}{k}$$
 
 <p><strong>特点</strong>：</p>
 <ul>
-  <li>每期数据<strong>等权重</strong></li>
-  <li>只用最近 $k$ 期，旧数据自动丢弃</li>
-  <li>$k$ 越大 → 越平滑但越滞后；$k$ 越小 → 越敏感但噪声大</li>
-  <li>选 $k$ 方法：试验使 <strong>MSE 最小</strong>的 $k$</li>
+  <li>每期数据<strong>等权重</strong>（均为 $1/k$），旧数据 $k$ 期后完全丢弃</li>
+  <li>只适合较为平稳的序列预测</li>
+  <li>选择 $k$ 的方法：试验不同 $k$，选使 <strong>MSE 最小</strong>者</li>
 </ul>
 
-<h3>3.2 简单指数平滑法 (Simple Exponential Smoothing)</h3>
+<h3>4.2 简单指数平滑法 (Simple Exponential Smoothing)</h3>
 
-<p>基本思想：<strong>近期数据权重大，远期数据权重呈指数衰减</strong>。</p>
+<p>核心思想：<strong>近期数据权重大，远期数据权重呈指数衰减</strong>。</p>
 
 <div class="formula">
-$$F_{t+1} = \alpha Y_t + (1-\alpha)F_t$$
+$$F_{t+1} = \alpha Y_t + (1-\alpha) F_t$$
 </div>
 
-<p>其中 $\alpha \in (0,1)$ 为<strong>平滑系数</strong>：</p>
+<p>展开可得：$F_{t+1} = \alpha Y_t + \alpha(1-\alpha)Y_{t-1} + \alpha(1-\alpha)^2 Y_{t-2} + \dots$</p>
+
 <table>
 <tr><th>$\alpha$ 取值</th><th>效果</th><th>适用场景</th></tr>
-<tr><td>$\alpha \to 1$</td><td>侧重近期值，响应快</td><td>波动大、需要快速跟踪</td></tr>
-<tr><td>$\alpha \to 0$</td><td>侧重历史值，更平滑</td><td>随机波动较大时</td></tr>
+<tr><td>$\alpha \to 1$</td><td>侧重近期值，响应快但波动大</td><td>序列波动大、需要快速跟踪</td></tr>
+<tr><td>$\alpha \to 0$</td><td>侧重历史值，更平滑但滞后</td><td>随机波动较大时</td></tr>
 </table>
+<p>选择 $\alpha$ 的方法：试验多个值，选 MSE 最小的。</p>
 
 <div class="highlight">
 <strong>🔑 移动平均 vs 指数平滑</strong><br>
-移动平均：等权重、固定窗口、旧数据突然丢弃<br>
-指数平滑：指数衰减权重、无限记忆、平滑过渡<br>
+移动平均：等权重、固定窗口、旧数据突然丢弃 → 简单直观<br>
+指数平滑：指数衰减权重、无限记忆、平滑过渡 → 更符合"近期影响更大"的实际<br>
 <span class="tag-freq">竞赛建议</span>：两种都试，选 MSE 更小的。
 </div>
 </div>
 
-<!-- ===== 4. 趋势预测 ===== -->
+<!-- ===== §5: 趋势预测 ===== -->
 <div class="section">
-<h2>4. 趋势序列的预测</h2>
+<h2>5. 趋势序列的预测</h2>
 
-<h3>4.1 线性趋势预测</h3>
-
+<h3>5.1 线性趋势预测</h3>
 <p>时间序列按固定斜率增长或下降时，拟合线性趋势方程：</p>
+<div class="formula">$\hat{Y}_t = b_0 + b_1 t$</div>
+<p>用最小二乘法估计 $b_0$ 和 $b_1$。预测时直接将未来时刻 $t$ 代入方程。</p>
 
-<div class="formula">
-$$\hat{Y}_t = b_0 + b_1 t$$
-</div>
-
-<p>用最小二乘法估计 $b_0$（截距）和 $b_1$（斜率）。预测时直接将未来时刻 $t$ 代入方程。</p>
-
-<h3>4.2 Holt 双参数指数平滑 <span class="tag-key">有趋势时必用</span></h3>
-
+<h3>5.2 Holt 双参数指数平滑 <span class="tag-key">有趋势时必用</span></h3>
 <p>简单指数平滑在序列有趋势时会<strong>系统滞后</strong>。Holt 模型用两个平滑系数同时跟踪<strong>水平</strong>和<strong>趋势</strong>：</p>
 
 <div class="formula">
 $$\begin{aligned}
 L_t &= \alpha Y_t + (1-\alpha)(L_{t-1} + b_{t-1}) \quad &\text{（水平方程）}\\
-b_t &= \gamma(L_t - L_{t-1}) + (1-\gamma)b_{t-1} \quad &\text{（趋势方程）}\\
-F_{t+m} &= L_t + b_t \cdot m \quad &\text{（m 步预测）}
+b_t &= \gamma(L_t - L_{t-1}) + (1-\gamma) b_{t-1} \quad &\text{（趋势方程）}\\
+F_{t+m} &= L_t + b_t \cdot m \quad &\text{（$m$ 步向前预测）}
 \end{aligned}$$
 </div>
+<p>$\alpha \in (0,1)$ 控制水平平滑，$\gamma \in (0,1)$ 控制趋势平滑。两个参数都通过最小化 MSE 确定。</p>
 
-<p>$\alpha$ 控制水平平滑，$\gamma \in (0,1)$ 控制趋势平滑。两个参数都通过最小化 MSE 选择。</p>
-
-<h3>4.3 非线性趋势预测</h3>
-
-<p>当序列不是线性增长时，可选用：</p>
-<ul>
-  <li><strong>指数曲线</strong>：$Y_t = b_0 e^{b_1 t}$（几何级数增长/衰减）</li>
-  <li><strong>多项式曲线</strong>：$Y_t = b_0 + b_1 t + b_2 t^2 + \dots$（二次、三次等）</li>
-  <li><strong>Logistic 曲线</strong>：$Y_t = \frac{K}{1 + ae^{-rt}}$（S 型增长，有上限）</li>
-</ul>
-</div>
-
-<!-- ===== 5. ARMA/ARIMA ===== -->
-<div class="section">
-<h2>5. Box-Jenkins 方法：ARMA / ARIMA <span class="tag-must">竞赛重点</span></h2>
-
-<div class="highlight">
-<strong>📌 核心思想</strong>：不直接拟合时间 $t$ 的函数，而是利用序列自身的<strong>自相关结构</strong>建模。
-</div>
-
-<h3>5.1 模型族</h3>
-
+<h3>5.3 非线性趋势预测</h3>
 <table>
-<tr><th>模型</th><th>全称</th><th>适用</th><th>数学形式</th></tr>
-<tr><td><strong>AR(p)</strong></td><td>自回归</td><td>当前值与过去值相关</td><td>$X_t = c + \sum_{i=1}^p \phi_i X_{t-i} + \varepsilon_t$</td></tr>
-<tr><td><strong>MA(q)</strong></td><td>移动平均</td><td>当前值与过去误差相关</td><td>$X_t = \mu + \varepsilon_t + \sum_{i=1}^q \theta_i \varepsilon_{t-i}$</td></tr>
-<tr><td><strong>ARMA(p,q)</strong></td><td>自回归移动平均</td><td>平稳序列</td><td>$X_t = c + \sum_{i=1}^p \phi_i X_{t-i} + \varepsilon_t + \sum_{i=1}^q \theta_i \varepsilon_{t-i}$</td></tr>
-<tr><td><strong>ARIMA(p,d,q)</strong></td><td>差分自回归移动平均</td><td>非平稳→差分后平稳</td><td>$d$ 阶差分后变 ARMA</td></tr>
-<tr><td><strong>SARIMA</strong></td><td>季节 ARIMA</td><td>有季节周期</td><td>ARIMA × 季节差分</td></tr>
+<tr><th>曲线类型</th><th>方程</th><th>适用场景</th></tr>
+<tr><td><strong>指数曲线</strong></td><td>$Y_t = b_0 e^{b_1 t}$</td><td>几何级数增长/衰减（可线性化后 OLS）</td></tr>
+<tr><td><strong>修正指数曲线</strong></td><td>$Y_t = K + b_0 b_1^t$</td><td>有渐近线的增长</td></tr>
+<tr><td><strong>生长曲线 (Logistic)</strong></td><td>$Y_t = \frac{K}{1 + a e^{-rt}}$</td><td>S 型增长，有上限（市场饱和）</td></tr>
+<tr><td><strong>多阶多项式</strong></td><td>$Y_t = b_0 + b_1 t + \dots + b_k t^k$</td><td>$k-1$ 个拐点的复杂形态</td></tr>
 </table>
 
-<h3>5.2 ARIMA 建模流程</h3>
-
-<div class="def-box">
+<h3>5.4 趋势模型选择策略</h3>
 <ol>
-  <li><strong>平稳性检验</strong>：ADF 检验（$H_0$: 非平稳，p<0.05 拒绝 → 平稳）</li>
-  <li><strong>差分</strong>：若不平稳，做 $d$ 阶差分直到通过 ADF 检验</li>
-  <li><strong>确定 p, q</strong>：观察 ACF（截尾→MA）和 PACF（截尾→AR）图的拖尾/截尾模式；或用 AIC/BIC 自动选择</li>
-  <li><strong>参数估计</strong>：最大似然或最小二乘</li>
-  <li><strong>残差诊断</strong>：残差应为白噪声（Ljung-Box 检验 p>0.05）</li>
-  <li><strong>预测</strong>：用拟合模型做点预测和区间预测</li>
+  <li>绘制时序图，观察大体形态（直线/指数/S型/多个拐点）</li>
+  <li>选择对应的模型族，用 OLS（或线性化后 OLS）拟合</li>
+  <li>比较各模型的 MSE 和 $R^2$</li>
+  <li>注意：模型不是越复杂越好 — 多项式阶数 $k$ 过高会导致过拟合</li>
 </ol>
 </div>
 
-<h3>5.3 ACF / PACF 定阶规则</h3>
+<!-- ===== §6: 分解预测 ===== -->
+<div class="section">
+<h2>6. 多成分序列的分解预测 (Decomposition)</h2>
 
+<div class="highlight">
+<strong>📌 适用场景</strong>：序列同时包含趋势 + 季节 + 循环多种成分。分解法是处理此类序列的<strong>古典经典方法</strong>，易于理解，结果易于解释。
+</div>
+
+<h3>6.1 乘法模型分解步骤</h3>
+
+<div class="def-box">
+<ol>
+  <li><strong>确定并分离季节成分</strong>：计算季节指数 (Seasonal Index)，将每个观测值除以对应的季节指数，消除季节性</li>
+  <li><strong>建立趋势预测模型</strong>：对消除季节后的序列拟合线性趋势方程 $\hat{Y}_t = b_0 + b_1 t$</li>
+  <li><strong>计算最终预测值</strong>：将趋势预测值<strong>乘以</strong>对应季节的季节指数</li>
+</ol>
+</div>
+
+<h3>6.2 季节指数的计算</h3>
+<p>季节指数反映某季节相对于全年平均水平的偏离程度：</p>
+<ul>
+  <li>季节指数 > 1 → 该季节高于平均水平（旺季）</li>
+  <li>季节指数 < 1 → 该季节低于平均水平（淡季）</li>
+  <li>所有季节指数之和 = 季节数（如季度数据 = 4，月度数据 = 12）</li>
+</ul>
+
+<h3>6.3 加法模型 vs 乘法模型</h3>
 <table>
-<tr><th>模型</th><th>ACF（自相关）</th><th>PACF（偏自相关）</th></tr>
-<tr><td>AR(p)</td><td>拖尾（指数衰减或振荡）</td><td><strong>截尾</strong>于 p 阶</td></tr>
-<tr><td>MA(q)</td><td><strong>截尾</strong>于 q 阶</td><td>拖尾（指数衰减或振荡）</td></tr>
-<tr><td>ARMA(p,q)</td><td>拖尾</td><td>拖尾</td></tr>
+<tr><th></th><th>加法模型</th><th>乘法模型</th></tr>
+<tr><td>形式</td><td>$Y = T + S + C + I$</td><td>$Y = T \times S \times C \times I$</td></tr>
+<tr><td>季节波动</td><td>幅度恒定，不随趋势变化</td><td>幅度随趋势增大而增大</td></tr>
+<tr><td>适用</td><td>序列波动幅度稳定时</td><td>序列波动幅度与水平成正比</td></tr>
+<tr><td>分解操作</td><td>$Y - S$ 消除季节</td><td>$Y / S$ 消除季节</td></tr>
 </table>
 </div>
 
-<!-- ===== 6. 评估 ===== -->
+<!-- ===== §7: AR/MA/ARMA ===== -->
 <div class="section">
-<h2>6. 预测方法的选择与评估</h2>
+<h2>7. Box-Jenkins 方法：AR / MA / ARMA 模型 <span class="tag-must">竞赛核心</span></h2>
 
-<h3>6.1 方法选择路线</h3>
+<div class="highlight">
+<strong>📌 核心思想</strong>：不直接拟合时间 $t$ 的函数，而是利用序列自身的<strong>自相关结构</strong>建模。前提是序列<strong>平稳且非白噪声</strong>。
+</div>
 
+<h3>7.1 AR(p) — 自回归模型</h3>
+
+<div class="def-box">
+  <div class="def-title">p 阶自回归模型 AR(p)</div>
+  <div class="formula">
+  $$X_t = \phi_0 + \phi_1 X_{t-1} + \phi_2 X_{t-2} + \dots + \phi_p X_{t-p} + \varepsilon_t$$
+  </div>
+  <p>其中 $\varepsilon_t \sim WN(0, \sigma^2)$ 为白噪声，$\phi_1,\dots,\phi_p$ 为自回归系数。</p>
+  <p>当 $\phi_0 = 0$ 时，称为<strong>中心化 AR(p) 模型</strong>。</p>
+  <p><strong>延迟算子形式</strong>：$\Phi(B) X_t = \varepsilon_t$，其中 $\Phi(B) = 1 - \phi_1 B - \dots - \phi_p B^p$（$B$ 为延迟算子：$B X_t = X_{t-1}$）。</p>
+</div>
+
+<h3>7.2 MA(q) — 移动平均模型</h3>
+
+<div class="def-box">
+  <div class="def-title">q 阶移动平均模型 MA(q)</div>
+  <div class="formula">
+  $$X_t = \mu + \varepsilon_t + \theta_1 \varepsilon_{t-1} + \theta_2 \varepsilon_{t-2} + \dots + \theta_q \varepsilon_{t-q}$$
+  </div>
+  <p>式中 $\varepsilon_t$ 是白噪声序列，$\theta_1,\dots,\theta_q$ 为移动平均系数。</p>
+  <p>MA(q) 模型表明 $X_t$ 是当前和过去 $q$ 期随机误差的加权和。</p>
+</div>
+
+<h3>7.3 ARMA(p,q) — 自回归移动平均模型</h3>
+
+<div class="def-box">
+  <div class="def-title">ARMA(p,q) 模型</div>
+  <div class="formula">
+  $$X_t = \phi_0 + \sum_{i=1}^{p} \phi_i X_{t-i} + \varepsilon_t + \sum_{j=1}^{q} \theta_j \varepsilon_{t-j}$$
+  </div>
+  <p>AR 部分捕获序列自身的记忆效应，MA 部分捕获随机扰动的持续影响。</p>
+</div>
+
+<h3>7.4 模型族总览</h3>
+<table>
+<tr><th>模型</th><th>全称</th><th>适用条件</th><th>参数</th></tr>
+<tr><td><strong>AR(p)</strong></td><td>自回归</td><td>平稳序列，当前值与过去 $p$ 期相关</td><td>$p$: 自回归阶数</td></tr>
+<tr><td><strong>MA(q)</strong></td><td>移动平均</td><td>平稳序列，当前值与过去 $q$ 期误差相关</td><td>$q$: 移动平均阶数</td></tr>
+<tr><td><strong>ARMA(p,q)</strong></td><td>自回归移动平均</td><td>平稳非白噪声序列</td><td>$(p, q)$</td></tr>
+<tr><td><strong>ARIMA(p,d,q)</strong></td><td>差分 ARMA</td><td>$d$ 阶差分后平稳</td><td>$(p, d, q)$</td></tr>
+<tr><td><strong>SARIMA</strong></td><td>季节 ARIMA</td><td>含季节周期的非平稳序列</td><td>$(p,d,q)(P,D,Q)_s$</td></tr>
+</table>
+
+<h3>7.5 AR/MA 模型的统计性质 <span class="tag-key">定阶关键</span></h3>
+
+<table>
+<tr><th>模型</th><th>ACF（自相关函数）</th><th>PACF（偏自相关函数）</th></tr>
+<tr><td><strong>AR(p)</strong></td><td><strong>拖尾</strong>（指数衰减/振荡收敛到 0）</td><td><strong>截尾</strong>于 $p$ 阶（$k>p$ 后为 0）</td></tr>
+<tr><td><strong>MA(q)</strong></td><td><strong>截尾</strong>于 $q$ 阶（$k>q$ 后为 0）</td><td><strong>拖尾</strong>（指数衰减/振荡收敛到 0）</td></tr>
+<tr><td><strong>ARMA(p,q)</strong></td><td>拖尾</td><td>拖尾</td></tr>
+</table>
+
+<div class="highlight">
+<strong>📌 定阶口诀</strong>：<br>
+ACF 截尾 + PACF 拖尾 → <strong>MA(q)</strong>，截尾阶数 = $q$<br>
+ACF 拖尾 + PACF 截尾 → <strong>AR(p)</strong>，截尾阶数 = $p$<br>
+两者都拖尾 → <strong>ARMA(p,q)</strong>，需用 AIC/BIC 自动定阶
+</div>
+
+<h3>7.6 ARIMA 建模完整流程</h3>
+
+<div class="def-box">
+<ol>
+  <li><strong>平稳性检验</strong>：时序图 + ACF 图 + ADF 检验。若不平稳，进行差分（ARIMA 的 $d$）</li>
+  <li><strong>白噪声检验</strong>：Ljung-Box 检验。若为白噪声 → 无规律可提取 → 终止</li>
+  <li><strong>模型识别（定阶）</strong>：观察 ACF/PACF 截尾拖尾模式确定 $p,q$；或遍历 $(p,q)$ 组合选 AIC/BIC 最小者</li>
+  <li><strong>参数估计</strong>：最大似然估计 (MLE) 或条件最小二乘 (CLS)</li>
+  <li><strong>模型诊断</strong>：残差白噪声检验（Ljung-Box p>0.05）+ 残差正态性检验（Q-Q 图）</li>
+  <li><strong>预测</strong>：点预测 + 置信区间预测</li>
+</ol>
+</div>
+</div>
+
+<!-- ===== §8: 预测评估 ===== -->
+<div class="section">
+<h2>8. 预测方法的选择与评估</h2>
+
+<h3>8.1 方法选择路线</h3>
 <table>
 <tr><th>序列特征</th><th>推荐方法</th><th>备选</th></tr>
-<tr><td>平稳（无趋势/无季节）</td><td>移动平均 / 指数平滑</td><td>ARMA</td></tr>
+<tr><td>平稳（无趋势/无季节）</td><td>移动平均 / 简单指数平滑</td><td>ARMA</td></tr>
 <tr><td>有线性趋势</td><td>Holt 双参数平滑</td><td>线性回归 / ARIMA</td></tr>
-<tr><td>有趋势+季节</td><td>Winter 三参数平滑</td><td>SARIMA</td></tr>
-<tr><td>非线性趋势</td><td>指数/多项式曲线拟合</td><td>Logistic</td></tr>
-<tr><td>复杂非平稳</td><td>ARIMA / SARIMA</td><td>Prophet / 深度学习</td></tr>
+<tr><td>有趋势 + 季节</td><td>分解预测 / Winter 三参数平滑</td><td>SARIMA</td></tr>
+<tr><td>非线性趋势</td><td>指数/多项式/Logistic 曲线拟合</td><td>—</td></tr>
+<tr><td>复杂非平稳</td><td>ARIMA / SARIMA</td><td>Prophet</td></tr>
 </table>
 
-<h3>6.2 误差度量</h3>
-
+<h3>8.2 预测误差度量</h3>
 <div class="formula">
 $$\begin{aligned}
-\text{MAE} &= \frac{1}{n}\sum |Y_t - F_t| \\
-\text{MSE} &= \frac{1}{n}\sum (Y_t - F_t)^2 \\
-\text{MAPE} &= \frac{100\%}{n}\sum \left|\frac{Y_t - F_t}{Y_t}\right|
+\text{ME} &= \frac{1}{n}\sum (Y_t - F_t) \quad &\text{（平均误差，反映偏差方向）}\\
+\text{MAD} &= \frac{1}{n}\sum |Y_t - F_t| \quad &\text{（平均绝对误差）}\\
+\text{MSE} &= \frac{1}{n}\sum (Y_t - F_t)^2 \quad &\text{（均方误差，竞赛首选）}\\
+\text{MAPE} &= \frac{100\%}{n}\sum \left|\frac{Y_t - F_t}{Y_t}\right| \quad &\text{（适合跨量纲比较）}
 \end{aligned}$$
 </div>
-
-<p><span class="tag-must">竞赛首选 MSE</span>，MAPE 适合跨量纲比较。</p>
 </div>
 
-<!-- ===== 7. 代码实现 ===== -->
+<!-- ===== §9: Python 代码 ===== -->
 <div class="section">
-<h2>7. Python 代码实现</h2>
+<h2>9. Python 代码实现</h2>
 
-<h3>7.1 移动平均与指数平滑</h3>
-<div class="code-block"><span class="co"># 移动平均</span>
-<span class="kw">import</span> pandas <span class="kw">as</span> pd
-<span class="kw">import</span> numpy <span class="kw">as</span> np
+<h3>9.1 平稳性检验 + 白噪声检验</h3>
+<div class="code-block"><span class="kw">from</span> statsmodels.tsa.stattools <span class="kw">import</span> adfuller
+<span class="kw">from</span> statsmodels.stats.diagnostic <span class="kw">import</span> acorr_ljungbox
+<span class="kw">from</span> statsmodels.graphics.tsaplots <span class="kw">import</span> plot_acf, plot_pacf
 
-<span class="co"># 简单移动平均 k=3</span>
-df[<span class="str">'MA_3'</span>] = df[<span class="str">'value'</span>].rolling(window=<span class="num">3</span>).mean()
+<span class="co"># ADF 平稳性检验</span>
+result = adfuller(df[<span class="str">'value'</span>])
+<span class="kw">print</span>(<span class="str">'ADF statistic: {:.4f}, p-value: {:.4f}'</span>.format(result[<span class="num">0</span>], result[<span class="num">1</span>]))
 
-<span class="co"># 简单指数平滑 (α=0.3)</span>
-<span class="kw">from</span> statsmodels.tsa.holtwinters <span class="kw">import</span> SimpleExpSmoothing
-model = SimpleExpSmoothing(df[<span class="str">'value'</span>]).fit(
-    smoothing_level=<span class="num">0.3</span>, optimized=<span class="kw">False</span>
-)
-df[<span class="str">'SES'</span>] = model.fittedvalues
+<span class="co"># Ljung-Box 白噪声检验</span>
+lb_result = acorr_ljungbox(df[<span class="str">'value'</span>], lags=[<span class="num">6</span>, <span class="num">12</span>])
+<span class="kw">print</span>(lb_result)  <span class="co"># p<0.05 → 非白噪声 ✓</span>
 
-<span class="co"># Holt 双参数平滑</span>
-<span class="kw">from</span> statsmodels.tsa.holtwinters <span class="kw">import</span> Holt
-model = Holt(df[<span class="str">'value'</span>]).fit()
-forecast = model.forecast(<span class="num">5</span>)  <span class="co"># 预测未来5期</span>
+<span class="co"># 绘制 ACF / PACF 图</span>
+plot_acf(df[<span class="str">'value'</span>], lags=<span class="num">20</span>)
+plot_pacf(df[<span class="str">'value'</span>], lags=<span class="num">20</span>)
 </div>
 
-<h3>7.2 ARIMA 建模</h3>
+<h3>9.2 平滑法与 Holt</h3>
+<div class="code-block"><span class="kw">from</span> statsmodels.tsa.holtwinters <span class="kw">import</span> SimpleExpSmoothing, Holt
+
+<span class="co"># 简单指数平滑</span>
+ses = SimpleExpSmoothing(df[<span class="str">'value'</span>]).fit(
+    smoothing_level=<span class="num">0.3</span>, optimized=<span class="kw">False</span>)
+
+<span class="co"># Holt 双参数（自动优化 α, γ）</span>
+holt = Holt(df[<span class="str">'value'</span>]).fit()
+forecast = holt.forecast(<span class="num">5</span>)  <span class="co"># 预测未来 5 期</span>
+
+<span class="co"># 移动平均</span>
+df[<span class="str">'MA_3'</span>] = df[<span class="str">'value'</span>].rolling(window=<span class="num">3</span>).mean()
+</div>
+
+<h3>9.3 ARIMA 完整建模</h3>
 <div class="code-block"><span class="kw">from</span> statsmodels.tsa.arima.model <span class="kw">import</span> ARIMA
-<span class="kw">from</span> statsmodels.tsa.stattools <span class="kw">import</span> adfuller
 
-<span class="co"># 1. ADF 平稳性检验</span>
-result = adfuller(df[<span class="str">'value'</span>])
-<span class="kw">print</span>(<span class="str">'ADF p-value: {:.4f}'</span>.format(result[<span class="num">1</span>]))
-
-<span class="co"># 2. 若不平稳，做差分</span>
+<span class="co"># 若不平稳，先差分</span>
 df[<span class="str">'diff1'</span>] = df[<span class="str">'value'</span>].diff()  <span class="co"># 一阶差分</span>
 
-<span class="co"># 3. 拟合 ARIMA(1,1,1)</span>
+<span class="co"># 拟合 ARIMA(1,1,1)</span>
 model = ARIMA(df[<span class="str">'value'</span>], order=(<span class="num">1</span>, <span class="num">1</span>, <span class="num">1</span>))
 result = model.fit()
 <span class="kw">print</span>(result.summary())
 
-<span class="co"># 4. 预测</span>
-forecast = result.forecast(steps=<span class="num">5</span>)
+<span class="co"># 残差白噪声检验（模型诊断）</span>
+lb_resid = acorr_ljungbox(result.resid, lags=[<span class="num">10</span>])
+<span class="kw">print</span>(lb_resid)  <span class="co"># p>0.05 → 残差为白噪声，模型充分 ✓</span>
 
-<span class="co"># 5. 残差诊断</span>
-<span class="kw">from</span> statsmodels.stats.diagnostic <span class="kw">import</span> acorr_ljungbox
-lb_test = acorr_ljungbox(result.resid, lags=[<span class="num">10</span>])
-<span class="kw">print</span>(lb_test)  <span class="co"># p>0.05 → 残差为白噪声 ✓</span>
+<span class="co"># 预测 + 置信区间</span>
+forecast = result.get_forecast(steps=<span class="num">5</span>)
+<span class="kw">print</span>(forecast.predicted_mean)     <span class="co"># 点预测</span>
+<span class="kw">print</span>(forecast.conf_int())         <span class="co"># 95% 置信区间</span>
 </div>
 
-<h3>7.3 自动 ARIMA</h3>
+<h3>9.4 自动 ARIMA + 分解</h3>
 <div class="code-block"><span class="co"># pip install pmdarima -i https://pypi.tuna.tsinghua.edu.cn/simple</span>
 <span class="kw">from</span> pmdarima <span class="kw">import</span> auto_arima
 
 model = auto_arima(df[<span class="str">'value'</span>],
-    start_p=<span class="num">0</span>, start_q=<span class="num">0</span>, max_p=<span class="num">5</span>, max_q=<span class="num">5</span>,
-    seasonal=<span class="kw">True</span>, m=<span class="num">12</span>,  <span class="co"># m=周期（如月度数据 m=12）</span>
-    trace=<span class="kw">True</span>,             <span class="co"># 打印搜索过程</span>
-    information_criterion=<span class="str">'aic'</span>
-)
-<span class="kw">print</span>(model.summary())
+    start_p=<span class="num">0</span>, max_p=<span class="num">5</span>, start_q=<span class="num">0</span>, max_q=<span class="num">5</span>,
+    seasonal=<span class="kw">True</span>, m=<span class="num">12</span>,          <span class="co"># m=周期长度</span>
+    information_criterion=<span class="str">'aic'</span>,
+    trace=<span class="kw">True</span>)
+
+<span class="co"># 季节分解</span>
+<span class="kw">from</span> statsmodels.tsa.seasonal <span class="kw">import</span> seasonal_decompose
+decomp = seasonal_decompose(df[<span class="str">'value'</span>], model=<span class="str">'multiplicative'</span>, period=<span class="num">12</span>)
+<span class="co"># decomp.trend / decomp.seasonal / decomp.resid</span>
 </div>
 </div>
 
-<!-- ===== 8. 竞赛要点 ===== -->
+<!-- ===== §10: 竞赛要点 ===== -->
 <div class="section">
-<h2>8. 数学建模竞赛应用要点</h2>
+<h2>10. 数学建模竞赛应用要点</h2>
 
-<div class="highlight">
-<strong>🎯 什么时候用时间序列方法？</strong><br>
-赛题涉及"预测未来数值"且数据是按时间顺序排列的（如历年GDP、月度销量、日温记录）。
-</div>
-
-<h3>竞赛快速决策路线</h3>
+<h3>竞赛完整决策路线</h3>
 <ol>
-  <li><strong>画图</strong> → 观察趋势、季节、周期</li>
-  <li><strong>ADF 检验</strong> → 判断是否平稳</li>
-  <li>平稳 → ARMA / 指数平滑</li>
-  <li>非平稳 → 差分后 ARIMA / Holt / SARIMA</li>
-  <li>多方法对比 → 选 MSE/MAPE 最小的</li>
-  <li><strong>残差检验</strong> → 确保残差为白噪声</li>
+  <li><strong>画时序图</strong> → 观察趋势、季节、周期、异常值</li>
+  <li><strong>平稳性检验</strong> → 时序图 + ACF + ADF 检验</li>
+  <li><strong>白噪声检验</strong> → Ljung-Box。若白噪声 → 无分析价值，换方法</li>
+  <li>平稳 → 平滑法 或 ARMA</li>
+  <li>非平稳 → 差分 + ARIMA，或 Holt / 分解法 / SARIMA</li>
+  <li><strong>多方法对比</strong> → 选 MSE/MAPE 最小者</li>
+  <li><strong>残差检验</strong> → 残差必须为白噪声（Ljung-Box p>0.05）</li>
+  <li><strong>论文要求</strong> → 给出点预测 + 区间预测 + 模型诊断</li>
 </ol>
 
+<h3>常见陷阱与对策</h3>
 <table>
-<tr><th>常见陷阱</th><th>解决方案</th></tr>
-<tr><td>直接把非平稳序列放进 ARMA</td><td>先做 ADF 检验 + 差分</td></tr>
-<tr><td>只看 AIC 不看残差</td><td>残差白噪声检验是必须的</td></tr>
-<tr><td>过度差分（d 太大）</td><td>ADF p<0.05 就停，不要差分过度</td></tr>
-<tr><td>样本太小（n<30）</td><td>用简单方法（指数平滑/灰色预测），别硬上 ARIMA</td></tr>
-<tr><td>不考虑季节因素</td><td>月度/季度数据 → 必须考虑 SARIMA 或季节差分</td></tr>
+<tr><th>陷阱</th><th>后果</th><th>对策</th></tr>
+<tr><td>不检验平稳性直接建 ARMA</td><td>伪回归，模型无效</td><td>先 ADF + 差分</td></tr>
+<tr><td>不做白噪声检验</td><td>对无规律序列硬建模</td><td>建模前 LB 检验</td></tr>
+<tr><td>只看 AIC 不看残差诊断</td><td>残差非白噪声，信息未提完</td><td>残差 LB 检验必须做</td></tr>
+<tr><td>过度差分（$d$ 太大）</td><td>丢失信息，模型变差</td><td>ADF p<0.05 就停</td></tr>
+<tr><td>小样本（$n<30$）硬上 ARIMA</td><td>参数估计不可靠</td><td>用指数平滑或灰色预测 GM(1,1)</td></tr>
+<tr><td>忽略季节性</td><td>月度/季度数据预测失败</td><td>SARIMA 或季节分解</td></tr>
+<tr><td>多项式阶数过高</td><td>过拟合，预测性能反而差</td><td>限制 $k \leq 3$，交叉验证</td></tr>
 </table>
-
-<div class="checkpoint">
-<ol>
-  <li>平稳序列和平稳性的定义是什么？严平稳和宽平稳有什么区别？</li>
-  <li>简单指数平滑和 Holt 模型的核心区别是什么？各适用于什么场景？</li>
-  <li>如何用 ACF 和 PACF 图确定 ARMA(p,q) 的阶数？</li>
-  <li>ARIMA(p,d,q) 中 d 的含义是什么？如何确定 d？</li>
-  <li>预测完成后，如何判断模型拟合是否充分？</li>
-</ol>
-</div>
 </div>
 
-<!-- Back/Next Navigation -->
+<!-- Bottom Nav -->
 <div class="nav-links">
   <a href="主成分与因子分析.html">← 5. 主成分与因子分析</a>
   <a href="AI与建模.html">4. AI与数学建模 →</a>
@@ -567,7 +699,7 @@ model = auto_arima(df[<span class="str">'value'</span>],
 
 <script>
 (function(){
-  var v='250712a';
+  var v='250712c';
   if(localStorage.getItem('mm-ts')!==v){localStorage.setItem('mm-ts',v);location.reload(true);}
 })();
 (function(){

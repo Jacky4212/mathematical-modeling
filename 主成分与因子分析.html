@@ -29,9 +29,9 @@ MathJax = { tex: { inlineMath: [['$','$'],['\\(','\\)']], displayMath: [['$$','$
   --highlight-bg: #fefce8;
   --highlight-border: #eab308;
   --highlight-strong: #92400e;
-  --checkpoint-bg: #eff6ff;
-  --checkpoint-border: #bfdbfe;
-  --checkpoint-color: #1e40af;
+  
+  
+  
   --tag-must-bg: #dbeafe; --tag-must-color: #1e40af;
   --tag-key-bg: #fef3c7; --tag-key-color: #92400e;
   --tag-freq-bg: #dbeafe; --tag-freq-color: #1e40af;
@@ -50,7 +50,7 @@ MathJax = { tex: { inlineMath: [['$','$'],['\\(','\\)']], displayMath: [['$$','$
   --sidebar-bg: #1a1a2e; --sidebar-border: #2d2d45;
   --code-bg: #2a2a3e;
   --highlight-bg: #1e2a3a; --highlight-border: #6a82f0; --highlight-strong: #8ab8f0;
-  --checkpoint-bg: #1e2a3a; --checkpoint-border: #2d4a5a; --checkpoint-color: #6a82f0;
+    
   --tag-must-bg: #1a2a3d; --tag-must-color: #80b8e0;
   --tag-key-bg: #1e2a3d; --tag-key-color: #80b8e0;
   --tag-freq-bg: #1a2a3d; --tag-freq-color: #80b8e0;
@@ -136,8 +136,6 @@ mjx-container[display="true"]{max-width:100%;overflow-x:auto;overflow-y:hidden}
 code{font-family:"Cascadia Code","JetBrains Mono","Consolas",monospace;font-size:.88em;background:var(--code-bg);color:var(--code-text);padding:1px 6px;border-radius:4px}
 .dark-mode code{background:var(--code-bg)}
 
-.checkpoint{background:var(--checkpoint-bg);border:1px solid var(--checkpoint-border);border-radius:6px;padding:14px 18px;margin:14px 0}
-.checkpoint::before{content:"🧠 自查练习：";font-weight:700;color:var(--checkpoint-color);display:block;margin-bottom:6px}
 .checkpoint ol,.checkpoint ul{margin-bottom:0}
 
 .tag-must,.tag-key,.tag-freq,.tag-info{display:inline-block;padding:1px 8px;border-radius:3px;font-size:.8em;font-weight:600;margin:0 2px}
@@ -998,16 +996,6 @@ composite = scores @ weights
 rank = np.argsort(-composite) + <span class="num">1</span>  <span class="co"># 降序排名（从1开始）</span>
 <span class="kw">print</span>(<span class="str">'排名:'</span>, rank)</div>
 
-<div class="checkpoint">
-  <ol>
-    <li>PCA 中为什么要先对数据做标准化？如果不标准化会有什么后果？</li>
-    <li>KMO 值和 Bartlett Sig 值分别表明什么？它们的阈值各是多少？</li>
-    <li>因子旋转改变哪些东西，不改变哪些东西？为什么需要旋转？</li>
-    <li>主成分分析与因子分析最大的区别是什么？在数学建模中什么时候用PCA、什么时候用因子分析？</li>
-    <li>如果累计贡献率只有 55%，但前两个因子都有明确的业务含义，你应该怎么处理？</li>
-    <li>因子载荷 $a_{ij}$ 和变量共同度 $h_i^2$ 分别有什么统计意义？</li>
-  </ol>
-</div>
 </div>
 
 <!-- Bottom Nav -->
