@@ -391,19 +391,23 @@ def gen_html():
         sec_id = f"sec{sec_num}"
         icon = cat_data["icon"]
 
-        # 侧栏导航 + 章内导航
+        # 侧栏导航（简洁版：只标注大类）
         nav_items += f'<div class="group-label">{icon} {cat_name}</div>\n'
-        chap_nav += f'<div class="nav-section">{cat_name}</div>\n'
+
+        # 章内导航（可折叠二级结构）
+        cat_id = f"cat{sec_num}"
+        chap_nav += f'<details class="nav-cat" open id="{cat_id}">\n'
+        chap_nav += f'<summary>{icon} {cat_name} <span class="count">{len(cat_data["methods"])}</span></summary>\n'
 
         # 章节内容
         sections_html += f'\n<div class="section" id="{sec_id}">\n'
         sections_html += f'<h2>{icon} {esc(cat_name)}</h2>\n'
         sections_html += f'<p>{esc(cat_data["intro"])}</p>\n'
 
-        for m in cat_data["methods"]:
+        for idx, m in enumerate(cat_data["methods"]):
             m_id = m["name"].replace(" ", "_").replace("(","").replace(")","").replace("/","_")[:30]
             nav_items += f'<a href="#{m_id}" style="padding-left:28px;font-size:.82em">{m["name"][:20]}</a>\n'
-            chap_nav += f'<a href="#{m_id}" style="padding-left:12px;font-size:.82em"><span class="num">·</span>{m["name"][:18]}</a>\n'
+            chap_nav += f'<a href="#{m_id}" class="nav-method">{m["name"]}</a>\n'
 
             sections_html += f'\n<h3 id="{m_id}">{esc(m["name"])}</h3>\n'
 
@@ -442,6 +446,7 @@ def gen_html():
                     sections_html += '<tr>' + ''.join(f'<td>{esc(c)}</td>' for c in row) + '</tr>\n'
                 sections_html += '</table>\n'
 
+        chap_nav += '</details>\n'
         sections_html += '</div>\n'
 
     # 方法总数统计
@@ -582,6 +587,17 @@ code{{font-family:"Cascadia Code","JetBrains Mono","Consolas",monospace;font-siz
 .chapter-nav-panel a:hover{{background:var(--paper-dark);color:var(--accent)}}
 .chapter-nav-panel a.current{{color:var(--accent);font-weight:600}}
 .chapter-nav-panel .num{{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:var(--paper-dark);font-size:.75em;font-weight:600;flex-shrink:0}}
+
+/* ===== Collapsible Nav Categories ===== */
+.chapter-nav-panel details.nav-cat{{margin:0}}
+.chapter-nav-panel details.nav-cat summary{{display:flex;align-items:center;padding:10px 20px;font-size:.82em;font-weight:600;color:var(--accent);cursor:pointer;gap:8px;list-style:none;user-select:none;transition:background .15s}}
+.chapter-nav-panel details.nav-cat summary::-webkit-details-marker{{display:none}}
+.chapter-nav-panel details.nav-cat summary::before{{content:'▸';display:inline-block;font-size:.7em;transition:transform .2s;width:14px;text-align:center}}
+.chapter-nav-panel details.nav-cat[open] summary::before{{transform:rotate(90deg)}}
+.chapter-nav-panel details.nav-cat summary:hover{{background:var(--paper-dark)}}
+.chapter-nav-panel details.nav-cat summary .count{{margin-left:auto;font-size:.75em;color:var(--ink-light);font-weight:400;background:var(--paper-dark);padding:1px 8px;border-radius:10px}}
+.chapter-nav-panel details.nav-cat .nav-method{{display:block;padding:5px 20px 5px 36px;font-size:.78em;color:var(--ink-light);border-left:2px solid transparent;transition:all .15s;line-height:1.5}}
+.chapter-nav-panel details.nav-cat .nav-method:hover{{color:var(--accent);background:var(--paper-dark);border-left-color:var(--accent)}}
 
 /* ===== Footer ===== */
 .footer{{text-align:center;padding:20px;color:var(--ink-light);font-size:.82em;border-top:1px solid var(--divider);margin-top:auto}}

@@ -132,6 +132,17 @@ code{font-family:"Cascadia Code","JetBrains Mono","Consolas",monospace;font-size
 .chapter-nav-panel a.current{color:var(--accent);font-weight:600}
 .chapter-nav-panel .num{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:var(--paper-dark);font-size:.75em;font-weight:600;flex-shrink:0}
 
+/* ===== Collapsible Nav Categories ===== */
+.chapter-nav-panel details.nav-cat{margin:0}
+.chapter-nav-panel details.nav-cat summary{display:flex;align-items:center;padding:10px 20px;font-size:.82em;font-weight:600;color:var(--accent);cursor:pointer;gap:8px;list-style:none;user-select:none;transition:background .15s}
+.chapter-nav-panel details.nav-cat summary::-webkit-details-marker{display:none}
+.chapter-nav-panel details.nav-cat summary::before{content:'▸';display:inline-block;font-size:.7em;transition:transform .2s;width:14px;text-align:center}
+.chapter-nav-panel details.nav-cat[open] summary::before{transform:rotate(90deg)}
+.chapter-nav-panel details.nav-cat summary:hover{background:var(--paper-dark)}
+.chapter-nav-panel details.nav-cat summary .count{margin-left:auto;font-size:.75em;color:var(--ink-light);font-weight:400;background:var(--paper-dark);padding:1px 8px;border-radius:10px}
+.chapter-nav-panel details.nav-cat .nav-method{display:block;padding:5px 20px 5px 36px;font-size:.78em;color:var(--ink-light);border-left:2px solid transparent;transition:all .15s;line-height:1.5}
+.chapter-nav-panel details.nav-cat .nav-method:hover{color:var(--accent);background:var(--paper-dark);border-left-color:var(--accent)}
+
 /* ===== Footer ===== */
 .footer{text-align:center;padding:20px;color:var(--ink-light);font-size:.82em;border-top:1px solid var(--divider);margin-top:auto}
 
@@ -824,72 +835,86 @@ code{font-family:"Cascadia Code","JetBrains Mono","Consolas",monospace;font-size
 <button class="chapter-nav-toggle no-print" id="chapterNavToggle" onclick="toggleChapterNav()">章 节 导 航</button>
 <nav class="chapter-nav-panel" id="chapterNavPanel">
   <div class="nav-header">方法大全 — 目录</div>
-  <div class="nav-section">综合评价方法</div>
-<a href="#层次分析法AHP" style="padding-left:12px;font-size:.82em"><span class="num">·</span>层次分析法(AHP)</a>
-<a href="#熵值法" style="padding-left:12px;font-size:.82em"><span class="num">·</span>熵值法</a>
-<a href="#TOPSIS优劣解距离法" style="padding-left:12px;font-size:.82em"><span class="num">·</span>TOPSIS优劣解距离法</a>
-<a href="#CRITIC权重法" style="padding-left:12px;font-size:.82em"><span class="num">·</span>CRITIC权重法</a>
-<a href="#变异系数法" style="padding-left:12px;font-size:.82em"><span class="num">·</span>变异系数法</a>
-<a href="#模糊综合评价" style="padding-left:12px;font-size:.82em"><span class="num">·</span>模糊综合评价</a>
-<a href="#灰色关联分析GRA" style="padding-left:12px;font-size:.82em"><span class="num">·</span>灰色关联分析(GRA)</a>
-<a href="#数据包络分析DEA" style="padding-left:12px;font-size:.82em"><span class="num">·</span>数据包络分析(DEA)</a>
-<a href="#秩和比法RSR" style="padding-left:12px;font-size:.82em"><span class="num">·</span>秩和比法(RSR)</a>
-<a href="#耦合协调度模型" style="padding-left:12px;font-size:.82em"><span class="num">·</span>耦合协调度模型</a>
-<a href="#解释结构模型ISM" style="padding-left:12px;font-size:.82em"><span class="num">·</span>解释结构模型(ISM)</a>
-<a href="#主成分分析PCA" style="padding-left:12px;font-size:.82em"><span class="num">·</span>主成分分析(PCA)</a>
-<div class="nav-section">预测方法</div>
-<a href="#灰色预测GM1,1" style="padding-left:12px;font-size:.82em"><span class="num">·</span>灰色预测GM(1,1)</a>
-<a href="#ARIMAp,d,q" style="padding-left:12px;font-size:.82em"><span class="num">·</span>ARIMA(p,d,q)</a>
-<a href="#SARIMAP,D,Q,s" style="padding-left:12px;font-size:.82em"><span class="num">·</span>SARIMA(P,D,Q,s)</a>
-<a href="#GARCHp,q" style="padding-left:12px;font-size:.82em"><span class="num">·</span>GARCH(p,q)</a>
-<a href="#VAR向量自回归" style="padding-left:12px;font-size:.82em"><span class="num">·</span>VAR向量自回归</a>
-<a href="#马尔可夫预测" style="padding-left:12px;font-size:.82em"><span class="num">·</span>马尔可夫预测</a>
-<a href="#Logistic模型S曲线" style="padding-left:12px;font-size:.82em"><span class="num">·</span>Logistic模型(S曲线)</a>
-<a href="#双重差分DID" style="padding-left:12px;font-size:.82em"><span class="num">·</span>双重差分(DID)</a>
-<a href="#PSM倾向得分匹配" style="padding-left:12px;font-size:.82em"><span class="num">·</span>PSM倾向得分匹配</a>
-<a href="#BP神经网络预测" style="padding-left:12px;font-size:.82em"><span class="num">·</span>BP神经网络预测</a>
-<a href="#集成学习XGBoost_LightGBM_CatBoost_" style="padding-left:12px;font-size:.82em"><span class="num">·</span>集成学习(XGBoost/Light</a>
-<a href="#Holt双参数指数平滑" style="padding-left:12px;font-size:.82em"><span class="num">·</span>Holt双参数指数平滑</a>
-<div class="nav-section">优化与规划方法</div>
-<a href="#线性规划LP" style="padding-left:12px;font-size:.82em"><span class="num">·</span>线性规划(LP)</a>
-<a href="#整数规划IP_MIP" style="padding-left:12px;font-size:.82em"><span class="num">·</span>整数规划(IP/MIP)</a>
-<a href="#非线性规划NLP" style="padding-left:12px;font-size:.82em"><span class="num">·</span>非线性规划(NLP)</a>
-<a href="#动态规划DP" style="padding-left:12px;font-size:.82em"><span class="num">·</span>动态规划(DP)</a>
-<a href="#多目标优化NSGA-II_Pareto" style="padding-left:12px;font-size:.82em"><span class="num">·</span>多目标优化(NSGA-II/Pare</a>
-<a href="#图论与网络优化" style="padding-left:12px;font-size:.82em"><span class="num">·</span>图论与网络优化</a>
-<a href="#遗传算法GA" style="padding-left:12px;font-size:.82em"><span class="num">·</span>遗传算法(GA)</a>
-<a href="#粒子群优化PSO" style="padding-left:12px;font-size:.82em"><span class="num">·</span>粒子群优化(PSO)</a>
-<a href="#模拟退火SA" style="padding-left:12px;font-size:.82em"><span class="num">·</span>模拟退火(SA)</a>
-<a href="#蚁群优化ACO" style="padding-left:12px;font-size:.82em"><span class="num">·</span>蚁群优化(ACO)</a>
-<a href="#混合整数线性规划MILP" style="padding-left:12px;font-size:.82em"><span class="num">·</span>混合整数线性规划(MILP)</a>
-<a href="#蒙特卡洛优化" style="padding-left:12px;font-size:.82em"><span class="num">·</span>蒙特卡洛优化</a>
-<div class="nav-section">统计分析与机器学习</div>
-<a href="#OLS线性回归" style="padding-left:12px;font-size:.82em"><span class="num">·</span>OLS线性回归</a>
-<a href="#Ridge回归L2" style="padding-left:12px;font-size:.82em"><span class="num">·</span>Ridge回归(L2)</a>
-<a href="#Lasso回归L1" style="padding-left:12px;font-size:.82em"><span class="num">·</span>Lasso回归(L1)</a>
-<a href="#Logistic回归" style="padding-left:12px;font-size:.82em"><span class="num">·</span>Logistic回归</a>
-<a href="#K-Means聚类" style="padding-left:12px;font-size:.82em"><span class="num">·</span>K-Means聚类</a>
-<a href="#DBSCAN密度聚类" style="padding-left:12px;font-size:.82em"><span class="num">·</span>DBSCAN密度聚类</a>
-<a href="#分层聚类" style="padding-left:12px;font-size:.82em"><span class="num">·</span>分层聚类</a>
-<a href="#决策树" style="padding-left:12px;font-size:.82em"><span class="num">·</span>决策树</a>
-<a href="#随机森林RF" style="padding-left:12px;font-size:.82em"><span class="num">·</span>随机森林(RF)</a>
-<a href="#SVM支持向量机" style="padding-left:12px;font-size:.82em"><span class="num">·</span>SVM支持向量机</a>
-<a href="#KNN最近邻" style="padding-left:12px;font-size:.82em"><span class="num">·</span>KNN最近邻</a>
-<a href="#朴素贝叶斯" style="padding-left:12px;font-size:.82em"><span class="num">·</span>朴素贝叶斯</a>
-<a href="#因子分析FA" style="padding-left:12px;font-size:.82em"><span class="num">·</span>因子分析(FA)</a>
-<div class="nav-section">插值与拟合</div>
-<a href="#拉格朗日插值" style="padding-left:12px;font-size:.82em"><span class="num">·</span>拉格朗日插值</a>
-<a href="#三次样条插值" style="padding-left:12px;font-size:.82em"><span class="num">·</span>三次样条插值</a>
-<a href="#多项式最小二乘拟合" style="padding-left:12px;font-size:.82em"><span class="num">·</span>多项式最小二乘拟合</a>
-<a href="#非线性最小二乘拟合" style="padding-left:12px;font-size:.82em"><span class="num">·</span>非线性最小二乘拟合</a>
-<div class="nav-section">图与网络优化</div>
-<a href="#Dijkstra最短路径" style="padding-left:12px;font-size:.82em"><span class="num">·</span>Dijkstra最短路径</a>
-<a href="#Floyd-Warshall全源最短路径" style="padding-left:12px;font-size:.82em"><span class="num">·</span>Floyd-Warshall全源最短</a>
-<a href="#Ford-Fulkerson最大流" style="padding-left:12px;font-size:.82em"><span class="num">·</span>Ford-Fulkerson最大流</a>
-<a href="#最小生成树MST" style="padding-left:12px;font-size:.82em"><span class="num">·</span>最小生成树(MST)</a>
-<div class="nav-section">竞赛方法论</div>
-<a href="#四阶段AI提示词框架" style="padding-left:12px;font-size:.82em"><span class="num">·</span>四阶段AI提示词框架</a>
-<a href="#"组合拳"建模策略" style="padding-left:12px;font-size:.82em"><span class="num">·</span>"组合拳"建模策略</a>
+  <details class="nav-cat" open id="cat1">
+<summary>📊 综合评价方法 <span class="count">12</span></summary>
+<a href="#层次分析法AHP" class="nav-method">层次分析法(AHP)</a>
+<a href="#熵值法" class="nav-method">熵值法</a>
+<a href="#TOPSIS优劣解距离法" class="nav-method">TOPSIS优劣解距离法</a>
+<a href="#CRITIC权重法" class="nav-method">CRITIC权重法</a>
+<a href="#变异系数法" class="nav-method">变异系数法</a>
+<a href="#模糊综合评价" class="nav-method">模糊综合评价</a>
+<a href="#灰色关联分析GRA" class="nav-method">灰色关联分析(GRA)</a>
+<a href="#数据包络分析DEA" class="nav-method">数据包络分析(DEA)</a>
+<a href="#秩和比法RSR" class="nav-method">秩和比法(RSR)</a>
+<a href="#耦合协调度模型" class="nav-method">耦合协调度模型</a>
+<a href="#解释结构模型ISM" class="nav-method">解释结构模型(ISM)</a>
+<a href="#主成分分析PCA" class="nav-method">主成分分析(PCA)</a>
+</details>
+<details class="nav-cat" open id="cat2">
+<summary>🔮 预测方法 <span class="count">12</span></summary>
+<a href="#灰色预测GM1,1" class="nav-method">灰色预测GM(1,1)</a>
+<a href="#ARIMAp,d,q" class="nav-method">ARIMA(p,d,q)</a>
+<a href="#SARIMAP,D,Q,s" class="nav-method">SARIMA(P,D,Q,s)</a>
+<a href="#GARCHp,q" class="nav-method">GARCH(p,q)</a>
+<a href="#VAR向量自回归" class="nav-method">VAR向量自回归</a>
+<a href="#马尔可夫预测" class="nav-method">马尔可夫预测</a>
+<a href="#Logistic模型S曲线" class="nav-method">Logistic模型(S曲线)</a>
+<a href="#双重差分DID" class="nav-method">双重差分(DID)</a>
+<a href="#PSM倾向得分匹配" class="nav-method">PSM倾向得分匹配</a>
+<a href="#BP神经网络预测" class="nav-method">BP神经网络预测</a>
+<a href="#集成学习XGBoost_LightGBM_CatBoost_" class="nav-method">集成学习(XGBoost/LightGBM/CatBoost/RF)</a>
+<a href="#Holt双参数指数平滑" class="nav-method">Holt双参数指数平滑</a>
+</details>
+<details class="nav-cat" open id="cat3">
+<summary>🎯 优化与规划方法 <span class="count">12</span></summary>
+<a href="#线性规划LP" class="nav-method">线性规划(LP)</a>
+<a href="#整数规划IP_MIP" class="nav-method">整数规划(IP/MIP)</a>
+<a href="#非线性规划NLP" class="nav-method">非线性规划(NLP)</a>
+<a href="#动态规划DP" class="nav-method">动态规划(DP)</a>
+<a href="#多目标优化NSGA-II_Pareto" class="nav-method">多目标优化(NSGA-II/Pareto)</a>
+<a href="#图论与网络优化" class="nav-method">图论与网络优化</a>
+<a href="#遗传算法GA" class="nav-method">遗传算法(GA)</a>
+<a href="#粒子群优化PSO" class="nav-method">粒子群优化(PSO)</a>
+<a href="#模拟退火SA" class="nav-method">模拟退火(SA)</a>
+<a href="#蚁群优化ACO" class="nav-method">蚁群优化(ACO)</a>
+<a href="#混合整数线性规划MILP" class="nav-method">混合整数线性规划(MILP)</a>
+<a href="#蒙特卡洛优化" class="nav-method">蒙特卡洛优化</a>
+</details>
+<details class="nav-cat" open id="cat4">
+<summary>🤖 统计分析与机器学习 <span class="count">13</span></summary>
+<a href="#OLS线性回归" class="nav-method">OLS线性回归</a>
+<a href="#Ridge回归L2" class="nav-method">Ridge回归(L2)</a>
+<a href="#Lasso回归L1" class="nav-method">Lasso回归(L1)</a>
+<a href="#Logistic回归" class="nav-method">Logistic回归</a>
+<a href="#K-Means聚类" class="nav-method">K-Means聚类</a>
+<a href="#DBSCAN密度聚类" class="nav-method">DBSCAN密度聚类</a>
+<a href="#分层聚类" class="nav-method">分层聚类</a>
+<a href="#决策树" class="nav-method">决策树</a>
+<a href="#随机森林RF" class="nav-method">随机森林(RF)</a>
+<a href="#SVM支持向量机" class="nav-method">SVM支持向量机</a>
+<a href="#KNN最近邻" class="nav-method">KNN最近邻</a>
+<a href="#朴素贝叶斯" class="nav-method">朴素贝叶斯</a>
+<a href="#因子分析FA" class="nav-method">因子分析(FA)</a>
+</details>
+<details class="nav-cat" open id="cat5">
+<summary>📈 插值与拟合 <span class="count">4</span></summary>
+<a href="#拉格朗日插值" class="nav-method">拉格朗日插值</a>
+<a href="#三次样条插值" class="nav-method">三次样条插值</a>
+<a href="#多项式最小二乘拟合" class="nav-method">多项式最小二乘拟合</a>
+<a href="#非线性最小二乘拟合" class="nav-method">非线性最小二乘拟合</a>
+</details>
+<details class="nav-cat" open id="cat6">
+<summary>🕸️ 图与网络优化 <span class="count">4</span></summary>
+<a href="#Dijkstra最短路径" class="nav-method">Dijkstra最短路径</a>
+<a href="#Floyd-Warshall全源最短路径" class="nav-method">Floyd-Warshall全源最短路径</a>
+<a href="#Ford-Fulkerson最大流" class="nav-method">Ford-Fulkerson最大流</a>
+<a href="#最小生成树MST" class="nav-method">最小生成树(MST)</a>
+</details>
+<details class="nav-cat" open id="cat7">
+<summary>🏆 竞赛方法论 <span class="count">2</span></summary>
+<a href="#四阶段AI提示词框架" class="nav-method">四阶段AI提示词框架</a>
+<a href="#"组合拳"建模策略" class="nav-method">"组合拳"建模策略</a>
+</details>
 
 </nav>
 
