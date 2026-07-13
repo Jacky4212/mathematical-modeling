@@ -25,3 +25,8 @@ Thumbs.db
 *.m4a
 *.mp3
 *.wav
+analysis/
+paper_output/
+problem_files/
+learning/
+# Keep local analysis files
