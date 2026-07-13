@@ -164,6 +164,22 @@ mjx-container[display="true"]{max-width:100%;overflow-x:auto;overflow-y:hidden}
         <a class="sub-link current" href="2023-国赛C题.html" style="padding-left:52px">C题: 蔬菜定价与补货</a>
       </details>
     </details>
+    <div class="group-label">本题章节导航</div>
+    <a href="2023-国赛C题.html#section-overview" style="font-size:.82em;padding:4px 16px 4px 24px"><span class="tag" style="width:16px;height:16px;font-size:.65em">1</span>题目概述</a>
+    <a href="2023-国赛C题.html#section-prep" style="font-size:.82em;padding:4px 16px 4px 24px"><span class="tag" style="width:16px;height:16px;font-size:.65em">2</span>数据预处理</a>
+    <details class="sidebar-cat" open style="margin:0">
+      <summary style="font-size:.8em;padding:4px 16px 4px 24px">📊 问题1: 分布与关系</summary>
+      <a class="sub-link" href="2023-国赛C题.html#sec1a" style="padding-left:40px;font-size:.75em">3. 分布规律</a>
+      <a class="sub-link" href="2023-国赛C题.html#sec1b" style="padding-left:40px;font-size:.75em">4. 相互关系</a>
+      <a class="sub-link" href="2023-国赛C题.html#sec1summary" style="padding-left:40px;font-size:.75em">5. 问题1小结</a>
+    </details>
+    <details class="sidebar-cat" open style="margin:0">
+      <summary style="font-size:.8em;padding:4px 16px 4px 24px">💰 问题2: 定价与补货</summary>
+      <a class="sub-link" href="2023-国赛C题.html#sec2a" style="padding-left:40px;font-size:.75em">6. 弹性分析</a>
+      <a class="sub-link" href="2023-国赛C题.html#sec2b" style="padding-left:40px;font-size:.75em">7. 补货方案</a>
+      <a class="sub-link" href="2023-国赛C题.html#sec2summary" style="padding-left:40px;font-size:.75em">8. 问题2小结</a>
+    </details>
+    <a href="2023-国赛C题.html#sec-methods" style="font-size:.82em;padding:4px 16px 4px 24px"><span class="tag" style="width:16px;height:16px;font-size:.65em">9</span>方法清单</a>
     <a href="index.html" style="margin-top:6px;border-top:1px solid var(--sidebar-border);padding-top:8px"><span class="tag">⌂</span>返回首页</a>
   </div>
 </nav>
@@ -181,7 +197,7 @@ mjx-container[display="true"]{max-width:100%;overflow-x:auto;overflow-y:hidden}
 <div class="container">
 
 <!-- ===== 题目概述 ===== -->
-<div class="section">
+<div class="section" id="section-overview">
   <h2>1. 题目概述</h2>
 
   <h3>1.1 问题背景</h3>
@@ -200,14 +216,14 @@ mjx-container[display="true"]{max-width:100%;overflow-x:auto;overflow-y:hidden}
   <table>
     <tr><th>问题</th><th>核心任务</th><th>分析方法</th></tr>
     <tr><td><strong>问题 1</strong></td><td>分析蔬菜各品类及单品销售量的分布规律及相互关系</td><td>描述统计、帕累托分析、STL时间序列分解、Pearson/Spearman相关、CCF互相关</td></tr>
-    <tr><td><strong>问题 2</strong></td><td>以品类为单位，给出未来一周日补货总量和定价策略，使收益最大</td><td>成本加成定价模型、需求预测、优化求解</td></tr>
+    <tr><td><strong>问题 2</strong></td><td>以品类为单位，给出未来一周日补货总量和定价策略，使收益最大</td><td>对数线性需求模型、ADF+KPSS时序诊断、Newey-West HAC修正、报童模型、fmincon非线性优化、蒙特卡洛模拟、NSGA-II多目标优化</td></tr>
     <tr><td><strong>问题 3</strong></td><td>单品级补货计划：可售单品 27–33 个，最小陈列量 2.5 kg</td><td>组合优化、单品选择+订货量联合决策</td></tr>
     <tr><td><strong>问题 4</strong></td><td>开放式：建议商超还需采集哪些数据</td><td>数据需求分析与论证</td></tr>
   </table>
 </div>
 
 <!-- ===== 数据预处理 ===== -->
-<div class="section">
+<div class="section" id="section-prep">
   <h2>2. 数据预处理</h2>
   <p>将附件2（销售流水明细）与附件1（单品→品类映射）按单品编码关联，聚合得到六个蔬菜品类在 2020-07-01 至 2023-06-30 期间的每日销量，共 <strong>1,085 天 × 6 品类 = 6,510 条</strong>有效记录。退货记录作为负销量纳入合计，折扣销售与正常销售统一按销量汇总。</p>
 
@@ -225,7 +241,7 @@ mjx-container[display="true"]{max-width:100%;overflow-x:auto;overflow-y:hidden}
 </div>
 
 <!-- ===== 问题1A: 分布规律 ===== -->
-<div class="section">
+<div class="section" id="sec1a">
   <h2>3. 问题 1A：销售量分布规律</h2>
   <p>问题 1 的第一个子问题要求分析蔬菜各品类及单品销售量的<strong>分布规律</strong>，具体包括：各品类的日均销量水平、销量稳定性（波动程度）、销量的分布形态（是否对称、是否存在极端值）、单品销量的集中程度。</p>
 
@@ -437,7 +453,7 @@ mjx-container[display="true"]{max-width:100%;overflow-x:auto;overflow-y:hidden}
 </div>
 
 <!-- ===== 问题1B: 相互关系 ===== -->
-<div class="section">
+<div class="section" id="sec1b">
   <h2>4. 问题 1B：品类相互关系</h2>
   <p>问题 1 的第二个子问题要求分析蔬菜各品类之间的<strong>相互关系</strong>。从两个维度展开：静态相关（品类的日销量是否同步涨跌）和动态相关（一个品类的销量变化是否领先或滞后于另一个品类）。</p>
 
@@ -507,7 +523,7 @@ mjx-container[display="true"]{max-width:100%;overflow-x:auto;overflow-y:hidden}
 </div>
 
 <!-- ===== 问题1小结 ===== -->
-<div class="section">
+<div class="section" id="sec1summary">
   <h2>5. 问题 1 小结</h2>
   <table>
     <tr><th>维度</th><th>核心发现</th><th>对后续问题的指导意义</th></tr>
@@ -518,17 +534,265 @@ mjx-container[display="true"]{max-width:100%;overflow-x:auto;overflow-y:hidden}
   </table>
 </div>
 
+<!-- ===== 问题2: 销售总量与成本加成定价的关系 ===== -->
+<div class="section" id="sec2a">
+  <h2>6. 问题 2A：销售总量与成本加成定价的关系</h2>
+  <p>问题 2 的第一个子问题要求<strong>分析各蔬菜品类的销售总量与成本加成定价的关系</strong>，即量化「加成率变动会导致销量变动多少」。回答这一问题的核心工具是<strong>需求价格弹性</strong>——衡量价格变化 1% 时需求量变化百分之几的指标。弹性小于 1 意味着涨价带来的利润增量大于销量损失，涨价是划算的。</p>
+  <p>问题 1 的 STL 分解已将日销量拆分为趋势（trend）、季节（seasonal）和残差（residual）三个分量。问题 2 在建模时将趋势和季节分量作为<strong>已知控制变量</strong>纳入需求模型——问题 1 和问题 2 在此处直接衔接。</p>
+
+  <!-- ===== 6.1 需求模型设定 ===== -->
+  <h3>6.1 需求模型设定</h3>
+  <p>采用<strong>对数线性需求模型</strong>（log-linear demand model），因变量为 ln(日销量)，自变量包括 ln(售价) 和六个控制变量：</p>
+
+  <div class="formula">
+    $$\ln Q_t = \alpha + \beta \ln P_t + \delta_1 \cdot \text{discount}_t + \delta_2 \cdot \text{weekend}_t + \delta_3 \cdot \ln Q_{t-1} + \delta_4 \cdot \ln Q_{t-7} + \gamma \cdot \text{trend}_t + \theta \cdot \text{seasonal}_t + \varepsilon_t$$
+  </div>
+
+  <table>
+    <tr><th>变量</th><th>含义</th><th>来源</th></tr>
+    <tr><td>$\ln Q_t$</td><td>当日销量的自然对数</td><td>附件2按品类聚合</td></tr>
+    <tr><td>$\ln P_t$</td><td>当日均价的自然对数</td><td>附件2销售额÷销量</td></tr>
+    <tr><td>$\text{discount}_t$</td><td>当日打折销售占比</td><td>附件2「是否打折」字段</td></tr>
+    <tr><td>$\text{weekend}_t$</td><td>周末哑变量（周六/日=1）</td><td>日期推导</td></tr>
+    <tr><td>$\ln Q_{t-1}$</td><td>前一日销量（滞后1阶）</td><td>捕捉需求惯性</td></tr>
+    <tr><td>$\ln Q_{t-7}$</td><td>前一周同日销量（滞后7阶）</td><td>捕捉周度模式</td></tr>
+    <tr><td>$\text{trend}_t$</td><td>STL趋势分量</td><td><strong>问题1产出</strong> — STL分解结果</td></tr>
+    <tr><td>$\text{seasonal}_t$</td><td>STL季节分量</td><td><strong>问题1产出</strong> — STL分解结果</td></tr>
+  </table>
+
+  <div class="highlight"><strong>为什么不能只用 ln(P) 一个变量？</strong>问题 1 已经揭示蔬菜销量受季节性主导（季节强度 0.76–0.83），且品类间存在同步波动。如果回归方程中只放入价格变量，季节效应和惯性效应会「冒领」价格的解释力——夏天菜多价低，模型会把「因为夏天所以销量高」错误归因为「因为价低所以销量高」。这就是经济学中经典的<strong>遗漏变量偏差（Omitted Variable Bias）</strong>。通过将 STL 分解的趋势和季节分量作为控制变量纳入模型，可以有效分离「季节驱动的销量变动」和「价格变化驱动的销量变动」，得到真实的价格弹性。</div>
+
+  <!-- ===== 6.2 时序诊断 ===== -->
+  <h3>6.2 时序平稳性诊断</h3>
+
+  <div class="two-col">
+  <div>
+  <div class="def-box">
+    <div class="def-title">专业术语：ADF 检验与 KPSS 检验</div>
+    <p><strong>ADF 检验</strong>（Augmented Dickey-Fuller Test）：原假设 H₀ 为「序列存在单位根（不平稳）」；p < 0.05 则拒绝 H₀，认为序列平稳。</p>
+    <p><strong>KPSS 检验</strong>（Kwiatkowski-Phillips-Schmidt-Shin Test）：原假设 H₀ 为「序列平稳」；p < 0.05 则拒绝 H₀，认为序列不平稳。两者互补——ADF 偏向不拒绝 H₀，KPSS 偏向拒绝 H₀。</p>
+    <p>若 ln(Q) 和 ln(P) 均不平稳但存在协整关系，水平回归仍然有效（超一致性）。若不存在协整而直接做水平回归，则属于<strong>伪回归</strong>——R² 和 t 值均不可信。</p>
+  </div>
+  </div>
+  <div>
+  <div class="fig-wrap">
+    <img src="images/2023-C/fig_stationarity_diagnostics.png" alt="时序诊断图" loading="lazy">
+    <div class="fig-caption">时序诊断图：左列为 ln(Q) 水平值（蓝线）和 90 天滑动平均（黑线），右列为一阶差分 Δln(Q)（蓝点）和零线（黑线）。</div>
+  </div>
+  </div>
+  </div>
+
+  <table>
+    <tr><th>品类</th><th>ln(Q) ADF p</th><th>ln(Q) KPSS p</th><th>ln(Q) 状态</th><th>ln(P) 状态</th><th>EG 协整</th><th>结论</th></tr>
+    <tr><td>水生根茎类</td><td>0.045</td><td>0.01</td><td>趋势平稳</td><td>I(1)</td><td>✅ p=0.001</td><td>水平OLS有效</td></tr>
+    <tr><td>花叶类</td><td>0.013</td><td>0.01</td><td>趋势平稳</td><td>I(1)</td><td>✅ p=0.001</td><td>水平OLS有效</td></tr>
+    <tr><td>花菜类</td><td>0.001</td><td>0.01</td><td>趋势平稳</td><td>趋势平稳</td><td>—</td><td>水平OLS有效</td></tr>
+    <tr><td>茄类</td><td>0.028</td><td>0.01</td><td>趋势平稳</td><td>趋势平稳</td><td>—</td><td>水平OLS有效</td></tr>
+    <tr><td>辣椒类</td><td>0.004</td><td>0.01</td><td>趋势平稳</td><td>趋势平稳</td><td>—</td><td>水平OLS有效</td></tr>
+    <tr><td>食用菌</td><td>0.008</td><td>0.01</td><td>趋势平稳</td><td>趋势平稳</td><td>—</td><td>水平OLS有效</td></tr>
+  </table>
+
+  <div class="highlight"><strong>诊断结论</strong>：全部 6 个品类的 ln(Q) 均呈趋势平稳——ADF 拒绝单位根假设，KPSS 拒绝平稳假设（两者同时拒绝 → 趋势平稳过程）。水平 OLS 回归有效，无需差分。水生根茎类和花叶类的 ln(P) 虽呈 I(1)，但与 ln(Q) 存在协整关系（EG 检验 p = 0.001），进一步确认了水平回归的合法性。时序诊断通过，伪回归风险排除。</div>
+
+  <!-- ===== 6.3 弹性估计 ===== -->
+  <h3>6.3 需求价格弹性估计</h3>
+
+  <div class="fig-wrap">
+    <img src="images/2023-C/fig7_price_elasticity.png" alt="图7: 价格弹性三模型对比" loading="lazy">
+    <div class="fig-caption">图 7：价格弹性系数三模型对比。蓝色柱 = M1 单变量 OLS（仅价格+趋势，存在遗漏变量偏差）；橙色柱 = M2 多变量 OLS（纳入全部控制变量后的真实偏弹性）；绿色柱 = M3 Stepwise（AIC 自动选特征+交互项）。黑色误差条为 95% 置信区间。红色百分比为 M1 相对 M2 的高估幅度。星号标注 M2 系数的显著性（*** p<0.001, ** p<0.01, * p<0.1）。</div>
+  </div>
+
+  <table>
+    <tr><th>品类</th><th>M1 R²</th><th>M2 R²</th><th>M1 弹性</th><th>M2 弹性</th><th>高估幅度</th><th>M2 p 值</th><th>M1 DW</th><th>M2 DW</th><th>判断</th></tr>
+    <tr><td>花菜类</td><td>0.20</td><td><strong>0.68</strong></td><td>0.73</td><td><strong>0.24</strong></td><td>↓68%</td><td><strong><0.001</strong></td><td>0.86</td><td>1.69</td><td>✅ 显著</td></tr>
+    <tr><td>水生根茎类</td><td>0.28</td><td><strong>0.79</strong></td><td>1.46</td><td><strong>0.19</strong></td><td>↓87%</td><td><strong>0.0001</strong></td><td>0.65</td><td>1.83</td><td>✅ 显著</td></tr>
+    <tr><td>花叶类</td><td>0.19</td><td><strong>0.82</strong></td><td>0.25</td><td><strong>0.08</strong></td><td>↓67%</td><td><strong>0.0003</strong></td><td>0.59</td><td>1.40</td><td>⚠ 边际</td></tr>
+    <tr><td>辣椒类</td><td>0.25</td><td><strong>0.82</strong></td><td>0.21</td><td><strong>0.04</strong></td><td>↓80%</td><td><strong>0.038</strong></td><td>0.57</td><td>1.48</td><td>⚠ 边际</td></tr>
+    <tr><td>食用菌</td><td>0.20</td><td><strong>0.80</strong></td><td>0.33</td><td><strong>0.06</strong></td><td>↓83%</td><td><strong>0.074</strong></td><td>0.52</td><td>1.49</td><td>❌ 不显著</td></tr>
+    <tr><td>茄类</td><td>0.07</td><td><strong>0.73</strong></td><td>0.42</td><td><strong>0.02</strong></td><td>↓96%</td><td><strong>0.68</strong></td><td>0.69</td><td>1.77</td><td>❌ 不显著</td></tr>
+  </table>
+
+  <div class="def-box">
+    <div class="def-title">专业术语：Durbin-Watson 统计量（DW）</div>
+    <p>DW 统计量检验回归残差是否存在一阶自相关。DW 接近 2 表示无自相关；DW < 1.5 表示存在正自相关（残差不是随机白噪声，相邻观测值的误差倾向于同方向）。正自相关会导致 OLS 标准误偏低，使 t 检验夸大了系数的显著性。M2 通过加入滞后项（lag1、lag7），将 DW 从 M1 的 0.52–0.86（严重自相关）提升至 1.40–1.83（大幅改善），但仍有部分品类 DW 偏离 2，需要后续的 Newey-West 修正。</p>
+    <p><strong>F 检验</strong>：所有模型均通过 F 检验（p < 0.0001），表明回归方程整体显著——解释变量联合起来能够解释销量的变动。F 检验检验的是「所有系数同时为零」的假设，拒绝该假设意味着模型具有整体的解释力。</p>
+    <p><strong>VIF（方差膨胀因子）</strong>：所有变量 VIF < 2.5，远低于 10 的警戒值，表明变量间不存在多重共线性问题。</p>
+  </div>
+
+  <div class="highlight"><strong>分析结论</strong>：M1（单变量模型）严重高估了价格弹性——遗漏变量偏差使弹性虚高 67%–96%。加入季节、趋势、滞后销量等控制变量后，M2 的 R² 从 0.07–0.28 跃升至 0.68–0.82，价格弹性从 0.21–1.46 大幅缩水至 0.02–0.24——<strong>花菜类的降价弹性最强（β=0.24），茄类的价格效应最弱且统计上不显著（β=0.02, p=0.68）</strong>。这与问题 1 的发现一致：茄类是独立的边缘品类（份额仅 4.8%，与其他品类几乎不相关），其销量主要受自身趋势和季节性驱动而非价格因素。六个品类可分为两组：<strong>价格有效组</strong>（花菜、水生根茎、花叶）——价格效应显著，弹性估计可靠；<strong>价格无效组</strong>（茄、食用菌、辣椒）——价格效应微弱或统计不显著，模型对其定价优化的指导力有限。</div>
+
+  <!-- ===== 6.4 NW修正 ===== -->
+  <h3>6.4 Newey-West HAC 标准误修正</h3>
+
+  <div class="fig-wrap">
+    <img src="images/2023-C/fig_newey_west.png" alt="NW vs OLS 标准误比值" loading="lazy">
+    <div class="fig-caption">Newey-West HAC 标准误与 OLS 标准误的比值。柱子高度 > 1 表示 OLS 低估了该变量系数的不确定性。黑色虚线 = 1（两者相等）。</div>
+  </div>
+
+  <div class="def-box">
+    <div class="def-title">专业术语：Newey-West HAC 标准误</div>
+    <p>当残差存在自相关或异方差时，OLS 的标准误不再可靠——通常会<strong>低估</strong>真实的不确定性，导致 t 检验的 p 值偏小（伪显著）。Newey-West 估计量（HAC: Heteroskedasticity and Autocorrelation Consistent）通过引入自相关核函数和自动带宽选择，给出在任意形式的自相关和异方差下都一致的标准误估计，使得 t/p 值在统计上可信。</p>
+  </div>
+
+  <table>
+    <tr><th>品类</th><th>M2 弹性 β</th><th>OLS-SE</th><th>NW-SE</th><th>SE 比值</th><th>OLS p</th><th>NW p</th><th>NW 后结论</th></tr>
+    <tr><td>花菜类</td><td>−0.237</td><td>0.044</td><td>0.051</td><td>1.16</td><td><0.001</td><td><strong><0.001</strong></td><td>✅ 显著</td></tr>
+    <tr><td>水生根茎类</td><td>−0.186</td><td>0.048</td><td>0.064</td><td>1.32</td><td>0.0001</td><td><strong>0.004</strong></td><td>✅ 显著</td></tr>
+    <tr><td>花叶类</td><td>−0.081</td><td>0.022</td><td>0.040</td><td>1.79</td><td>0.0003</td><td><strong>0.042</strong></td><td>⚠ 边际</td></tr>
+    <tr><td>辣椒类</td><td>−0.042</td><td>0.020</td><td>0.030</td><td>1.50</td><td>0.038</td><td><strong>0.17</strong></td><td>❌ NW后不显著</td></tr>
+    <tr><td>食用菌</td><td>−0.058</td><td>0.032</td><td>0.049</td><td>1.53</td><td>0.074</td><td><strong>0.24</strong></td><td>❌ 不显著</td></tr>
+    <tr><td>茄类</td><td>−0.016</td><td>0.039</td><td>0.073</td><td>1.85</td><td>0.68</td><td><strong>0.82</strong></td><td>❌ 不显著</td></tr>
+  </table>
+
+  <div class="highlight"><strong>分析结论</strong>：Newey-West 修正后，标准误普遍膨胀 1.2–1.9 倍，验证了 OLS 确实低估了不确定性。辣椒类从「边际显著」（OLS p=0.038）转变为「不显著」（NW p=0.17）——自相关伪装了价格效应。花叶类从「高度显著」退至「边际显著」（NW p=0.042）。最终确认<strong>仅花菜类、水生根茎类、花叶类三个品类的价格效应在统计上可信</strong>，其余三个品类（茄、食用菌、辣椒）的价格系数与零无显著差异——意味着在这些品类中，定价调整对销量的影响无法可靠预测。</div>
+</div>
+
+<!-- ===== 问题2B: 补货量与定价策略 ===== -->
+<div class="section" id="sec2b">
+  <h2>7. 问题 2B：日补货量与定价策略</h2>
+  <p>问题 2 的第二个子问题要求<strong>给出各蔬菜品类未来一周（2023年7月1–7日）的日补货总量和定价策略，使得商超收益最大</strong>。这需要三个步骤：需求预测 → 优化求解 → 不确定性量化。</p>
+
+  <!-- ===== 7.1 需求预测 ===== -->
+  <h3>7.1 7 天基线需求预测</h3>
+
+  <div class="fig-wrap">
+    <img src="images/2023-C/fig8_demand_forecast.png" alt="图8: 7天需求预测" loading="lazy">
+    <div class="fig-caption">图 8：7 天基线需求预测 + 95% 预测区间（2023-07-01 至 2023-07-07）。蓝线 = 最近 90 天历史实际销量，红圈 = 预测值，淡紫色填充带 = 95% 预测区间（forecast ± 1.96σ），红色虚线 = 历史最后一点与预测第一点的连线，黑色虚线分隔历史与预测。每张子图标题标注了 30 天验证集的 MAPE 和残差标准差 σ。</div>
+  </div>
+
+  <div class="def-box">
+    <div class="def-title">专业术语：预测区间（Prediction Interval, PI）与 MAPE</div>
+    <p><strong>95% 预测区间</strong> = 点预测值 ± 1.96 × σ<sub>resid</sub>，其中 σ<sub>resid</sub> 是训练期残差的标准差。含义为：如果模型假设正确，未来实际值有 95% 的概率落在此区间内。区间越宽，预测越不确定。</p>
+    <p><strong>MAPE</strong>（Mean Absolute Percentage Error，平均绝对百分比误差）= 预测误差绝对值占实际值的百分比的平均。MAPE < 20% 为优秀，20–50% 为可接受，> 50% 为差。但蔬菜日销量的先天高波动性使得 MAPE 天然偏高，需结合实际意义解读。</p>
+  </div>
+
+  <table>
+    <tr><th>品类</th><th>7/1 预测</th><th>7/3(峰值) 预测</th><th>7/7 预测</th><th>95%PI 宽度</th><th>σ (kg)</th><th>验证 MAPE</th><th>预测质量</th></tr>
+    <tr><td>茄类</td><td>17</td><td>29</td><td>16</td><td>±12 kg</td><td>6.3</td><td><strong>25.2%</strong></td><td>⚠ 勉强可用</td></tr>
+    <tr><td>辣椒类</td><td>130</td><td>132</td><td>116</td><td>±43 kg</td><td>22.1</td><td>39.4%</td><td>⚠ 可接受</td></tr>
+    <tr><td>花叶类</td><td>261</td><td>262</td><td>234</td><td>±69 kg</td><td>35.4</td><td>50.4%</td><td>❌ 较差</td></tr>
+    <tr><td>食用菌</td><td>96</td><td>93</td><td>91</td><td>±37 kg</td><td>19.1</td><td>60.2%</td><td>❌ 差</td></tr>
+    <tr><td>水生根茎类</td><td>30</td><td>47</td><td>35</td><td>±27 kg</td><td>13.7</td><td>68.9%</td><td>❌ 差</td></tr>
+    <tr><td>花菜类</td><td>45</td><td>51</td><td>50</td><td>±21 kg</td><td>10.9</td><td><strong>148.4%</strong></td><td>❌ 基本失效</td></tr>
+  </table>
+
+  <div class="highlight"><strong>分析结论</strong>：预测精度在品类间差异悬殊——茄类 MAPE 25.2%（相对最好），花菜类 MAPE 148.4%（基本失效）。结合问题 1 的发现：花叶类 CV=0.471（波动最小）但预测 MAPE 仍达 50.4%，说明蔬菜日销量的<strong>先天高噪声</strong>是预测精度的根本限制，而非模型设定的问题。花菜类仅 5 个单品且存在零销量日，数据稀疏导致预测几乎不可用。<strong>对优化的影响</strong>：预测不确定性通过蒙特卡洛模拟传播到利润估计中（见 7.4 节），使得利润输出不再是点估计而是概率分布。</div>
+
+  <!-- ===== 7.2 优化模型 ===== -->
+  <h3>7.2 报童 + 定价联合优化模型</h3>
+
+  <div class="def-box">
+    <div class="def-title">专业术语：报童模型（Newsvendor Model）</div>
+    <p>报童模型是处理<strong>单周期、随机需求、存在缺货和过量成本</strong>的经典库存模型。报童每天早晨决定进货量 Q：进多了 → 卖不完 → 承担过量成本（损耗）；进少了 → 不够卖 → 承担缺货成本（少赚的利润）。最优进货量平衡这两种成本，使得期望利润最大化。本题中，蔬菜保鲜期短且损耗率高，符合报童模型的假设。</p>
+    <p>模型的关键输入是<strong>需求分布</strong>。本文假设日需求服从对数正态分布（问题 1 的图 5 已检验），均值为 M2 需求模型预测值，标准差为训练期残差。定价通过 M2 弹性系数影响需求均值。</p>
+  </div>
+
+  <div class="formula">
+    $$\max_{r, Q} \quad \mathbb{E}[\text{Profit}] = P \cdot \mathbb{E}[\min(Q_{\text{eff}}, D)] - C \cdot Q$$
+    $$\text{s.t.} \quad P = C(1 + r),\quad Q_{\text{eff}} = Q(1 - \ell),\quad \ln D \sim \mathcal{N}(\ln \hat{Q} - \beta \ln P,\; \sigma^2)$$
+  </div>
+
+  <p>其中 $r$ 为成本加成率（决策变量），$Q$ 为进货量（决策变量），$C$ 为预测批发成本（90 天滚动均值），$\ell$ 为品类损耗率（附件4），$\beta$ 为 M2 估计的价格弹性，$\hat{Q}$ 为 STL 基线需求预测，$\sigma$ 为需求对数标准差。求解采用 MATLAB <code>fmincon</code> SQP 算法。优化搜索范围限制在历史价格区间内（各品类的 P1–P99 加成率），确保需求模型不进行不可靠的外推。</p>
+
+  <!-- ===== 7.3 最终方案 ===== -->
+  <h3>7.3 最终补货方案</h3>
+
+  <div class="fig-wrap">
+    <img src="images/2023-C/fig_final_solution.png" alt="最终方案" loading="lazy">
+    <div class="fig-caption">问题 2 最终方案四合一可视化。A：日补货量热力图（紫=低，黄=高）；B：成本加成率热力图（黑=低，亮黄=高）；C：期望周利润 ± 90% 置信区间（蒙特卡洛 10,000 次）；D：NSGA-II 多目标 Pareto 前沿（利润 vs 损耗的权衡）。</div>
+  </div>
+
+  <h4>日补货量 Q*（kg）与定价策略</h4>
+  <table>
+    <tr><th>品类</th><th>7/1</th><th>7/2</th><th>7/3</th><th>7/4</th><th>7/5</th><th>7/6</th><th>7/7</th><th>加成率</th><th>售价(元/kg)</th><th>周总Q</th></tr>
+    <tr><td>花叶类</td><td>211.5</td><td>216.2</td><td>188.4</td><td>189.1</td><td>188.9</td><td>187.7</td><td>174.3</td><td><strong>87.5%</strong></td><td>8.18</td><td>1,356</td></tr>
+    <tr><td>辣椒类</td><td>119.0</td><td>122.1</td><td>103.5</td><td>105.3</td><td>107.0</td><td>100.2</td><td>95.0</td><td><strong>103.5%</strong></td><td>12.55</td><td>752</td></tr>
+    <tr><td>食用菌</td><td>75.4</td><td>75.2</td><td>63.4</td><td>65.8</td><td>67.0</td><td>61.1</td><td>62.7</td><td><strong>118.8%</strong></td><td>11.98</td><td>471</td></tr>
+    <tr><td>花菜类</td><td>39.6</td><td>42.5</td><td>37.7</td><td>36.4</td><td>39.2</td><td>38.9</td><td>37.4</td><td><strong>154.8%</strong></td><td>19.56</td><td>272</td></tr>
+    <tr><td>茄类</td><td>20.8</td><td>22.6</td><td>28.1</td><td>26.5</td><td>26.2</td><td>20.1</td><td>18.7</td><td><strong>147.9%</strong></td><td>11.90</td><td>163</td></tr>
+    <tr><td>水生根茎类</td><td>23.6</td><td>24.9</td><td>25.8</td><td>21.3</td><td>22.5</td><td>22.1</td><td>21.8</td><td><strong>110.2%</strong></td><td>20.34</td><td>162</td></tr>
+    <tr><td><strong>合计</strong></td><td>490</td><td>504</td><td>447</td><td>444</td><td>451</td><td>430</td><td>410</td><td>—</td><td>—</td><td><strong>3,176</strong></td></tr>
+  </table>
+
+  <div class="highlight"><strong>方案解读</strong>：周总进货量 3,176 kg，日均约 454 kg。所有品类的加成率均收敛至各自历史价格的 P99 上界——这意味着模型认为「在数据支持的范围内，应该尽可能定高价」。这是因为 M2 估计的需求弹性均远小于 1（0.02–0.24），涨价带来的利润率提升远超销量损失。但六个品类中仅三个（花菜、水生根茎、花叶）的价格效应在 NW 修正后仍统计显著，辣椒、食用菌、茄类的补货和定价方案可靠性较低。</div>
+
+  <!-- ===== 7.4 蒙特卡洛 ===== -->
+  <h3>7.4 不确定性量化：蒙特卡洛模拟</h3>
+
+  <div class="def-box">
+    <div class="def-title">专业术语：蒙特卡洛模拟（Monte Carlo Simulation）与 VaR（Value at Risk）</div>
+    <p>蒙特卡洛模拟通过对需求分布重复抽样（本文进行 10,000 次），模拟各种可能的需求场景，计算出利润的完整概率分布——而非单一的点估计。从分布中可以直接读出：<strong>VaR 5%</strong>（5% 分位数）：有 95% 的把握利润不低于此值，衡量最坏情况的风险敞口。<strong>CV</strong>（变异系数 = 标准差/均值）：利润的相对波动程度，CV 越小表示利润越稳定可预期。</p>
+  </div>
+
+  <table>
+    <tr><th>品类</th><th>MC 期望利润</th><th>VaR 5%</th><th>VaR 95%</th><th>利润 CV</th><th>风险等级</th></tr>
+    <tr><td>花叶类</td><td><strong>3,390</strong></td><td>2,899</td><td>3,755</td><td><strong>7.8%</strong></td><td>✅ 低风险</td></tr>
+    <tr><td>辣椒类</td><td>3,345</td><td>2,726</td><td>3,841</td><td>10.1%</td><td>✅ 较低风险</td></tr>
+    <tr><td>食用菌</td><td>2,064</td><td>1,625</td><td>2,436</td><td>11.9%</td><td>⚠ 中等风险</td></tr>
+    <tr><td>花菜类</td><td>1,834</td><td>1,342</td><td>2,259</td><td>15.2%</td><td>⚠ 中等风险</td></tr>
+    <tr><td>茄类</td><td>790</td><td>595</td><td>961</td><td>14.2%</td><td>⚠ 中等风险</td></tr>
+    <tr><td>水生根茎类</td><td>955</td><td>641</td><td>1,216</td><td><strong>18.2%</strong></td><td>❌ 高风险</td></tr>
+    <tr><td><strong>合计</strong></td><td><strong>12,378</strong></td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+  </table>
+
+  <div class="highlight"><strong>分析结论</strong>：周总期望利润 <strong>12,378 元</strong>。花叶类同时贡献最高利润和最低利润波动（CV=7.8%），是最稳定的收入来源——与问题 1「花叶类是核心品类」的结论一致。水生根茎类利润 CV 高达 18.2%，与其在问题 1 中 CV=0.838（销量波动最大）的发现呼应——销量不稳定直接传导为利润不稳定。VaR 5% 为极端情况下的利润下限提供了量化参考：最坏情况下花叶类一周仍可赚 2,899 元。</div>
+
+  <!-- ===== 7.5 NSGA-II ===== -->
+  <h3>7.5 多目标权衡：NSGA-II Pareto 前沿</h3>
+
+  <div class="fig-wrap">
+    <img src="images/2023-C/fig_pareto_montecarlo.png" alt="Pareto前沿与利润分布" loading="lazy">
+    <div class="fig-caption">左上：花叶类 NSGA-II 三目标 Pareto 前沿（利润-损耗-缺货）；右上：全品类 Pareto 前沿（利润 vs 损耗）；左下：花叶类周利润蒙特卡洛分布（均值=2,946, CV=7.8%）；右下：全品类期望利润 ± 90% 置信区间。</div>
+  </div>
+
+  <div class="def-box">
+    <div class="def-title">专业术语：NSGA-II 与 Pareto 前沿</div>
+    <p><strong>NSGA-II</strong>（Non-dominated Sorting Genetic Algorithm II）是一种多目标进化算法。当优化问题有多个相互冲突的目标时（如利润最大化、损耗最小化、缺货最小化），不存在单一的「最优解」——提高利润通常意味着接受更多损耗和缺货。<strong>Pareto 前沿</strong>是所有「非支配解」的集合：在前沿上的任何一个解，要改进一个目标就必须牺牲另一个目标。决策者可以根据自己的风险偏好从前沿上选择方案。</p>
+  </div>
+
+  <table>
+    <tr><th>品类</th><th>Pareto 非支配解数</th><th>利润范围 (元)</th><th>利润 vs 损耗特征</th></tr>
+    <tr><td>花叶类</td><td>21</td><td>6,383 – 12,435</td><td>利润↑ → 损耗显著↑，前沿坡度较陡</td></tr>
+    <tr><td>辣椒类</td><td>19</td><td>4,504 – 9,022</td><td>利润↑ → 损耗平缓↑，权衡空间较大</td></tr>
+    <tr><td>食用菌</td><td>21</td><td>2,295 – 5,213</td><td>中间特征</td></tr>
+    <tr><td>花菜类</td><td>21</td><td>651 – 2,777</td><td>利润↑ → 损耗急剧↑，前沿陡峭</td></tr>
+    <tr><td>茄类</td><td>21</td><td>751 – 1,831</td><td>利润↑ → 损耗显著↑</td></tr>
+    <tr><td>水生根茎类</td><td>21</td><td>268 – 1,104</td><td>整体利润偏低</td></tr>
+  </table>
+
+  <div class="highlight"><strong>分析结论</strong>：Pareto 前沿揭示了利润与损耗之间不可消除的权衡关系——没有「既高利润又低损耗」的方案。花叶类前沿覆盖范围最广（利润跨度 ~6,000 元），为决策者提供了充分的方案选择空间。水生根茎类和茄类前沿集中在低利润区域，与其本身较小的销售体量一致。NSGA-II 的输出不是给出一个「最优解」然后结束，而是提供一个<strong>方案菜单</strong>供决策者根据实际经营约束（如损耗容忍度、库存容量）进行选择。</div>
+</div>
+
+<!-- ===== 问题2小结 ===== -->
+<div class="section" id="sec2summary">
+  <h2>8. 问题 2 小结</h2>
+  <table>
+    <tr><th>维度</th><th>核心发现</th><th>对后续问题的指导意义</th></tr>
+    <tr><td><strong>2A 价格弹性</strong></td><td>M1 单变量模型因遗漏变量严重高估弹性（高估 67–96%）。M2 多变量模型控制季节+趋势+滞后后，R² 从 0.07→0.73，DW 从 0.5→1.7。真实偏弹性为 0.02–0.24——六品类需求均极度缺乏弹性。NW 修正后确认仅 3/6 品类价格效应显著。</td><td>问题 3 的单品级优化应优先选择价格有效组品类（花菜、水生根茎、花叶）的单品，对这些品类的定价策略更有数据支撑。价格无效组品类的定价应参考历史均价或竞争定价。</td></tr>
+    <tr><td><strong>2A 时序诊断</strong></td><td>ADF+KPSS+EG 三步检验确认全部品类 ln(Q) 趋势平稳，水平 OLS 有效，排除伪回归风险。</td><td>问题 3 若涉及时间序列分析，可沿用水平回归框架，无需差分。</td></tr>
+    <tr><td><strong>2B 需求预测</strong></td><td>STL 趋势外推+季节分量给出 7 天基线预测。预测精度在品类间差异大：茄类 MAPE 25.2%，花菜类 148.4%。95% 预测区间占预测值 ±40–90%，反映蔬菜日销量的先天高噪声。</td><td>问题 3 应选用预测精度较高的品类（茄、辣椒、花叶）做重点单品推荐；花菜类因预测基本失效，单品方案需更为保守。</td></tr>
+    <tr><td><strong>2B 优化方案</strong></td><td>周总利润 12,378 元，日进货 454 kg。全部品类加成率触历史 P99 上界——模型认为应尽可能定高价。蒙特卡洛模拟显示花叶类利润最稳（CV=7.8%），水生根茎类最不稳（CV=18.2%）。NSGA-II 给出利润-损耗的 Pareto 前沿。</td><td>问题 3 单品级方案面临更紧的约束（27–33 个可售品、最小陈列量 2.5 kg），品类级利润分布可为单品选择的优先级提供依据。Pareto 前沿的方法可延续至问题 3 的多目标决策。</td></tr>
+  </table>
+</div>
+
 <!-- ===== 方法清单 ===== -->
-<div class="section">
-  <h2>6. 本问题使用的方法</h2>
+<div class="section" id="sec-methods">
+  <h2>9. 本问题使用的方法</h2>
   <table>
     <tr><th>#</th><th>方法</th><th>解决的问题</th><th>选择理由</th></tr>
     <tr><td>1</td><td>描述统计</td><td>品类/单品销量的集中趋势、离散度、分布形态</td><td>所有分析的基础，提供数据的全局视图</td></tr>
     <tr><td>2</td><td>Gini 系数 + 帕累托分析</td><td>单品销量集中度</td><td>量化「少数单品占多数销量」的程度</td></tr>
-    <tr><td>3</td><td>STL 分解（period = 365）</td><td>年度季节 + 长期趋势分离</td><td>蔬菜具有自然年度季节性，STL 对非固定季节形态具有鲁棒性</td></tr>
-    <tr><td>4</td><td>Pearson 相关 + Spearman 秩相关</td><td>品类间线性与单调关联强度</td><td>直接回答问题 1B「相互关系」，双系数可交叉验证</td></tr>
-    <tr><td>5</td><td>对数正态拟合 + KS 检验</td><td>日销量分布形态检验</td><td>为问题 2 的需求预测模型提供分布假设依据</td></tr>
-    <tr><td>6</td><td>交叉相关函数（CCF）</td><td>品类间领先-滞后关系</td><td>在静态相关之外增加时间维度，揭示时序上的因果线索</td></tr>
+    <tr><td>3</td><td>STL 分解（period = 365）</td><td>年度季节 + 长期趋势分离</td><td>蔬菜具有自然年度季节性，STL 对非固定季节形态具有鲁棒性。分解结果直接作为问题 2 需求模型的控制变量</td></tr>
+    <tr><td>4</td><td>Pearson + Spearman 相关</td><td>品类间线性与单调关联强度</td><td>直接回答问题 1B，为问题 2 的交叉弹性分析提供先验</td></tr>
+    <tr><td>5</td><td>对数正态拟合 + KS 检验</td><td>日销量分布形态检验</td><td>为问题 2 的报童模型提供需求分布假设</td></tr>
+    <tr><td>6</td><td>交叉相关函数 CCF</td><td>品类间领先-滞后关系</td><td>在静态相关外增加时间维度</td></tr>
+    <tr><td><strong>7</strong></td><td><strong>ADF + KPSS + EG 协整检验</strong></td><td><strong>时间序列平稳性诊断</strong></td><td><strong>排除伪回归风险，验证水平 OLS 的合法性</strong></td></tr>
+    <tr><td><strong>8</strong></td><td><strong>多元对数线性回归 (M2)</strong></td><td><strong>量化各品类需求价格弹性</strong></td><td><strong>问题 1 的 STL 分量作为控制变量纳入，消除遗漏变量偏差</strong></td></tr>
+    <tr><td><strong>9</strong></td><td><strong>Newey-West HAC 标准误</strong></td><td><strong>修正自相关对标准误的低估</strong></td><td><strong>残差自相关存在时给出可靠 t/p 值</strong></td></tr>
+    <tr><td><strong>10</strong></td><td><strong>报童模型 (Newsvendor)</strong></td><td><strong>随机需求下的最优订货量决策</strong></td><td><strong>蔬菜保鲜期短、需求随机，符合报童模型假设</strong></td></tr>
+    <tr><td><strong>11</strong></td><td><strong>fmincon SQP 非线性规划</strong></td><td><strong>定价与补货联合最优求解</strong></td><td><strong>目标函数非凸，SQP 适合中小规模约束优化</strong></td></tr>
+    <tr><td><strong>12</strong></td><td><strong>蒙特卡洛模拟</strong></td><td><strong>利润不确定性量化 (VaR/CV)</strong></td><td><strong>给出利润分布而非点估计，诚实呈现不确定性</strong></td></tr>
+    <tr><td><strong>13</strong></td><td><strong>NSGA-II 多目标进化算法</strong></td><td><strong>利润-损耗-缺货三目标权衡</strong></td><td><strong>不追求单一最优，给决策者 Pareto 方案菜单</strong></td></tr>
   </table>
 </div>
 
@@ -548,6 +812,22 @@ mjx-container[display="true"]{max-width:100%;overflow-x:auto;overflow-y:hidden}
     <a class="nav-sub" href="历年真题模拟分析.html">历年真题总览</a>
     <a class="nav-sub current" href="2023-国赛C题.html">2023 C题: 蔬菜定价与补货</a>
   </details>
+  <div class="nav-section">本题章节</div>
+  <a href="2023-国赛C题.html#section-overview"><span class="num">1</span>题目概述</a>
+  <a href="2023-国赛C题.html#section-prep"><span class="num">2</span>数据预处理</a>
+  <details class="nav-cat" open>
+    <summary>问题 1: 分布规律与相互关系</summary>
+    <a class="nav-sub" href="2023-国赛C题.html#sec1a">3. 分布规律</a>
+    <a class="nav-sub" href="2023-国赛C题.html#sec1b">4. 相互关系</a>
+    <a class="nav-sub" href="2023-国赛C题.html#sec1summary">5. 问题1小结</a>
+  </details>
+  <details class="nav-cat" open>
+    <summary>问题 2: 定价与补货策略</summary>
+    <a class="nav-sub" href="2023-国赛C题.html#sec2a">6. 弹性分析</a>
+    <a class="nav-sub" href="2023-国赛C题.html#sec2b">7. 补货方案</a>
+    <a class="nav-sub" href="2023-国赛C题.html#sec2summary">8. 问题2小结</a>
+  </details>
+  <a href="2023-国赛C题.html#sec-methods"><span class="num">9</span>方法清单</a>
   <div class="nav-section">核心方法</div>
   <a href="插值与拟合.html"><span class="num">1</span>插值与拟合</a>
   <a href="蒙特卡洛.html"><span class="num">2</span>蒙特卡洛方法</a>
@@ -563,7 +843,7 @@ mjx-container[display="true"]{max-width:100%;overflow-x:auto;overflow-y:hidden}
 
 <script>
 (function(){
-  var v='250713b';
+  var v='250713c';
   if(localStorage.getItem('mm-ver')!==v){localStorage.setItem('mm-ver',v);location.reload(true);}
 })();
 (function(){
