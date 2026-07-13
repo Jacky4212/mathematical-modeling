@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>2023国赛C题 — 数学建模</title>
+<script>
+MathJax = { tex: { inlineMath: [['$','$'],['\(','\)']], displayMath: [['$$','$$'],['\[','\]']], processEscapes: true } };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" async></script>
+<style>
+:root {
+  --paper: #fdf6e3; --paper-dark: #f3e8d0; --ink: #3d3525; --ink-light: #6b5f48;
+  --accent: #2d7fc1; --accent-hover: #1d4ed8; --divider: #d9c9a0;
+  --card-bg: #fef9ee; --card-border: #e5d5b5;
+  --sidebar-bg: #f5ebd5; --sidebar-border: #e5d5b5;
+  --code-bg: #ede0c5; --highlight-bg: #fefce8;
+  --highlight-border: #eab308; --highlight-strong: #92400e;
+  --heading-color: #1a3a5c; --code-text: #8a4b1e;
+  --radius: 8px; --font: "Microsoft YaHei","PingFang SC","Noto Sans SC",sans-serif;
+}
+.dark-mode {
+  --paper: #1a1a2e; --paper-dark: #22223a; --ink: #e0e0ec; --ink-light: #8888aa;
+  --accent: #6a82f0; --accent-hover: #5a72e0; --divider: #2d2d45;
+  --card-bg: #24243a; --card-border: #33334d;
+  --sidebar-bg: #1a1a2e; --sidebar-border: #2d2d45;
+  --code-bg: #2a2a3e; --highlight-bg: #1e2a3a;
+  --highlight-border: #6a82f0; --highlight-strong: #8ab8f0;
+  --heading-color: var(--ink); --code-text: #8ab8c0;
+  background-color: var(--paper);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font);font-size:12pt;font-weight:500;line-height:1.8;color:var(--ink);background:var(--paper);display:flex;min-height:100vh}
+a{color:var(--accent);text-decoration:none;transition:color .2s}
+a:hover{color:var(--accent-hover)}
+ul,ol{padding-left:1.5em}
+li{margin-bottom:.3em}
+table{border-collapse:collapse;width:100%;margin:12px 0;font-size:.95em}
+th,td{border:1px solid var(--card-border);padding:8px 12px;text-align:center}
+th{background:var(--paper-dark);font-weight:600}
+td{background:var(--card-bg)}
+img{max-width:100%;height:auto;border-radius:var(--radius);border:1px solid var(--card-border);margin:12px 0;display:block}
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-thumb{background:var(--ink-light);border-radius:3px}
+
+.sidebar{position:fixed;top:0;left:0;width:210px;height:100vh;background:var(--sidebar-bg);border-right:1px solid var(--sidebar-border);overflow-y:auto;z-index:100;padding:0 0 20px}
+.sidebar-header{padding:22px 16px 16px;border-bottom:1px solid var(--sidebar-border)}
+.sidebar-header .site-name{font-size:1.15em;font-weight:700;color:var(--accent)}
+.sidebar-header .site-sub{font-size:.75em;color:var(--ink-light);margin-top:2px}
+.sidebar-nav{padding:8px 0}
+.sidebar-nav .group-label{font-size:.7em;text-transform:uppercase;letter-spacing:1px;color:var(--ink-light);padding:12px 16px 4px;font-weight:600}
+.sidebar-nav a{display:flex;align-items:center;padding:7px 16px;font-size:.9em;color:var(--ink);gap:8px;border-left:3px solid transparent;transition:background .15s,border-color .15s}
+.sidebar-nav a:hover{background:var(--paper-dark);color:var(--accent)}
+.sidebar-nav a.current{background:var(--highlight-bg);border-left-color:var(--accent);color:var(--accent);font-weight:600}
+.sidebar-nav .tag{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:var(--paper-dark);font-size:.75em;font-weight:600;flex-shrink:0}
+.sidebar-nav a.current .tag{background:var(--accent);color:#fff}
+.sidebar-nav details.sidebar-cat{margin:0}
+.sidebar-nav details.sidebar-cat summary{display:flex;align-items:center;padding:7px 16px;font-size:.9em;font-weight:600;color:var(--ink);cursor:pointer;gap:8px;border-left:3px solid transparent;list-style:none;user-select:none;transition:background .15s}
+.sidebar-nav details.sidebar-cat summary::-webkit-details-marker{display:none}
+.sidebar-nav details.sidebar-cat summary::before{content:'▸';display:inline-block;font-size:.65em;transition:transform .2s;width:12px;text-align:center;flex-shrink:0}
+.sidebar-nav details.sidebar-cat[open] summary::before{transform:rotate(90deg)}
+.sidebar-nav details.sidebar-cat summary:hover{background:var(--paper-dark)}
+.sidebar-nav details.sidebar-cat .sub-link{display:block;padding:5px 16px 5px 40px;font-size:.82em;color:var(--ink-light);border-left:2px solid transparent;transition:all .15s;line-height:1.5}
+.sidebar-nav details.sidebar-cat .sub-link:hover{color:var(--accent);background:var(--paper-dark);border-left-color:var(--accent)}
+.sidebar-nav details.sidebar-cat .sub-link.current{color:var(--accent);font-weight:600;border-left-color:var(--accent);background:var(--highlight-bg)}
+
+.theme-toggle{position:fixed;top:56px;right:20px;z-index:200;background:var(--card-bg);border:1px solid var(--card-border);border-radius:50%;width:38px;height:38px;font-size:1.1em;cursor:pointer;line-height:1;transition:transform .2s}
+.theme-toggle:hover{transform:scale(1.1)}
+
+.main-wrap{flex:1;margin-left:210px;display:flex;flex-direction:column;min-height:100vh}
+.topbar{position:sticky;top:0;z-index:90;background:linear-gradient(135deg, #1a3a5c, var(--accent));padding:0}
+.topbar-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:14px 28px}
+.topbar-inner h2{color:#fff;font-size:1.15em;font-weight:600}
+.topbar-inner .breadcrumb{color:rgba(255,255,255,.75);font-size:.85em}
+.topbar-inner .breadcrumb a{color:rgba(255,255,255,.85);font-size:.85em;padding:2px 6px;border-radius:3px}
+.topbar-inner .breadcrumb a:hover{background:rgba(255,255,255,.15);color:#fff}
+.topbar-inner .breadcrumb span{color:rgba(255,255,255,.5);margin:0 4px}
+
+.container{max-width:1100px;margin:0 auto;padding:28px 28px 40px;width:100%}
+.section{background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--radius);padding:24px 28px;margin-bottom:22px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.section h2{font-size:1.3em;color:var(--heading-color);margin-bottom:16px;padding-bottom:8px;border-bottom:2px solid var(--divider)}
+.section h3{font-size:1.08em;color:var(--accent);margin:20px 0 10px;padding-bottom:6px;border-bottom:1px dashed var(--divider)}
+.section h4{font-size:1em;color:var(--ink);font-weight:600;margin:14px 0 6px}
+.section p{margin-bottom:10px}
+.highlight{background:var(--highlight-bg);border-left:4px solid var(--highlight-border);padding:12px 16px;margin:14px 0;border-radius:0 6px 6px 0;font-size:.95em}
+.highlight strong{color:var(--highlight-strong)}
+.def-box{background:var(--code-bg);border:1px solid var(--card-border);border-radius:6px;padding:14px 18px;margin:12px 0}
+.def-box .def-title{font-weight:700;color:var(--accent);margin-bottom:4px;font-size:.92em}
+.formula{text-align:center;background:var(--code-bg);padding:12px 20px;margin:14px 0;border-radius:6px}
+code{font-family:"Cascadia Code","JetBrains Mono","Consolas",monospace;font-size:.88em;background:var(--code-bg);color:var(--code-text);padding:1px 6px;border-radius:4px}
+mjx-container[display="true"]{max-width:100%;overflow-x:auto;overflow-y:hidden}
+
+/* Figure caption */
+.fig-wrap{text-align:center;margin:20px 0}
+.fig-wrap img{display:inline-block}
+.fig-wrap .fig-caption{font-size:.88em;color:var(--ink-light);margin-top:6px;font-style:italic}
+
+/* Two-column layout for figure + table */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin:16px 0;align-items:start}
+@media(max-width:768px){.two-col{grid-template-columns:1fr}}
+
+/* Key-Value table */
+.kv-table{width:auto;min-width:400px;margin:12px auto}
+.kv-table td:first-child{font-weight:600;text-align:right;background:var(--paper-dark);width:140px}
+.kv-table td:last-child{text-align:left}
+
+.back2top{position:fixed;right:24px;bottom:30px;z-index:90;width:42px;height:42px;background:linear-gradient(135deg, #1a3a5c, var(--accent));color:#fff;border:none;border-radius:50%;font-size:1.2em;cursor:pointer;opacity:.75;transition:all .2s;box-shadow:0 2px 10px rgba(0,0,0,.18)}
+.back2top:hover{opacity:1}
+
+.chapter-nav-toggle{position:fixed;right:0;top:50%;transform:translateY(-50%);z-index:95;background:linear-gradient(135deg, #1a3a5c, var(--accent));color:#fff;border:none;border-radius:8px 0 0 8px;padding:14px 8px;font-size:1.1em;cursor:pointer;writing-mode:vertical-lr;letter-spacing:2px;opacity:.8;transition:all .2s;box-shadow:-2px 0 10px rgba(0,0,0,.15)}
+.chapter-nav-panel{position:fixed;right:-260px;top:0;width:250px;height:100vh;z-index:150;background:var(--sidebar-bg);border-left:1px solid var(--sidebar-border);overflow-y:auto;transition:right .35s cubic-bezier(.4,0,.2,1);padding:20px 0}
+.chapter-nav-panel.open{right:0}
+.chapter-nav-panel .nav-header{padding:12px 20px 16px;border-bottom:1px solid var(--sidebar-border);font-weight:700;color:var(--accent);font-size:1.05em}
+.chapter-nav-panel .nav-section{padding:8px 20px 2px;font-size:.7em;text-transform:uppercase;letter-spacing:1px;color:var(--ink-light);font-weight:600}
+.chapter-nav-panel a{display:flex;align-items:center;padding:7px 20px;font-size:.9em;color:var(--ink);gap:8px;transition:background .15s}
+.chapter-nav-panel a:hover{background:var(--paper-dark);color:var(--accent)}
+.chapter-nav-panel a.current{color:var(--accent);font-weight:600}
+.chapter-nav-panel .num{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:var(--paper-dark);font-size:.75em;font-weight:600;flex-shrink:0}
+.chapter-nav-panel details.nav-cat{margin:0}
+.chapter-nav-panel details.nav-cat summary{display:flex;align-items:center;padding:10px 20px;font-size:.82em;font-weight:600;color:var(--accent);cursor:pointer;gap:8px;list-style:none;user-select:none;transition:background .15s}
+.chapter-nav-panel details.nav-cat summary::-webkit-details-marker{display:none}
+.chapter-nav-panel details.nav-cat summary::before{content:'▸';display:inline-block;font-size:.7em;transition:transform .2s;width:14px;text-align:center}
+.chapter-nav-panel details.nav-cat[open] summary::before{transform:rotate(90deg)}
+.chapter-nav-panel details.nav-cat summary:hover{background:var(--paper-dark)}
+.chapter-nav-panel details.nav-cat .nav-sub{display:block;padding:5px 20px 5px 36px;font-size:.78em;color:var(--ink-light);border-left:2px solid transparent;transition:all .15s;line-height:1.5}
+.chapter-nav-panel details.nav-cat .nav-sub:hover{color:var(--accent);background:var(--paper-dark);border-left-color:var(--accent)}
+.chapter-nav-panel details.nav-cat .nav-sub.current{color:var(--accent);font-weight:600;border-left-color:var(--accent)}
+
+.footer{text-align:center;padding:20px;color:var(--ink-light);font-size:.82em;border-top:1px solid var(--divider);margin-top:auto}
+
+@media(max-width:768px){.sidebar{display:none}.main-wrap{margin-left:0}body{font-size:10.5pt}}
+@media(max-width:640px){.section{padding:18px 16px}.chapter-nav-panel{width:200px}table{font-size:.85em}th,td{padding:5px 8px}.back2top{right:10px;bottom:20px;width:38px;height:38px}.container{padding:16px 12px 30px}}
+@media print{.sidebar,.topbar,.theme-toggle,.chapter-nav-toggle,.chapter-nav-panel,.back2top,.footer{display:none}.main-wrap{margin-left:0}}
+</style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<nav class="sidebar">
+  <div class="sidebar-header">
+    <div class="site-name">📐 数学建模</div>
+    <div class="site-sub">学习平台</div>
+  </div>
+  <div class="sidebar-nav">
+    <div class="group-label">核心方法</div>
+    <a href="插值与拟合.html"><span class="tag">1</span>插值与拟合</a>
+    <a href="蒙特卡洛.html"><span class="tag">2</span>蒙特卡洛方法</a>
+    <a href="线性回归.html"><span class="tag">3</span>线性回归</a>
+    <a href="主成分与因子分析.html"><span class="tag">5</span>主成分与因子分析</a>
+    <a href="时间序列.html"><span class="tag">6</span>时间序列分析</a>
+    <a href="图与网络.html"><span class="tag">7</span>图与网络</a>
+    <div class="group-label">综合专题</div>
+    <a href="AI与建模.html"><span class="tag">4</span>AI与数学建模</a>
+    <a href="方法大全.html"><span class="tag">★</span>方法大全（59种）</a>
+    <div class="group-label">真题实战</div>
+    <details class="sidebar-cat" open>
+      <summary>📝 历年真题模拟分析</summary>
+      <a class="sub-link" href="历年真题模拟分析.html">历年真题总览</a>
+      <details class="sidebar-cat" open style="margin-left:0">
+        <summary style="font-size:.8em;padding-left:0">▶ 2023年</summary>
+        <a class="sub-link current" href="2023-国赛C题.html" style="padding-left:52px">C题: 蔬菜定价与补货</a>
+      </details>
+    </details>
+    <a href="index.html" style="margin-top:6px;border-top:1px solid var(--sidebar-border);padding-top:8px"><span class="tag">⌂</span>返回首页</a>
+  </div>
+</nav>
+
+<button class="theme-toggle no-print" onclick="toggleTheme()" title="切换暗黑模式">🌙</button>
+
+<div class="main-wrap">
+<div class="topbar">
+  <div class="topbar-inner">
+    <div class="breadcrumb"><a href="index.html">首页</a> <span>›</span> <a href="历年真题模拟分析.html">历年真题</a> <span>›</span> <a href="历年真题模拟分析.html">2023年</a> <span>›</span> C题</div>
+    <h2>2023国赛 C题: 蔬菜定价与补货</h2>
+  </div>
+</div>
+
+<div class="container">
+
+<!-- ===== 题目概述 ===== -->
+<div class="section">
+  <h2>1. 题目概述</h2>
+
+  <h3>1.1 问题背景</h3>
+  <p>在生鲜商超中，蔬菜类商品的保鲜期短，品相随销售时间增加而变差，大部分品种当日未售出则隔日无法再售。商超需根据各商品的历史销售和需求情况每天进行补货决策。蔬菜的进货交易时间通常在凌晨 3:00–4:00，商家须在不确切知道具体单品和进货价格的情况下做出当日补货决策。可靠的市场需求分析对补货和定价决策尤为重要。</p>
+
+  <h3>1.2 附件数据</h3>
+  <table>
+    <tr><th>附件</th><th>文件名</th><th>规模</th><th>内容</th></tr>
+    <tr><td>附件1</td><td><code>附件1.xlsx</code></td><td>251 行 × 4 列</td><td>6个蔬菜品类下各单品的商品信息（单品编码、名称、分类编码、分类名称）</td></tr>
+    <tr><td>附件2</td><td><code>附件2.xlsx</code></td><td>878,504 行 × 7 列</td><td>2020-07-01 至 2023-06-30 各商品销售流水明细（单品编码、销量、单价、是否打折、销售类型）</td></tr>
+    <tr><td>附件3</td><td><code>附件3.xlsx</code></td><td>55,983 行 × 3 列</td><td>各单品每日批发价格（日期、单品编码、批发价格 元/kg）</td></tr>
+    <tr><td>附件4</td><td><code>附件4.xlsx</code></td><td>6 行 × 3 列</td><td>各品类近期损耗率</td></tr>
+  </table>
+
+  <h3>1.3 四个子问题</h3>
+  <table>
+    <tr><th>问题</th><th>核心任务</th><th>分析方法</th></tr>
+    <tr><td><strong>问题 1</strong></td><td>分析蔬菜各品类及单品销售量的分布规律及相互关系</td><td>描述统计、帕累托分析、STL时间序列分解、Pearson/Spearman相关、CCF互相关</td></tr>
+    <tr><td><strong>问题 2</strong></td><td>以品类为单位，给出未来一周日补货总量和定价策略，使收益最大</td><td>成本加成定价模型、需求预测、优化求解</td></tr>
+    <tr><td><strong>问题 3</strong></td><td>单品级补货计划：可售单品 27–33 个，最小陈列量 2.5 kg</td><td>组合优化、单品选择+订货量联合决策</td></tr>
+    <tr><td><strong>问题 4</strong></td><td>开放式：建议商超还需采集哪些数据</td><td>数据需求分析与论证</td></tr>
+  </table>
+</div>
+
+<!-- ===== 数据预处理 ===== -->
+<div class="section">
+  <h2>2. 数据预处理</h2>
+  <p>将附件2（销售流水明细）与附件1（单品→品类映射）按单品编码关联，聚合得到六个蔬菜品类在 2020-07-01 至 2023-06-30 期间的每日销量，共 <strong>1,085 天 × 6 品类 = 6,510 条</strong>有效记录。退货记录作为负销量纳入合计，折扣销售与正常销售统一按销量汇总。</p>
+
+  <table>
+    <tr><th>品类</th><th>单品数</th><th>零销量天数</th><th>损耗率</th></tr>
+    <tr><td>花叶类</td><td>99</td><td>0</td><td>12.83%</td></tr>
+    <tr><td>食用菌</td><td>71</td><td>0</td><td>9.45%</td></tr>
+    <tr><td>辣椒类</td><td>43</td><td>0</td><td>9.24%</td></tr>
+    <tr><td>水生根茎类</td><td>18</td><td>0</td><td>13.65%</td></tr>
+    <tr><td>茄类</td><td>10</td><td>35</td><td>6.68%</td></tr>
+    <tr><td>花菜类</td><td>5</td><td>1</td><td>15.51%</td></tr>
+  </table>
+
+  <div class="highlight"><strong>注意</strong>：茄类存在 35 个零销量日（占 3.2% 的观测天数），花菜类存在 1 个零销量日。零销量日可能是该品类当日未有商品上架或全部售罄所致，在分布拟合时予以排除。</div>
+</div>
+
+<!-- ===== 问题1A: 分布规律 ===== -->
+<div class="section">
+  <h2>3. 问题 1A：销售量分布规律</h2>
+  <p>问题 1 的第一个子问题要求分析蔬菜各品类及单品销售量的<strong>分布规律</strong>，具体包括：各品类的日均销量水平、销量稳定性（波动程度）、销量的分布形态（是否对称、是否存在极端值）、单品销量的集中程度。</p>
+
+  <!-- ===== 图1 ===== -->
+  <h3>3.1 描述统计分析（图 1）</h3>
+  <p>图 1 以六个子图呈现各品类日销量的描述统计特征，所有数据来源于对原始销售流水按日期和品类聚合后的 <code>daily_category_sales.csv</code>（1,085 天 × 6 品类）及从中计算的 <code>desc_stats.csv</code>。</p>
+
+  <div class="fig-wrap">
+    <img src="analysis/2023国赛C题/matlab_figures/fig1_descriptive_stats.png" alt="图1: 描述统计" loading="lazy">
+    <div class="fig-caption">图 1：六品类日销量描述统计面板。子图 (a)–(e) 分别展示日均销量±标准差、销量占比、变异系数、偏度、峰度；子图 (f) 为汇总统计表。</div>
+  </div>
+
+  <!-- 子图a -->
+  <h4>3.1.1 子图 (a)：日均销量与标准差</h4>
+
+  <div class="def-box">
+    <div class="def-title">专业术语：误差线（Error Bar）</div>
+    <p>图中每个柱形顶部延伸出的黑色线段称为<strong>误差线</strong>，其长度为 <strong>±1 倍标准差（Standard Deviation, σ）</strong>。标准差衡量的是数据点围绕均值的离散程度。误差线的物理含义为：若数据服从正态分布，则约 68% 的观测值落在「均值 ± 1σ」区间内。误差线越长，说明该品类的日销量波动范围越大，预测难度越高。</p>
+  </div>
+
+  <table>
+    <tr><th>品类</th><th>日均销量 (kg)</th><th>标准差 σ (kg)</th><th>σ/均值</th><th>数据解读</th></tr>
+    <tr><td>花叶类</td><td><strong>183.1</strong></td><td>86.3</td><td>0.47</td><td>日均销量最高的品类，占全部蔬菜销量的 42.2%。误差线绝对长度最大（±86.3 kg），意味着日销量在约 97–269 kg 范围内频繁波动</td></tr>
+    <tr><td>辣椒类</td><td>84.5</td><td>53.5</td><td>0.63</td><td>第二梯队品类，标准差超过均值的一半，日间波动显著</td></tr>
+    <tr><td>食用菌</td><td>70.2</td><td>48.5</td><td>0.69</td><td>与辣椒类体量接近，波动幅度相当</td></tr>
+    <tr><td>花菜类</td><td>38.5</td><td>22.7</td><td>0.59</td><td>体量较小品类中波动相对可控的品种</td></tr>
+    <tr><td>水生根茎类</td><td>37.4</td><td>31.4</td><td>0.84</td><td>误差线长度接近于柱形高度本身，表明日销量极不稳定</td></tr>
+    <tr><td>茄类</td><td>20.7</td><td>13.5</td><td>0.65</td><td>销量最低的品类，绝对波动幅度虽小但相对波动较大</td></tr>
+  </table>
+
+  <div class="highlight"><strong>分析结论</strong>：花叶类是核心品类（日均 183.1 kg，占总量 42.2%），其绝对波动幅度最大但在所有品类中相对波动最小；水生根茎类的标准差（31.4 kg）接近其均值（37.4 kg），表明该品类需求量极不稳定，补货策略需更为保守。</div>
+
+  <!-- 子图b -->
+  <h4>3.1.2 子图 (b)：销量占比</h4>
+  <p>将各品类三年总销量除以全部品类总销量，得到每个品类的销量贡献占比：</p>
+
+  <table>
+    <tr><th>品类</th><th>占比</th><th>累计占比</th><th>定位</th></tr>
+    <tr><td>花叶类</td><td><strong>42.2%</strong></td><td>42.2%</td><td>核心品类，单一品类贡献超过四成销量</td></tr>
+    <tr><td>辣椒类</td><td>19.4%</td><td>61.6%</td><td>重要品类</td></tr>
+    <tr><td>食用菌</td><td>16.2%</td><td>77.8%</td><td>重要品类</td></tr>
+    <tr><td>花菜类</td><td>8.9%</td><td>86.6%</td><td>补充品类</td></tr>
+    <tr><td>水生根茎类</td><td>8.6%</td><td>95.3%</td><td>补充品类</td></tr>
+    <tr><td>茄类</td><td>4.8%</td><td>100%</td><td>边缘品类</td></tr>
+  </table>
+
+  <div class="highlight"><strong>分析结论</strong>：花叶类、辣椒类、食用菌三个品类合计贡献 77.8% 的销量，构成商超蔬菜销售的主体。补货资源应按此比例优先分配；花叶类断货造成的收入损失远大于茄类。</div>
+
+  <!-- 子图c -->
+  <h4>3.1.3 子图 (c)：变异系数 CV</h4>
+
+  <div class="def-box">
+    <div class="def-title">专业术语：变异系数（Coefficient of Variation, CV）</div>
+    <p>变异系数定义为 $CV = \frac{\sigma}{\mu}$，即标准差除以均值。它消除了量纲的影响，使得不同量级的数据可以直接比较波动程度。CV 的值越大，说明相对波动越剧烈。图中红色虚线（CV = 0.5）为中等波动警戒线：CV < 0.5 表示销量相对稳定、可预测性较高；CV > 0.5 则表明日间波动显著，预测难度上升。</p>
+  </div>
+
+  <table>
+    <tr><th>品类</th><th>CV</th><th>与 0.5 阈值的关系</th><th>稳定性评估</th></tr>
+    <tr><td>花叶类</td><td><strong>0.471</strong></td><td>低于 0.5</td><td>✅ 唯一低于阈值的品类：销量体量最大且相对最稳定，是最可预测的品类</td></tr>
+    <tr><td>花菜类</td><td>0.590</td><td>高于 0.5</td><td>波动偏大</td></tr>
+    <tr><td>辣椒类</td><td>0.633</td><td>高于 0.5</td><td>波动偏大</td></tr>
+    <tr><td>茄类</td><td>0.652</td><td>高于 0.5</td><td>波动偏大</td></tr>
+    <tr><td>食用菌</td><td>0.692</td><td>高于 0.5</td><td>波动较大</td></tr>
+    <tr><td>水生根茎类</td><td><strong>0.838</strong></td><td>远高于 0.5</td><td>⚠️ 波动最剧烈的品类：每日销量可能在 6 kg 至 68 kg（均值 ± 1σ）间剧烈变化</td></tr>
+  </table>
+
+  <div class="highlight"><strong>分析结论</strong>：花叶类兼具最高日均销量和最低相对波动（CV = 0.471），是最可靠的收入来源，适合采用数据驱动的精确补货模型。水生根茎类波动性极高（CV = 0.838），补货策略需额外保守，建议设置较高的安全库存以应对需求不确定性。</div>
+
+  <!-- 子图d -->
+  <h4>3.1.4 子图 (d)：偏度</h4>
+
+  <div class="def-box">
+    <div class="def-title">专业术语：偏度（Skewness）</div>
+    <p>偏度衡量数据分布的非对称程度。偏度为 0 表示分布对称（如正态分布）；偏度 > 0 表示<strong>右偏（正偏）</strong>——分布的右侧尾部更长，意味着多数观测值集中在左侧（较低值），而少数观测值出现在右侧远端（极高值）。对于蔬菜销售数据，右偏意味着大多数日子的销量处于中低水平，但偶尔出现远超均值的销售高峰日。</p>
+    <p>偏度的绝对值越大，分布形态越不对称。当偏度 > 1.0 时，通常认为分布与正态分布存在显著偏离。</p>
+  </div>
+
+  <table>
+    <tr><th>品类</th><th>偏度</th><th>分布特征</th></tr>
+    <tr><td>花菜类</td><td><strong>1.52</strong></td><td>右偏程度最轻，日销量分布相对接近对称</td></tr>
+    <tr><td>茄类</td><td>1.59</td><td>轻微至中等右偏</td></tr>
+    <tr><td>水生根茎类</td><td>2.50</td><td>明显右偏，高峰日销量远超日常水平</td></tr>
+    <tr><td>花叶类</td><td>2.89</td><td>强右偏——存在多个销量极大日（最高 1,265 kg），远超日均值 183 kg</td></tr>
+    <tr><td>食用菌</td><td>2.99</td><td>强右偏</td></tr>
+    <tr><td>辣椒类</td><td><strong>3.14</strong></td><td>右偏程度最高——绝大多数日子卖 70–80 kg，但个别日子可达 604 kg</td></tr>
+  </table>
+
+  <div class="highlight"><strong>分析结论</strong>：六个品类的偏度全部为正（1.52–3.14），表明日销量分布呈现一致的右偏特征。这一形态排除了正态分布假设，需要采用右偏分布（如对数正态分布）进行建模。若补货量按均值设定，在右偏分布的右尾高峰日将出现严重缺货。</div>
+
+  <!-- 子图e -->
+  <h4>3.1.5 子图 (e)：峰度</h4>
+
+  <div class="def-box">
+    <div class="def-title">专业术语：峰度（Kurtosis）</div>
+    <p>图中纵轴标注为<strong>超额峰度（Excess Kurtosis）</strong>，即实际峰度减去 3（正态分布的峰度值）。超额峰度 > 0 表示该分布比正态分布具有更厚的尾部——即极端值（极高或极低的销量）出现的概率显著高于正态分布的预期。超额峰度越大，极端事件越频繁。</p>
+  </div>
+
+  <table>
+    <tr><th>品类</th><th>超额峰度</th><th>分布特征</th></tr>
+    <tr><td>花菜类</td><td><strong>4.2</strong></td><td>峰度最低，极端值相对较少</td></tr>
+    <tr><td>茄类</td><td>5.3</td><td>轻微厚尾</td></tr>
+    <tr><td>水生根茎类</td><td>12.1</td><td>明显厚尾——偶尔出现极高销量</td></tr>
+    <tr><td>食用菌</td><td>16.8</td><td>厚尾显著</td></tr>
+    <tr><td>辣椒类</td><td>18.3</td><td>厚尾显著</td></tr>
+    <tr><td>花叶类</td><td><strong>26.0</strong></td><td>极端厚尾——1265 kg 的历史峰值远超其他任何品类，表明花叶类在特定时段（如节假日）存在爆发性需求</td></tr>
+  </table>
+
+  <div class="highlight"><strong>分析结论</strong>：全部品类超额峰度 > 0，证实日销量分布均呈厚尾特征。其中花叶类峰度高达 26.0，意味着极端销售事件的发生概率远超正态假设。结合偏度（2.89）和峰度（26.0），花叶类同时在偏度和峰度维度上位列前茅，作为最重要的品类，其需求的不可预测性反而最高——这对补货策略提出了更高要求。</div>
+
+  <!-- 子图f -->
+  <h4>3.1.6 子图 (f)：汇总统计表</h4>
+  <p>子图 (f) 将前述五个子图的所有统计量汇总为一张表格，便于直接引用。各列含义如下：</p>
+  <ul>
+    <li><strong>Mean</strong>：日均销量，单位 kg</li>
+    <li><strong>Std</strong>：日销量标准差，单位 kg</li>
+    <li><strong>CV</strong>：变异系数（标准差/均值）</li>
+    <li><strong>Skew</strong>：偏度（> 0 为右偏）</li>
+    <li><strong>Kurt</strong>：超额峰度（> 0 为厚尾）</li>
+    <li><strong>Share%</strong>：该品类销量占全部六品类总销量的百分比</li>
+  </ul>
+</div>
+
+<!-- ===== 图2 单品集中度 ===== -->
+<div class="section">
+  <h3>3.2 单品销量集中度分析（图 2）</h3>
+
+  <div class="fig-wrap">
+    <img src="analysis/2023国赛C题/matlab_figures/fig2_pareto_concentration.png" alt="图2: 帕累托图与Gini系数" loading="lazy">
+    <div class="fig-caption">图 2：单品销量集中度分析。左：全品类单品帕累托图（蓝色柱 = 各单品销量占比，红色折线 = 累计占比）；右：各品类内部单品销量的 Gini 系数。</div>
+  </div>
+
+  <div class="def-box">
+    <div class="def-title">专业术语：Gini 系数</div>
+    <p>Gini 系数取值 0–1，衡量分布的不均等程度。Gini = 0 表示每个单品销量完全均等；Gini = 1 表示销量完全集中在一个单品上。在经济学中 Gini > 0.4 通常被视为不均等程度较高。图中以 0.5 和 0.7 为参考线分别标注中等集中度和高集中度。</p>
+  </div>
+
+  <table>
+    <tr><th>品类</th><th>单品数</th><th>Gini 系数</th><th>集中度评估</th></tr>
+    <tr><td>水生根茎类</td><td>18</td><td><strong>0.843</strong></td><td>集中度最高：18 个单品中排名第一的单品贡献了 66.9% 的该品类销量</td></tr>
+    <tr><td>辣椒类</td><td>43</td><td>0.786</td><td>高集中度</td></tr>
+    <tr><td>食用菌</td><td>71</td><td>0.774</td><td>高集中度</td></tr>
+    <tr><td>花叶类</td><td>99</td><td>0.763</td><td>高集中度——尽管单品数量最多（99 个），但头部单品仍占据大量份额</td></tr>
+    <tr><td>茄类</td><td>10</td><td>0.725</td><td>高集中度</td></tr>
+    <tr><td>花菜类</td><td>5</td><td><strong>0.608</strong></td><td>集中度最低（仅 5 个单品，分布相对均匀）</td></tr>
+  </table>
+
+  <div class="highlight"><strong>分析结论</strong>：全品类层面，TOP30 单品贡献了约 70% 的总销量（帕累托曲线快速攀升至 70%）。除花菜类（仅 5 个单品）外，所有品类的 Gini 系数均超过 0.7，表明各品类内部均存在显著的「少数畅销品主导」特征。补货时应优先保障头部单品的库存。</div>
+</div>
+
+<!-- ===== 图3 STL ===== -->
+<div class="section">
+  <h3>3.3 时间序列分解（图 3）</h3>
+
+  <div class="fig-wrap">
+    <img src="analysis/2023国赛C题/matlab_figures/fig3_stl_trend.png" alt="图3a: STL趋势分解" loading="lazy">
+    <div class="fig-caption">图 3a：STL 时间序列分解（周期 = 365 天）。浅色线 = 原始日销量，深色粗线 = 剥离季节波动后的长期趋势。标题标注了趋势起始值、结束值及变化率。</div>
+  </div>
+
+  <div class="def-box">
+    <div class="def-title">专业术语：STL 分解（Seasonal-Trend decomposition using Loess）</div>
+    <p>STL 将时间序列拆分为三个分量：<strong>趋势分量（Trend）</strong>——剔除季节和噪声后的长期走向；<strong>季节分量（Seasonal）</strong>——以固定周期（此处为 365 天，即年度）重复的波动模式；<strong>残差分量（Residual）</strong>——无法被趋势和季节解释的随机波动。STL 的优势在于能处理非固定形态的季节模式，且对异常值具有鲁棒性。</p>
+  </div>
+
+  <table>
+    <tr><th>品类</th><th>趋势起始 (kg)</th><th>趋势结束 (kg)</th><th>三年变化率</th><th>趋势方向</th></tr>
+    <tr><td>辣椒类</td><td>97.0</td><td>153.6</td><td><strong>+58%</strong></td><td>强劲增长，需求快速扩张</td></tr>
+    <tr><td>水生根茎类</td><td>40.2</td><td>56.4</td><td>+40%</td><td>稳步增长</td></tr>
+    <tr><td>食用菌</td><td>91.4</td><td>119.1</td><td>+30%</td><td>稳步增长</td></tr>
+    <tr><td>花叶类</td><td>241.8</td><td>268.5</td><td>+11%</td><td>微增，基本稳定</td></tr>
+    <tr><td>花菜类</td><td>66.7</td><td>49.8</td><td><strong>−25%</strong></td><td>持续萎缩</td></tr>
+    <tr><td>茄类</td><td>23.6</td><td>9.5</td><td><strong>−60%</strong></td><td>急剧萎缩，三年间销量缩水过半</td></tr>
+  </table>
+
+  <div class="highlight"><strong>分析结论</strong>：六个品类呈现两极分化趋势——辣椒类（+58%）、水生根茎类（+40%）、食用菌（+30%）持续增长；花菜类（−25%）和茄类（−60%）明显下滑。花叶类（+11%）保持稳定。这一趋势分析为问题 2/3 的补货量预测提供了方向性依据：增长型品类应适当上调配货量，萎缩型品类则需控制库存以避免损耗。</div>
+
+  <div class="fig-wrap">
+    <img src="analysis/2023国赛C题/matlab_figures/fig3_seasonal_pattern.png" alt="图3b: 周季节模式" loading="lazy">
+    <div class="fig-caption">图 3b：最近 28 天（2023-06-03 至 2023-06-30）各品类季节分量对比。纵轴为季节分量值（正值表示该日销量高于趋势线，负值则低于趋势线）。</div>
+  </div>
+
+  <p>季节分量曲线显示所有品类均呈现约 7 天的周度周期波动，但振幅差异显著。花叶类振幅最大（约 −150 至 +10 kg），表明其周末效应最为突出；花菜类和水生根茎类的周内波动较小，需求相对均匀。</p>
+</div>
+
+<!-- ===== 图5 分布拟合 ===== -->
+<div class="section">
+  <h3>3.4 分布形态拟合（图 5）</h3>
+
+  <div class="fig-wrap">
+    <img src="analysis/2023国赛C题/matlab_figures/fig5_distribution_fitting.png" alt="图5: 分布拟合与KS检验" loading="lazy">
+    <div class="fig-caption">图 5：各品类日销量对数正态分布拟合。蓝色直方图 = 实际销量密度分布，深色曲线 = 拟合的对数正态 PDF，红色虚线 = 样本均值，蓝色虚线 = 样本中位数。KS 检验 p 值标注于子图标题。</div>
+  </div>
+
+  <div class="def-box">
+    <div class="def-title">专业术语：KS 检验（Kolmogorov-Smirnov Test）</div>
+    <p>KS 检验用于判断样本数据是否来自某个特定分布。p 值 > 0.05 表示在 95% 置信水平下不能拒绝「数据服从该分布」的原假设（即拟合通过）；p 值 < 0.05 表示数据显著偏离该分布（拟合被拒绝）。D 统计量是经验分布函数与理论分布函数之间的最大偏差——D 越小表示拟合越紧密。</p>
+  </div>
+
+  <table>
+    <tr><th>品类</th><th>对数正态参数 μ</th><th>对数正态参数 σ</th><th>KS p 值</th><th>检验结果</th></tr>
+    <tr><td>花菜类</td><td>3.48</td><td>0.64</td><td>0.0011</td><td>❌ 拒绝 — 仅 5 个单品且存在零销量日，样本不足以验证分布假设</td></tr>
+    <tr><td>茄类</td><td>2.87</td><td>0.66</td><td>0.0163</td><td>❌ 拒绝 — 存在 35 个零销量日，零膨胀导致拟合失败</td></tr>
+    <tr><td>花叶类</td><td>5.11</td><td>0.45</td><td>0.0287</td><td>❌ 拒绝 — 大样本（n=1085）使 KS 检验过于敏感，需结合 QQ 图判断</td></tr>
+    <tr><td>辣椒类</td><td>4.29</td><td>0.54</td><td><strong>0.5044</strong></td><td>✅ 通过 — 对数正态分布拟合良好</td></tr>
+    <tr><td>食用菌</td><td>4.07</td><td>0.61</td><td><strong>0.5191</strong></td><td>✅ 通过 — 对数正态分布拟合良好</td></tr>
+    <tr><td>水生根茎类</td><td>3.29</td><td>0.88</td><td><strong>0.0001</strong></td><td>❌ 拒绝 — 呈现双峰分布特征（旺季/淡季两种模式），单一对数正态无法拟合</td></tr>
+  </table>
+
+  <div class="highlight"><strong>分析结论</strong>：辣椒类和食用菌通过了对数正态分布的 KS 检验（p > 0.05），表明其日销量可用对数正态分布建模。花菜类和茄类的拒绝与零销量天数较多有关（零膨胀问题），水生根茎类的拒绝源于其双峰结构（淡旺季需求模式差异显著）。花叶类虽然 KS 检验 p < 0.05，但考虑到其 1,085 天的大样本量使得 KS 检验过度敏感，且从直方图形态看对数正态仍提供了可接受的近似。对于问题 2/3 的需求预测，建议对辣椒类和食用菌采用对数正态假设，对其他品类考虑零膨胀对数正态或混合分布模型。</div>
+</div>
+
+<!-- ===== 问题1B: 相互关系 ===== -->
+<div class="section">
+  <h2>4. 问题 1B：品类相互关系</h2>
+  <p>问题 1 的第二个子问题要求分析蔬菜各品类之间的<strong>相互关系</strong>。从两个维度展开：静态相关（品类的日销量是否同步涨跌）和动态相关（一个品类的销量变化是否领先或滞后于另一个品类）。</p>
+
+  <!-- 图4 -->
+  <h3>4.1 静态相关分析（图 4）</h3>
+
+  <div class="fig-wrap">
+    <img src="analysis/2023国赛C题/matlab_figures/fig4_correlation_heatmap.png" alt="图4: 相关热力图" loading="lazy">
+    <div class="fig-caption">图 4：品类间相关系数热力图。左：Pearson 线性相关系数（来自 pearson_corr.csv）；右：Spearman 秩相关系数（从 1,085 天销量矩阵实时计算）。标记 * 表示在 p < 0.05 水平下统计显著。红色实线框标注茄类与其他品类的低相关特征；红色虚线框标注 Spearman 下的负相关。</div>
+  </div>
+
+  <div class="def-box">
+    <div class="def-title">专业术语：Pearson 相关系数与 Spearman 秩相关系数</div>
+    <p><strong>Pearson r</strong> 衡量两个变量之间的<strong>线性</strong>相关程度，取值范围 [−1, 1]。r > 0 表示正相关（A 增长时 B 也增长）；r < 0 表示负相关（A 增长时 B 下降）；|r| < 0.3 通常认为线性关系可忽略。Pearson 对异常值敏感。</p>
+    <p><strong>Spearman ρ</strong> 先将数据转换为秩次再计算相关，衡量的是<strong>单调</strong>关系（不限于线性）。当 Pearson 和 Spearman 方向不一致时（如一个为正、一个为负），提示存在非线性关系。</p>
+    <p>显著性阈值：对于 n = 1,085 的样本，|r| > 2/√n ≈ 0.061 即达到 95% 统计显著性。图中用 * 标注所有显著的相关系数。</p>
+  </div>
+
+  <h4>Pearson 相关性发现：</h4>
+  <table>
+    <tr><th>相关强度</th><th>品类对</th><th>Pearson r</th><th>解读</th></tr>
+    <tr><td rowspan="4"><strong>强相关</strong><br>(r ≥ 0.6)</td><td>辣椒类 ↔ 食用菌</td><td>0.687</td><td>线性关联最强的品类对</td></tr>
+    <tr><td>食用菌 ↔ 水生根茎类</td><td>0.670</td><td></td></tr>
+    <tr><td>花叶类 ↔ 辣椒类</td><td>0.660</td><td></td></tr>
+    <tr><td>花叶类 ↔ 食用菌</td><td>0.631</td><td></td></tr>
+    <tr><td rowspan="1"><strong>中等相关</strong><br>(0.3 ≤ r < 0.6)</td><td>花菜类 ↔ 水生根茎类</td><td>0.543</td><td></td></tr>
+    <tr><td rowspan="2"><strong>弱相关</strong><br>(r < 0.3)</td><td>茄类 ↔ 花叶类</td><td>0.258</td><td>显著但微弱</td></tr>
+    <tr><td>茄类 ↔ 水生根茎类</td><td><strong>0.074</strong></td><td>接近零——几乎不存在线性关系</td></tr>
+  </table>
+
+  <h4>Spearman 额外发现：</h4>
+  <table>
+    <tr><th>品类对</th><th>Pearson r</th><th>Spearman ρ</th><th>解读</th></tr>
+    <tr><td>茄类 ↔ 水生根茎类</td><td>+0.074</td><td><strong>−0.210</strong></td><td>线性接近零，但秩相关为负——提示存在非线性的反向关系</td></tr>
+    <tr><td>茄类 ↔ 食用菌</td><td>+0.120</td><td><strong>−0.115</strong></td><td>同样出现符号反转</td></tr>
+  </table>
+
+  <div class="highlight"><strong>分析结论</strong>：五类蔬菜（花叶类、辣椒类、食用菌、水生根茎类、花菜类）之间存在广泛的中等至强线性正相关（r = 0.52–0.69），表明它们的销量倾向于同步涨跌——这与共同的季节性驱动因素一致。茄类是唯一与其他所有品类均呈弱相关的品类（所有 Pearson r ≤ 0.312），且与部分品类的 Spearman 秩相关为负值。这一发现提示茄类具有独立的需求驱动机制，不适合纳入统一的联合预测模型。</div>
+
+  <!-- 图6 -->
+  <h3>4.2 动态互相关分析（图 6）</h3>
+
+  <div class="fig-wrap">
+    <img src="analysis/2023国赛C题/matlab_figures/fig6_cross_correlation.png" alt="图6: CCF互相关分析" loading="lazy">
+    <div class="fig-caption">图 6：品类间交叉相关函数（CCF）茎叶图，滞后范围为 ±14 天。深蓝柱子 = 显著相关（超过 95% 置信阈值），灰色柱子 = 不显著，红色柱子 = 最优滞后（CCF 绝对值最大处）。红色虚线 = 95% 置信阈值（±2/√n ≈ ±0.061）。所有 CCF 值从真实日销量时间序列实时计算。</div>
+  </div>
+
+  <div class="def-box">
+    <div class="def-title">专业术语：交叉相关函数（Cross-Correlation Function, CCF）</div>
+    <p>CCF 衡量两个时间序列在不同时间滞后下的相似程度。横轴 <strong>Lag（滞后）</strong>以天为单位：Lag = 0 表示两个品类在同一天的销量关系；Lag = +k 表示品类 A 当前的销量与品类 B 在 k 天后的销量之间的相关性（即 A 领先 B k 天）；Lag = −k 表示 B 领先 A k 天。红色虚线为 95% 置信阈值（±2/√n），超过该阈值的 CCF 值具有统计显著性。</p>
+    <p>CCF 与 Pearson 相关的关键区别：Pearson 只考察同一时刻的关系（Lag = 0），CCF 则考察所有可能的领先-滞后组合，能够揭示时序上的因果线索。</p>
+  </div>
+
+  <table>
+    <tr><th>品类对</th><th>最大 |CCF|</th><th>最优滞后</th><th>关系类型</th></tr>
+    <tr><td>辣椒类 ↔ 食用菌</td><td>0.687</td><td>0 天</td><td>同期强相关</td></tr>
+    <tr><td>食用菌 ↔ 水生根茎类</td><td>0.670</td><td>0 天</td><td>同期强相关</td></tr>
+    <tr><td>花叶类 ↔ 辣椒类</td><td>0.660</td><td>0 天</td><td>同期强相关</td></tr>
+    <tr><td>花叶类 ↔ 食用菌</td><td>0.631</td><td>0 天</td><td>同期强相关</td></tr>
+    <tr><td>花叶类 ↔ 花菜类</td><td>0.628</td><td>0 天</td><td>同期中等相关</td></tr>
+    <tr><td>水生根茎类 ↔ 花叶类</td><td>0.561</td><td>0 天</td><td>同期中等相关</td></tr>
+    <tr><td>水生根茎类 → 茄类</td><td>0.293</td><td><strong>+10 天</strong></td><td>水生根茎类领先茄类 10 天</td></tr>
+    <tr><td>茄类 → 食用菌</td><td>0.277</td><td><strong>+11 天</strong></td><td>茄类领先食用菌 11 天</td></tr>
+  </table>
+
+  <div class="highlight"><strong>分析结论</strong>：大部分品类对的最优滞后为 0 天，表明它们的销量联动是同期发生的——这与 Pearson 相关分析的结论一致，印证了共同季节性驱动因素的主导作用。但 CCF 额外揭示了两个有意义的领先-滞后关系：<strong>（1）水生根茎类领先茄类 10 天</strong>（CCF = 0.293），即水生根茎类的销量变化约 10 天后，茄类销量倾向于同向变化；<strong>（2）茄类领先食用菌 11 天</strong>（CCF = 0.277）。这两个关系虽然相关系数不大，但在统计上显著（超过 95% 置信阈值），为问题 2 的补货策略提供了有价值的提前预警信号：监控水生根茎类和茄类的销量变化，可提前 10–11 天预判相关品类的需求波动。</div>
+</div>
+
+<!-- ===== 问题1小结 ===== -->
+<div class="section">
+  <h2>5. 问题 1 小结</h2>
+  <table>
+    <tr><th>维度</th><th>核心发现</th><th>对后续问题的指导意义</th></tr>
+    <tr><td><strong>1A 分布规律</strong></td><td>花叶类是核心品类（份额 42.2%，日均 183.1 kg），同时相对最稳定（CV = 0.471）。所有品类呈右偏厚尾分布，不能用正态分布建模。TOP30 单品贡献 70% 销量。</td><td>补货资源优先分配花叶类；需求模型须采用对数正态或混合分布；单品选择应优先保障头部畅销品</td></tr>
+    <tr><td><strong>1A 时间趋势</strong></td><td>辣椒类（+58%）、水生根茎（+40%）、食用菌（+30%）三年持续增长；花菜类（−25%）和茄类（−60%）持续萎缩。所有品类销量由季节主导（季节强度 0.76–0.83）。</td><td>未来补货量应根据趋势方向调整：增长品类上调配货，萎缩品类控制库存减少损耗</td></tr>
+    <tr><td><strong>1B 静态关系</strong></td><td>五类蔬菜间存在广泛的中等至强正相关（Pearson r = 0.52–0.69）。茄类独立于所有其他品类（所有 r ≤ 0.31），且与部分品类 Spearman 为负。</td><td>五类蔬菜可纳入联合预测模型共享季节性信息；茄类需单独建模</td></tr>
+    <tr><td><strong>1B 动态关系</strong></td><td>水生根茎类领先茄类 10 天；茄类领先食用菌 11 天。其余品类对为同期关系。</td><td>领先-滞后关系可作为补货预警信号：监控领先品类的销量变化可提前 10–11 天预判滞后品类的需求波动</td></tr>
+  </table>
+</div>
+
+<!-- ===== 方法清单 ===== -->
+<div class="section">
+  <h2>6. 本问题使用的方法</h2>
+  <table>
+    <tr><th>#</th><th>方法</th><th>解决的问题</th><th>选择理由</th></tr>
+    <tr><td>1</td><td>描述统计</td><td>品类/单品销量的集中趋势、离散度、分布形态</td><td>所有分析的基础，提供数据的全局视图</td></tr>
+    <tr><td>2</td><td>Gini 系数 + 帕累托分析</td><td>单品销量集中度</td><td>量化「少数单品占多数销量」的程度</td></tr>
+    <tr><td>3</td><td>STL 分解（period = 365）</td><td>年度季节 + 长期趋势分离</td><td>蔬菜具有自然年度季节性，STL 对非固定季节形态具有鲁棒性</td></tr>
+    <tr><td>4</td><td>Pearson 相关 + Spearman 秩相关</td><td>品类间线性与单调关联强度</td><td>直接回答问题 1B「相互关系」，双系数可交叉验证</td></tr>
+    <tr><td>5</td><td>对数正态拟合 + KS 检验</td><td>日销量分布形态检验</td><td>为问题 2 的需求预测模型提供分布假设依据</td></tr>
+    <tr><td>6</td><td>交叉相关函数（CCF）</td><td>品类间领先-滞后关系</td><td>在静态相关之外增加时间维度，揭示时序上的因果线索</td></tr>
+  </table>
+</div>
+
+</div><!-- .container -->
+
+<div class="footer"><p>📐 数学建模学习平台 &copy; 2026 Jacky</p></div>
+</div><!-- .main-wrap -->
+
+<button class="back2top" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="回到顶部">↑</button>
+
+<button class="chapter-nav-toggle" onclick="toggleChapterNav()" title="章节导航">📖 章节</button>
+<div class="chapter-nav-panel" id="chapterNav">
+  <div class="nav-header">📐 目录导航</div>
+  <div class="nav-section">真题实战</div>
+  <details class="nav-cat" open>
+    <summary>📝 历年真题模拟分析</summary>
+    <a class="nav-sub" href="历年真题模拟分析.html">历年真题总览</a>
+    <a class="nav-sub current" href="2023-国赛C题.html">2023 C题: 蔬菜定价与补货</a>
+  </details>
+  <div class="nav-section">核心方法</div>
+  <a href="插值与拟合.html"><span class="num">1</span>插值与拟合</a>
+  <a href="蒙特卡洛.html"><span class="num">2</span>蒙特卡洛方法</a>
+  <a href="线性回归.html"><span class="num">3</span>线性回归</a>
+  <a href="主成分与因子分析.html"><span class="num">5</span>主成分与因子分析</a>
+  <a href="时间序列.html"><span class="num">6</span>时间序列分析</a>
+  <a href="图与网络.html"><span class="num">7</span>图与网络</a>
+  <div class="nav-section">综合专题</div>
+  <a href="AI与建模.html"><span class="num">4</span>AI与数学建模</a>
+  <a href="方法大全.html"><span class="num">★</span>方法大全（59种）</a>
+  <a href="index.html" style="border-top:1px solid var(--sidebar-border);margin-top:6px;padding-top:10px"><span class="num">⌂</span>返回首页</a>
+</div>
+
+<script>
+(function(){
+  var v='250713b';
+  if(localStorage.getItem('mm-ver')!==v){localStorage.setItem('mm-ver',v);location.reload(true);}
+})();
+(function(){
+  var p = window.location.pathname.split('/').pop() || 'index.html';
+  document.querySelectorAll('.sidebar-nav a,.sidebar-nav .sub-link').forEach(function(a){
+    if(a.getAttribute('href') === p) a.classList.add('current');
+  });
+})();
+(function(){
+  var d = localStorage.getItem('mathmodel-theme');
+  if(d === 'dark'){document.body.classList.add('dark-mode');document.querySelector('.theme-toggle').textContent = '☀️';}
+})();
+function toggleTheme(){
+  var b = document.body; b.classList.toggle('dark-mode');
+  var btn = document.querySelector('.theme-toggle');
+  var isDark = b.classList.contains('dark-mode');
+  btn.textContent = isDark ? '☀️' : '🌙';
+  localStorage.setItem('mathmodel-theme', isDark ? 'dark' : 'light');
+}
+function toggleChapterNav(){
+  var panel = document.getElementById('chapterNav');
+  panel.classList.toggle('open');
+}
+document.addEventListener('click', function(e){
+  var panel = document.getElementById('chapterNav');
+  var btn = document.querySelector('.chapter-nav-toggle');
+  if(panel && panel.classList.contains('open') && !panel.contains(e.target) && !btn.contains(e.target)){
+    panel.classList.remove('open');
+  }
+});
+document.addEventListener('DOMContentLoaded', function(){
+  var path = window.location.pathname.split('/').pop() || 'index.html';
+  var panel = document.getElementById('chapterNav');
+  if(!panel) return;
+  panel.querySelectorAll('a,.nav-sub').forEach(function(a){
+    if(a.getAttribute('href') === path) a.classList.add('current');
+  });
+});
+</script>
+</body>
+</html>
