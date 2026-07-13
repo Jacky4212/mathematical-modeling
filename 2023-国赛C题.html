@@ -234,7 +234,7 @@ mjx-container[display="true"]{max-width:100%;overflow-x:auto;overflow-y:hidden}
   <p>图 1 以六个子图呈现各品类日销量的描述统计特征，所有数据来源于对原始销售流水按日期和品类聚合后的 <code>daily_category_sales.csv</code>（1,085 天 × 6 品类）及从中计算的 <code>desc_stats.csv</code>。</p>
 
   <div class="fig-wrap">
-    <img src="analysis/2023国赛C题/matlab_figures/fig1_descriptive_stats.png" alt="图1: 描述统计" loading="lazy">
+    <img src="images/2023-C/fig1_descriptive_stats.png" alt="图1: 描述统计" loading="lazy">
     <div class="fig-caption">图 1：六品类日销量描述统计面板。子图 (a)–(e) 分别展示日均销量±标准差、销量占比、变异系数、偏度、峰度；子图 (f) 为汇总统计表。</div>
   </div>
 
@@ -353,7 +353,7 @@ mjx-container[display="true"]{max-width:100%;overflow-x:auto;overflow-y:hidden}
   <h3>3.2 单品销量集中度分析（图 2）</h3>
 
   <div class="fig-wrap">
-    <img src="analysis/2023国赛C题/matlab_figures/fig2_pareto_concentration.png" alt="图2: 帕累托图与Gini系数" loading="lazy">
+    <img src="images/2023-C/fig2_pareto_concentration.png" alt="图2: 帕累托图与Gini系数" loading="lazy">
     <div class="fig-caption">图 2：单品销量集中度分析。左：全品类单品帕累托图（蓝色柱 = 各单品销量占比，红色折线 = 累计占比）；右：各品类内部单品销量的 Gini 系数。</div>
   </div>
 
@@ -380,7 +380,7 @@ mjx-container[display="true"]{max-width:100%;overflow-x:auto;overflow-y:hidden}
   <h3>3.3 时间序列分解（图 3）</h3>
 
   <div class="fig-wrap">
-    <img src="analysis/2023国赛C题/matlab_figures/fig3_stl_trend.png" alt="图3a: STL趋势分解" loading="lazy">
+    <img src="images/2023-C/fig3_stl_trend.png" alt="图3a: STL趋势分解" loading="lazy">
     <div class="fig-caption">图 3a：STL 时间序列分解（周期 = 365 天）。浅色线 = 原始日销量，深色粗线 = 剥离季节波动后的长期趋势。标题标注了趋势起始值、结束值及变化率。</div>
   </div>
 
@@ -402,7 +402,7 @@ mjx-container[display="true"]{max-width:100%;overflow-x:auto;overflow-y:hidden}
   <div class="highlight"><strong>分析结论</strong>：六个品类呈现两极分化趋势——辣椒类（+58%）、水生根茎类（+40%）、食用菌（+30%）持续增长；花菜类（−25%）和茄类（−60%）明显下滑。花叶类（+11%）保持稳定。这一趋势分析为问题 2/3 的补货量预测提供了方向性依据：增长型品类应适当上调配货量，萎缩型品类则需控制库存以避免损耗。</div>
 
   <div class="fig-wrap">
-    <img src="analysis/2023国赛C题/matlab_figures/fig3_seasonal_pattern.png" alt="图3b: 周季节模式" loading="lazy">
+    <img src="images/2023-C/fig3_seasonal_pattern.png" alt="图3b: 周季节模式" loading="lazy">
     <div class="fig-caption">图 3b：最近 28 天（2023-06-03 至 2023-06-30）各品类季节分量对比。纵轴为季节分量值（正值表示该日销量高于趋势线，负值则低于趋势线）。</div>
   </div>
 
@@ -414,7 +414,7 @@ mjx-container[display="true"]{max-width:100%;overflow-x:auto;overflow-y:hidden}
   <h3>3.4 分布形态拟合（图 5）</h3>
 
   <div class="fig-wrap">
-    <img src="analysis/2023国赛C题/matlab_figures/fig5_distribution_fitting.png" alt="图5: 分布拟合与KS检验" loading="lazy">
+    <img src="images/2023-C/fig5_distribution_fitting.png" alt="图5: 分布拟合与KS检验" loading="lazy">
     <div class="fig-caption">图 5：各品类日销量对数正态分布拟合。蓝色直方图 = 实际销量密度分布，深色曲线 = 拟合的对数正态 PDF，红色虚线 = 样本均值，蓝色虚线 = 样本中位数。KS 检验 p 值标注于子图标题。</div>
   </div>
 
@@ -445,7 +445,7 @@ mjx-container[display="true"]{max-width:100%;overflow-x:auto;overflow-y:hidden}
   <h3>4.1 静态相关分析（图 4）</h3>
 
   <div class="fig-wrap">
-    <img src="analysis/2023国赛C题/matlab_figures/fig4_correlation_heatmap.png" alt="图4: 相关热力图" loading="lazy">
+    <img src="images/2023-C/fig4_correlation_heatmap.png" alt="图4: 相关热力图" loading="lazy">
     <div class="fig-caption">图 4：品类间相关系数热力图。左：Pearson 线性相关系数（来自 pearson_corr.csv）；右：Spearman 秩相关系数（从 1,085 天销量矩阵实时计算）。标记 * 表示在 p < 0.05 水平下统计显著。红色实线框标注茄类与其他品类的低相关特征；红色虚线框标注 Spearman 下的负相关。</div>
   </div>
 
@@ -481,7 +481,7 @@ mjx-container[display="true"]{max-width:100%;overflow-x:auto;overflow-y:hidden}
   <h3>4.2 动态互相关分析（图 6）</h3>
 
   <div class="fig-wrap">
-    <img src="analysis/2023国赛C题/matlab_figures/fig6_cross_correlation.png" alt="图6: CCF互相关分析" loading="lazy">
+    <img src="images/2023-C/fig6_cross_correlation.png" alt="图6: CCF互相关分析" loading="lazy">
     <div class="fig-caption">图 6：品类间交叉相关函数（CCF）茎叶图，滞后范围为 ±14 天。深蓝柱子 = 显著相关（超过 95% 置信阈值），灰色柱子 = 不显著，红色柱子 = 最优滞后（CCF 绝对值最大处）。红色虚线 = 95% 置信阈值（±2/√n ≈ ±0.061）。所有 CCF 值从真实日销量时间序列实时计算。</div>
   </div>
 
