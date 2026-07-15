@@ -11,87 +11,8 @@
 MathJax = { tex: { inlineMath: [['$','$'],['\(','\)']], displayMath: [['$$','$$'],['\[','\]']], processEscapes: true } };
 </script>
 <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" async></script>
+<link rel="stylesheet" href="common.css">
 <style>
-:root {
-  --paper: #fdf6e3; --paper-dark: #f3e8d0; --ink: #3d3525; --ink-light: #6b5f48;
-  --accent: #2d7fc1; --accent-hover: #1d4ed8; --divider: #d9c9a0;
-  --card-bg: #fef9ee; --card-border: #e5d5b5;
-  --sidebar-bg: #f5ebd5; --sidebar-border: #e5d5b5;
-  --code-bg: #ede0c5; --highlight-bg: #fefce8;
-  --highlight-border: #eab308; --highlight-strong: #92400e;
-  --heading-color: #1a3a5c; --code-text: #8a4b1e;
-  --radius: 8px; --font: "Microsoft YaHei","PingFang SC","Noto Sans SC",sans-serif;
-}
-.dark-mode {
-  --paper: #1a1a2e; --paper-dark: #22223a; --ink: #e0e0ec; --ink-light: #8888aa;
-  --accent: #6a82f0; --accent-hover: #5a72e0; --divider: #2d2d45;
-  --card-bg: #24243a; --card-border: #33334d;
-  --sidebar-bg: #1a1a2e; --sidebar-border: #2d2d45;
-  --code-bg: #2a2a3e; --highlight-bg: #1e2a3a;
-  --highlight-border: #6a82f0; --highlight-strong: #8ab8f0;
-  --heading-color: var(--ink); --code-text: #8ab8c0;
-  background-color: var(--paper);
-}
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-body{font-family:var(--font);font-size:12pt;font-weight:500;line-height:1.8;color:var(--ink);background:var(--paper);display:flex;min-height:100vh}
-a{color:var(--accent);text-decoration:none;transition:color .2s}
-a:hover{color:var(--accent-hover)}
-ul,ol{padding-left:1.5em}
-li{margin-bottom:.3em}
-table{border-collapse:collapse;width:100%;margin:12px 0;font-size:.95em}
-th,td{border:1px solid var(--card-border);padding:8px 12px;text-align:center}
-th{background:var(--paper-dark);font-weight:600}
-td{background:var(--card-bg)}
-::-webkit-scrollbar{width:6px}
-::-webkit-scrollbar-thumb{background:var(--ink-light);border-radius:3px}
-
-.sidebar{position:fixed;top:0;left:0;width:210px;height:100vh;background:var(--sidebar-bg);border-right:1px solid var(--sidebar-border);overflow-y:auto;z-index:100;padding:0 0 20px}
-.sidebar-header{padding:22px 16px 16px;border-bottom:1px solid var(--sidebar-border)}
-.sidebar-header .site-name{font-size:1.15em;font-weight:700;color:var(--accent)}
-.sidebar-header .site-sub{font-size:.75em;color:var(--ink-light);margin-top:2px}
-.sidebar-nav{padding:8px 0}
-.sidebar-nav .group-label{font-size:.7em;text-transform:uppercase;letter-spacing:1px;color:var(--ink-light);padding:12px 16px 4px;font-weight:600}
-.sidebar-nav a{display:flex;align-items:center;padding:7px 16px;font-size:.9em;color:var(--ink);gap:8px;border-left:3px solid transparent;transition:background .15s,border-color .15s}
-.sidebar-nav a:hover{background:var(--paper-dark);color:var(--accent)}
-.sidebar-nav a.current{background:var(--highlight-bg);border-left-color:var(--accent);color:var(--accent);font-weight:600}
-.sidebar-nav .tag{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:var(--paper-dark);font-size:.75em;font-weight:600;flex-shrink:0}
-.sidebar-nav a.current .tag{background:var(--accent);color:#fff}
-
-/* Collapsible sub-nav in sidebar */
-.sidebar-nav details.sidebar-cat{margin:0}
-.sidebar-nav details.sidebar-cat summary{display:flex;align-items:center;padding:7px 16px;font-size:.9em;font-weight:600;color:var(--ink);cursor:pointer;gap:8px;border-left:3px solid transparent;list-style:none;user-select:none;transition:background .15s}
-.sidebar-nav details.sidebar-cat summary::-webkit-details-marker{display:none}
-.sidebar-nav details.sidebar-cat summary::before{content:'▸';display:inline-block;font-size:.65em;transition:transform .2s;width:12px;text-align:center;flex-shrink:0}
-.sidebar-nav details.sidebar-cat[open] summary::before{transform:rotate(90deg)}
-.sidebar-nav details.sidebar-cat summary:hover{background:var(--paper-dark)}
-.sidebar-nav details.sidebar-cat .sub-link{display:block;padding:5px 16px 5px 40px;font-size:.82em;color:var(--ink-light);border-left:2px solid transparent;transition:all .15s;line-height:1.5}
-.sidebar-nav details.sidebar-cat .sub-link:hover{color:var(--accent);background:var(--paper-dark);border-left-color:var(--accent)}
-.sidebar-nav details.sidebar-cat .sub-link.current{color:var(--accent);font-weight:600;border-left-color:var(--accent);background:var(--highlight-bg)}
-
-.theme-toggle{position:fixed;top:56px;right:20px;z-index:200;background:var(--card-bg);border:1px solid var(--card-border);border-radius:50%;width:38px;height:38px;font-size:1.1em;cursor:pointer;line-height:1;transition:transform .2s}
-.theme-toggle:hover{transform:scale(1.1)}
-
-.main-wrap{flex:1;margin-left:210px;display:flex;flex-direction:column;min-height:100vh}
-.topbar{position:sticky;top:0;z-index:90;background:linear-gradient(135deg, #1a3a5c, var(--accent));padding:0}
-.topbar-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:14px 28px}
-.topbar-inner h2{color:#fff;font-size:1.15em;font-weight:600}
-.topbar-inner .breadcrumb{color:rgba(255,255,255,.75);font-size:.85em}
-.topbar-inner .breadcrumb a{color:rgba(255,255,255,.85);font-size:.85em;padding:2px 6px;border-radius:3px}
-.topbar-inner .breadcrumb a:hover{background:rgba(255,255,255,.15);color:#fff}
-.topbar-inner .breadcrumb span{color:rgba(255,255,255,.5);margin:0 4px}
-
-.container{max-width:1100px;margin:0 auto;padding:28px 28px 40px;width:100%}
-.section{background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--radius);padding:24px 28px;margin-bottom:22px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
-.section h2{font-size:1.3em;color:var(--heading-color);margin-bottom:16px;padding-bottom:8px;border-bottom:2px solid var(--divider)}
-.section h3{font-size:1.08em;color:var(--accent);margin:20px 0 10px;padding-bottom:6px;border-bottom:1px dashed var(--divider)}
-.section h4{font-size:1em;color:var(--ink);font-weight:600;margin:14px 0 6px}
-.section p{margin-bottom:10px}
-.highlight{background:var(--highlight-bg);border-left:4px solid var(--highlight-border);padding:12px 16px;margin:14px 0;border-radius:0 6px 6px 0;font-size:.95em}
-.highlight strong{color:var(--highlight-strong)}
-.def-box{background:var(--code-bg);border:1px solid var(--card-border);border-radius:6px;padding:14px 18px;margin:12px 0}
-.def-box .def-title{font-weight:700;color:var(--accent);margin-bottom:4px;font-size:.92em}
-code{font-family:"Cascadia Code","JetBrains Mono","Consolas",monospace;font-size:.88em;background:var(--code-bg);color:var(--code-text);padding:1px 6px;border-radius:4px}
-
 /* Chapter Grid */
 .chapter-grid{display:grid;grid-template-columns:repeat(auto-fill, minmax(280px, 1fr));gap:18px;margin-top:6px}
 .chapter-grid .card{background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--radius);padding:22px 24px;transition:all .25s}
@@ -99,35 +20,6 @@ code{font-family:"Cascadia Code","JetBrains Mono","Consolas",monospace;font-size
 .chapter-grid .card h3{font-size:1.08em;margin-bottom:8px}
 .chapter-grid .card p{color:var(--ink-light);font-size:.95em;line-height:1.7;margin-bottom:10px}
 .chapter-grid .card .card-tag{display:inline-block;padding:2px 10px;border-radius:4px;font-size:.78em;font-weight:600}
-
-.back2top{position:fixed;right:24px;bottom:30px;z-index:90;width:42px;height:42px;background:linear-gradient(135deg, #1a3a5c, var(--accent));color:#fff;border:none;border-radius:50%;font-size:1.2em;cursor:pointer;opacity:.75;transition:all .2s;box-shadow:0 2px 10px rgba(0,0,0,.18)}
-.back2top:hover{opacity:1}
-
-/* Chapter Nav Panel */
-.chapter-nav-toggle{position:fixed;right:0;top:50%;transform:translateY(-50%);z-index:95;background:linear-gradient(135deg, #1a3a5c, var(--accent));color:#fff;border:none;border-radius:8px 0 0 8px;padding:14px 8px;font-size:1.1em;cursor:pointer;writing-mode:vertical-lr;letter-spacing:2px;opacity:.8;transition:all .2s;box-shadow:-2px 0 10px rgba(0,0,0,.15)}
-.chapter-nav-panel{position:fixed;right:-260px;top:0;width:250px;height:100vh;z-index:150;background:var(--sidebar-bg);border-left:1px solid var(--sidebar-border);overflow-y:auto;transition:right .35s cubic-bezier(.4,0,.2,1);padding:20px 0}
-.chapter-nav-panel.open{right:0}
-.chapter-nav-panel .nav-header{padding:12px 20px 16px;border-bottom:1px solid var(--sidebar-border);font-weight:700;color:var(--accent);font-size:1.05em}
-.chapter-nav-panel .nav-section{padding:8px 20px 2px;font-size:.7em;text-transform:uppercase;letter-spacing:1px;color:var(--ink-light);font-weight:600}
-.chapter-nav-panel a{display:flex;align-items:center;padding:7px 20px;font-size:.9em;color:var(--ink);gap:8px;transition:background .15s}
-.chapter-nav-panel a:hover{background:var(--paper-dark);color:var(--accent)}
-.chapter-nav-panel a.current{color:var(--accent);font-weight:600}
-.chapter-nav-panel .num{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:var(--paper-dark);font-size:.75em;font-weight:600;flex-shrink:0}
-.chapter-nav-panel details.nav-cat{margin:0}
-.chapter-nav-panel details.nav-cat summary{display:flex;align-items:center;padding:10px 20px;font-size:.82em;font-weight:600;color:var(--accent);cursor:pointer;gap:8px;list-style:none;user-select:none;transition:background .15s}
-.chapter-nav-panel details.nav-cat summary::-webkit-details-marker{display:none}
-.chapter-nav-panel details.nav-cat summary::before{content:'▸';display:inline-block;font-size:.7em;transition:transform .2s;width:14px;text-align:center}
-.chapter-nav-panel details.nav-cat[open] summary::before{transform:rotate(90deg)}
-.chapter-nav-panel details.nav-cat summary:hover{background:var(--paper-dark)}
-.chapter-nav-panel details.nav-cat .nav-sub{display:block;padding:5px 20px 5px 36px;font-size:.78em;color:var(--ink-light);border-left:2px solid transparent;transition:all .15s;line-height:1.5}
-.chapter-nav-panel details.nav-cat .nav-sub:hover{color:var(--accent);background:var(--paper-dark);border-left-color:var(--accent)}
-.chapter-nav-panel details.nav-cat .nav-sub.current{color:var(--accent);font-weight:600;border-left-color:var(--accent)}
-
-.footer{text-align:center;padding:20px;color:var(--ink-light);font-size:.82em;border-top:1px solid var(--divider);margin-top:auto}
-
-@media(max-width:768px){.sidebar{display:none}.main-wrap{margin-left:0}body{font-size:10.5pt}}
-@media(max-width:640px){.section{padding:18px 16px}.chapter-grid{grid-template-columns:1fr}.chapter-nav-panel{width:200px}table{font-size:.85em}th,td{padding:5px 8px}.back2top{right:10px;bottom:20px;width:38px;height:38px}.container{padding:16px 12px 30px}}
-@media print{.sidebar,.topbar,.theme-toggle,.chapter-nav-toggle,.chapter-nav-panel,.back2top,.footer{display:none}.main-wrap{margin-left:0}}
 </style>
 </head>
 <body>
@@ -146,6 +38,11 @@ code{font-family:"Cascadia Code","JetBrains Mono","Consolas",monospace;font-size
     <a href="主成分与因子分析.html"><span class="tag">5</span>主成分与因子分析</a>
     <a href="时间序列.html"><span class="tag">6</span>时间序列分析</a>
     <a href="图与网络.html"><span class="tag">7</span>图与网络</a>
+    <a href="数据处理.html"><span class="tag">8</span>数据处理</a>
+    <a href="存储论.html"><span class="tag">9</span>存储论</a>
+    <a href="灰色系统.html"><span class="tag">10</span>灰色系统</a>
+    <a href="模拟退火.html"><span class="tag">11</span>模拟退火算法</a>
+    <a href="排队论.html"><span class="tag">12</span>排队论</a>
     <div class="group-label">综合专题</div>
     <a href="AI与建模.html"><span class="tag">4</span>AI与数学建模</a>
     <a href="方法大全.html"><span class="tag">★</span>方法大全（59种）</a>
@@ -226,53 +123,17 @@ code{font-family:"Cascadia Code","JetBrains Mono","Consolas",monospace;font-size
   <a href="主成分与因子分析.html"><span class="num">5</span>主成分与因子分析</a>
   <a href="时间序列.html"><span class="num">6</span>时间序列分析</a>
   <a href="图与网络.html"><span class="num">7</span>图与网络</a>
+  <a href="数据处理.html"><span class="num">8</span>数据处理</a>
+  <a href="存储论.html"><span class="num">9</span>存储论</a>
+  <a href="灰色系统.html"><span class="num">10</span>灰色系统</a>
+  <a href="模拟退火.html"><span class="num">11</span>模拟退火算法</a>
+  <a href="排队论.html"><span class="num">12</span>排队论</a>
   <div class="nav-section">综合专题</div>
   <a href="AI与建模.html"><span class="num">4</span>AI与数学建模</a>
   <a href="方法大全.html"><span class="num">★</span>方法大全（59种）</a>
   <a href="index.html" style="border-top:1px solid var(--sidebar-border);margin-top:6px;padding-top:10px"><span class="num">⌂</span>返回首页</a>
 </div>
 
-<script>
-(function(){
-  var v='250713a';
-  if(localStorage.getItem('mm-ver')!==v){localStorage.setItem('mm-ver',v);location.reload(true);}
-})();
-(function(){
-  var p = window.location.pathname.split('/').pop() || 'index.html';
-  document.querySelectorAll('.sidebar-nav a,.sidebar-nav .sub-link').forEach(function(a){
-    if(a.getAttribute('href') === p) a.classList.add('current');
-  });
-})();
-(function(){
-  var d = localStorage.getItem('mathmodel-theme');
-  if(d === 'dark'){document.body.classList.add('dark-mode');document.querySelector('.theme-toggle').textContent = '☀️';}
-})();
-function toggleTheme(){
-  var b = document.body; b.classList.toggle('dark-mode');
-  var btn = document.querySelector('.theme-toggle');
-  var isDark = b.classList.contains('dark-mode');
-  btn.textContent = isDark ? '☀️' : '🌙';
-  localStorage.setItem('mathmodel-theme', isDark ? 'dark' : 'light');
-}
-function toggleChapterNav(){
-  var panel = document.getElementById('chapterNav');
-  panel.classList.toggle('open');
-}
-document.addEventListener('click', function(e){
-  var panel = document.getElementById('chapterNav');
-  var btn = document.querySelector('.chapter-nav-toggle');
-  if(panel && panel.classList.contains('open') && !panel.contains(e.target) && !btn.contains(e.target)){
-    panel.classList.remove('open');
-  }
-});
-document.addEventListener('DOMContentLoaded', function(){
-  var path = window.location.pathname.split('/').pop() || 'index.html';
-  var panel = document.getElementById('chapterNav');
-  if(!panel) return;
-  panel.querySelectorAll('a,.nav-sub').forEach(function(a){
-    if(a.getAttribute('href') === path) a.classList.add('current');
-  });
-});
-</script>
+<script src="common.js?v=1"></script>
 </body>
 </html>

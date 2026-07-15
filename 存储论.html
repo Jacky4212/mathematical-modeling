@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>存储论 — 数学建模学习平台</title>
+<script>
+MathJax = { tex: { inlineMath: [['$','$'],['\\(','\\)']], displayMath: [['$$','$$'],['\\[','\\]']], processEscapes: true } };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" async></script>
+<link rel="stylesheet" href="common.css">
+</head>
+<body>
+
+<!-- ===== Sidebar ===== -->
+<nav class="sidebar">
+  <div class="sidebar-header">
+    <div class="site-name">📐 数学建模</div>
+    <div class="site-sub">学习平台</div>
+  </div>
+  <div class="sidebar-nav">
+    <div class="group-label">核心方法</div>
+    <a href="插值与拟合.html"><span class="tag">1</span>插值与拟合</a>
+    <a href="蒙特卡洛.html"><span class="tag">2</span>蒙特卡洛方法</a>
+    <a href="线性回归.html"><span class="tag">3</span>线性回归</a>
+    <a href="AI与建模.html"><span class="tag">4</span>AI与数学建模</a>
+    <a href="主成分与因子分析.html"><span class="tag">5</span>主成分与因子分析</a>
+    <a href="时间序列.html"><span class="tag">6</span>时间序列分析</a>
+    <a href="图与网络.html"><span class="tag">7</span>图与网络</a>
+    <a href="数据处理.html"><span class="tag">8</span>数据处理</a>
+    <a href="存储论.html" class="current"><span class="tag">9</span>存储论</a>
+    <a href="灰色系统.html"><span class="tag">10</span>灰色系统</a>
+    <a href="模拟退火.html"><span class="tag">11</span>模拟退火算法</a>
+    <a href="排队论.html"><span class="tag">12</span>排队论</a>
+    <div class="group-label">综合专题</div>
+    <a href="方法大全.html"><span class="tag">★</span>方法大全（59种）</a>
+    <div class="group-label">真题实战</div>
+    <a href="历年真题模拟分析.html"><span class="tag">📝</span>历年真题模拟分析</a>
+    <a href="index.html" style="margin-top:6px;border-top:1px solid var(--sidebar-border);padding-top:8px"><span class="tag">⌂</span>返回首页</a>
+  </div>
+</nav>
+
+<button class="theme-toggle no-print" onclick="toggleTheme()" title="切换暗黑模式">🌙</button>
+
+<div class="main-wrap">
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <a href="数据处理.html">← 数据处理</a>
+    <h2>9. 存储论（库存论）</h2>
+    <a href="灰色系统.html">灰色系统 →</a>
+  </div>
+</div>
+
+<div class="container">
+
+<!-- 概述 -->
+<div class="section">
+<h2>一、存储论概述</h2>
+<p>存储论（或称为库存论）是定量方法和技术最早的领域之一，是研究存储系统的性质、运行规律以及如何寻找最优存储策略的一门学科，是<strong>运筹学的重要分支</strong>。存储论的数学模型一般分成两类：确定性模型（不含随机因素）和随机存储模型。</p>
+
+<h3>1.1 存储问题的基本要素</h3>
+<table>
+  <tr><th>要素</th><th>符号</th><th>含义</th></tr>
+  <tr><td>需求率</td><td>D 或 R</td><td>单位时间内对某种物品的需求量</td></tr>
+  <tr><td>订货批量</td><td>Q</td><td>一次订货中包含某种货物的数量</td></tr>
+  <tr><td>订货间隔期</td><td>T</td><td>两次订货之间的时间间隔</td></tr>
+</table>
+
+<h3>1.2 基本费用</h3>
+<table>
+  <tr><th>费用类型</th><th>符号</th><th>含义</th></tr>
+  <tr><td>存储费</td><td>C₁</td><td>单位货物单位时间的存储费用（资金利息、库房、人力等）</td></tr>
+  <tr><td>短缺损失费</td><td>C₂</td><td>单位货物单位时间的缺货损失</td></tr>
+  <tr><td>订货费</td><td>C₃</td><td>每组织一次订货的固定费用（与订购数量无关）</td></tr>
+</table>
+</div>
+
+<!-- 存储策略 -->
+<div class="section">
+<h2>二、常见存储策略</h2>
+
+<table>
+  <tr><th>策略</th><th>描述</th></tr>
+  <tr><td><strong>t-循环策略</strong></td><td>每隔固定时间t补充固定量Q，不论实际存储状态</td></tr>
+  <tr><td><strong>(t, S)策略</strong></td><td>每隔固定时间t补充一次，补充量 Q = S − I（补足到最大存储量S）</td></tr>
+  <tr><td><strong>(s, S)策略</strong></td><td>存量为I时：若 I ≤ s，补充 Q = S−I；若 I > s，不补充。s为订货点（安全存量）</td></tr>
+  <tr><td><strong>(t, s, S)策略</strong></td><td>每隔t盘点一次，若 I ≤ s 则补充到 S。是最完整的策略</td></tr>
+</table>
+</div>
+
+<!-- 模型一：EOQ -->
+<div class="section">
+<h2>三、确定性存储模型</h2>
+
+<h3>3.1 模型一：EOQ（不允许缺货，补充时间极短）</h3>
+<div class="def-box"><div class="def-title">EOQ = Economic Ordering Quantity（经济订购批量）</div><p>最经典的存储模型。假设：不允许缺货（C₂=∞）、补充瞬时完成（P=∞）、需求连续均匀（R为常数）。</p></div>
+
+<div class="highlight">
+  <strong>核心结论 — EOQ公式：</strong>
+</div>
+
+<div class="formula">$$t^* = \sqrt{\frac{2C_3}{C_1 R}} \quad \text{（最佳订货周期）}$$</div>
+<div class="formula">$$Q^* = \sqrt{\frac{2C_3 R}{C_1}} \quad \text{（经济订购批量）}$$</div>
+<div class="formula">$$C^* = \sqrt{2 C_1 C_3 R} \quad \text{（最小平均费用）}$$</div>
+
+<div class="highlight">
+  <strong>例题：</strong>某商品单位成本5元，每天保管费为成本的0.1%，每次订购费10元，需求100件/天，不允许缺货。<br>
+  C₁ = 5×0.1% = 0.005元/件·天，C₃ = 10元，R = 100件/天<br>
+  t* = 6.32天，Q* = 632件，C* ≈ 3.16元/天<br>
+  <strong>结论：每隔6.32天进货632件，总费用最少。</strong>
+</div>
+</div>
+
+<!-- 模型二 -->
+<div class="section">
+<h3>3.2 模型二：允许缺货+补充需要时间（经济生产批量）</h3>
+<div class="def-box"><div class="def-title">假设条件</div><p>需求连续均匀（R常数）；生产连续均匀，速度P>R；允许缺货（C₂有限）；订购费C₃。</p></div>
+
+<p>存储周期 [0, T]：t₁开始生产 → t₂缺货补足 → t₃停止生产达最大存量A → T时刻存量为零。</p>
+<p>需求一方面以速度R满足，另一方面以速度P−R增加存储/补充缺货。</p>
+
+<div class="highlight">
+  <strong>最优存储策略参数：</strong><br>
+  最优存储周期：$T^*$ &nbsp; 经济生产批量：$Q^*$ &nbsp; 最大存储量：$A^*$ &nbsp; 最大缺货量：$B^*$
+</div>
+
+<p><strong>推导路线：</strong>从各时段关系建立时间参数 → 计算存储费和缺货费 → 求得平均总费用 → 对决策变量求导得最优值。</p>
+</div>
+
+<!-- 模型三 -->
+<div class="section">
+<h3>3.3 模型三：不允许缺货+补充需要时间</h3>
+<div class="def-box"><div class="def-title">推导</div><p>在模型二中令 C₂ → ∞（不允许缺货），t₂ = 0，即得模型三。此时没有缺货阶段，生产的产品一部分满足需求，剩余部分作为存储。</p></div>
+
+<table>
+  <tr><th>参数</th><th>公式</th></tr>
+  <tr><td>最优存储周期</td><td>$T^* = \sqrt{\frac{2C_3}{C_1 R} \cdot \frac{P}{P-R}}$</td></tr>
+  <tr><td>经济生产批量</td><td>$Q^* = \sqrt{\frac{2C_3 R}{C_1} \cdot \frac{P}{P-R}}$</td></tr>
+  <tr><td>最大存储量</td><td>$A^* = \frac{P-R}{P} \cdot Q^*$</td></tr>
+</table>
+
+<div class="highlight">
+  <strong>例题（订货点问题）：</strong>月需求30件，进价300元，月存储费为进价的2%，订购费20元/次，订购后5天到货，到货速度2件/天。<br>
+  P=2件/天，R=1件/天，C₁=0.2元/天·件，C₃=20元/次，t₀=5天，L=5件<br>
+  最优：Q*=20件，T*=20天，A*=10件，C*=2元
+</div>
+</div>
+
+<!-- 模型四 -->
+<div class="section">
+<h3>3.4 模型四：允许缺货+补充时间极短</h3>
+<div class="def-box"><div class="def-title">推导</div><p>在模型二中令 P → ∞（补充瞬时），即得模型四。每个周期：订货Q后先支付缺货S，剩余Q-S为最高存储量。</p></div>
+
+<div class="formula">$$T^* = \sqrt{\frac{2C_3}{C_1 R} \cdot \frac{C_1 + C_2}{C_2}}, \quad Q^* = \sqrt{\frac{2C_3 R}{C_1} \cdot \frac{C_1 + C_2}{C_2}}$$</div>
+
+<div class="highlight">
+  <strong>例题：</strong>订货费12000元/次，存储费0.3元/件·月，缺货损失1.1元/件·月，月需求8000件。<br>
+  以年为单位：C₁=3.6，C₂=13.2，R=96000<br>
+  全年订货3次，每次32000件，最大缺货量6857件，最优费用81257元。
+</div>
+</div>
+
+<!-- 模型五 -->
+<div class="section">
+<h3>3.5 模型五：经济订购批量折扣模型</h3>
+<div class="def-box"><div class="def-title">折扣模型特点</div><p>商品价格K(Q)不固定，随订货量递增而递减（分段函数）。存储费C₁(Q) = r·K(Q)，其中r为存储费率。</p></div>
+
+<p>目标函数由三部分组成：<strong>年平均存储费 + 年平均订货费 + 商品购买费用</strong>。由于价格分段，需在各价格区间分别计算EOQ，取总费用最小的订货量。</p>
+</div>
+
+<!-- 随机模型 -->
+<div class="section">
+<h2>四、单周期随机库存模型（报童问题）</h2>
+
+<h3>4.1 问题描述</h3>
+<div class="def-box"><div class="def-title">报童问题（Newsboy Problem）</div><p>在整个需求期内只订购一次货物（订货量Q）。需求r为随机变量，概率P(r)已知。每卖出一件盈利k，未售出每件损失h。求最优Q使期望利润最大。</p></div>
+
+<h3>4.2 离散需求</h3>
+<p><strong>最优订货量 Q* 满足：</strong></p>
+<div class="formula">$$\sum_{r \leq Q^*} P(r) \geq \frac{k}{k+h} > \sum_{r \leq Q^*-1} P(r)$$</div>
+
+<div class="highlight">
+  <strong>例题：</strong>报亭每天出售报纸服从Poisson(500)分布，每份盈利0.15元，未售出亏损0.40元。<br>
+  k/(k+h) = 0.15/0.55 ≈ 0.2727 → 在Poisson(500)中找累积概率≥0.2727的Q<br>
+  Q* = 487份，每天盈利约70.93元。
+</div>
+
+<h3>4.3 连续需求</h3>
+<p>设需求r的概率密度函数为f(r)，累积分布函数为F(Q)，则最优订货量满足：</p>
+<div class="formula">$$F(Q^*) = \frac{k}{k+h}$$</div>
+<p>即取需求分布的 k/(k+h) 分位点作为最优订货量。</p>
+</div>
+
+<!-- 竞赛应用 -->
+<div class="section">
+<h2>五、数学建模竞赛中的应用</h2>
+
+<div class="highlight">
+  <strong>存储论的竞赛应用场景：</strong><br>
+  1. <strong>供应链优化</strong>：原材料采购批量、生产批量决策<br>
+  2. <strong>库存管理</strong>：超市补货策略（如2023国赛C题蔬菜补货）<br>
+  3. <strong>报童模型变体</strong>：易逝品（生鲜、报纸、机票）单周期订货<br>
+  4. <strong>折扣采购</strong>：大量采购享受价格折扣时的最优策略<br>
+  5. <strong>安全库存</strong>：需求不确定时设置安全库存水平
+</div>
+
+<h3>Python求解示例</h3>
+<div class="code-block"><span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">from</span> scipy.optimize <span class="kw">import</span> minimize_scalar
+<span class="kw">from</span> scipy.stats <span class="kw">import</span> norm
+
+<span class="co"># === EOQ模型 ===</span>
+<span class="kw">def</span> <span class="fn">eoq</span>(C1, C3, R):
+    <span class="kw">return</span> np.<span class="fn">sqrt</span>(<span class="num">2</span> * C3 * R / C1)
+
+<span class="co"># 示例：C1=0.005, C3=10, R=100</span>
+Q_star = <span class="fn">eoq</span>(<span class="num">0.005</span>, <span class="num">10</span>, <span class="num">100</span>)  <span class="co"># 632.46</span>
+
+<span class="co"># === 报童模型（正态需求）===</span>
+k, h = <span class="num">0.15</span>, <span class="num">0.40</span>  <span class="co"># 盈利、损失</span>
+mu, sigma = <span class="num">500</span>, <span class="num">22.36</span>  <span class="co"># 需求均值、标准差</span>
+critical_ratio = k / (k + h)
+Q_opt = norm.<span class="fn">ppf</span>(critical_ratio, mu, sigma)
+<span class="kw">print</span>(<span class="str">f'最优订货量: {Q_opt:.0f}'</span>)  <span class="co"># ~487</span></div>
+</div>
+
+</div><!-- .container -->
+
+<div class="footer"><p>📐 数学建模学习平台 &copy; 2026 Jacky</p></div>
+</div><!-- .main-wrap -->
+
+<button class="back2top" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="回到顶部">↑</button>
+
+<button class="chapter-nav-toggle" onclick="toggleChapterNav()" title="章节导航">📖 章节导航</button>
+<div class="chapter-nav-panel" id="chapterNav">
+  <div class="nav-header">📐 目录导航</div>
+  <div class="nav-section">核心方法</div>
+  <a href="插值与拟合.html"><span class="num">1</span>插值与拟合</a>
+  <a href="蒙特卡洛.html"><span class="num">2</span>蒙特卡洛方法</a>
+  <a href="线性回归.html"><span class="num">3</span>线性回归</a>
+  <a href="AI与建模.html"><span class="num">4</span>AI与数学建模</a>
+  <a href="主成分与因子分析.html"><span class="num">5</span>主成分与因子分析</a>
+  <a href="时间序列.html"><span class="num">6</span>时间序列分析</a>
+  <a href="图与网络.html"><span class="num">7</span>图与网络</a>
+  <a href="数据处理.html"><span class="num">8</span>数据处理</a>
+  <a href="存储论.html" class="current"><span class="num">9</span>存储论</a>
+  <a href="灰色系统.html"><span class="num">10</span>灰色系统</a>
+  <a href="模拟退火.html"><span class="num">11</span>模拟退火算法</a>
+  <a href="排队论.html"><span class="num">12</span>排队论</a>
+  <div class="nav-section">综合专题</div>
+  <a href="方法大全.html"><span class="num">★</span>方法大全（59种）</a>
+  <div class="nav-section">真题实战</div>
+  <a href="历年真题模拟分析.html"><span class="num">📝</span>历年真题模拟分析</a>
+  <a href="index.html" style="border-top:1px solid var(--sidebar-border);margin-top:6px;padding-top:10px"><span class="num">⌂</span>返回首页</a>
+</div>
+
+<script src="common.js?v=1"></script>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="rag-retriever.js?v=1"></script>
+<script src="ai-chat.js?v=7"></script>
+</body>
+</html>

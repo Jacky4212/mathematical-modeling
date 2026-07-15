@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>排队论 — 数学建模学习平台</title>
+<script>
+MathJax = { tex: { inlineMath: [['$','$'],['\\(','\\)']], displayMath: [['$$','$$'],['\\[','\\]']], processEscapes: true } };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" async></script>
+<link rel="stylesheet" href="common.css">
+</head>
+<body>
+
+<nav class="sidebar">
+  <div class="sidebar-header">
+    <div class="site-name">📐 数学建模</div>
+    <div class="site-sub">学习平台</div>
+  </div>
+  <div class="sidebar-nav">
+    <div class="group-label">核心方法</div>
+    <a href="插值与拟合.html"><span class="tag">1</span>插值与拟合</a>
+    <a href="蒙特卡洛.html"><span class="tag">2</span>蒙特卡洛方法</a>
+    <a href="线性回归.html"><span class="tag">3</span>线性回归</a>
+    <a href="AI与建模.html"><span class="tag">4</span>AI与数学建模</a>
+    <a href="主成分与因子分析.html"><span class="tag">5</span>主成分与因子分析</a>
+    <a href="时间序列.html"><span class="tag">6</span>时间序列分析</a>
+    <a href="图与网络.html"><span class="tag">7</span>图与网络</a>
+    <a href="数据处理.html"><span class="tag">8</span>数据处理</a>
+    <a href="存储论.html"><span class="tag">9</span>存储论</a>
+    <a href="灰色系统.html"><span class="tag">10</span>灰色系统</a>
+    <a href="模拟退火.html"><span class="tag">11</span>模拟退火算法</a>
+    <a href="排队论.html" class="current"><span class="tag">12</span>排队论</a>
+    <div class="group-label">综合专题</div>
+    <a href="方法大全.html"><span class="tag">★</span>方法大全（59种）</a>
+    <div class="group-label">真题实战</div>
+    <a href="历年真题模拟分析.html"><span class="tag">📝</span>历年真题模拟分析</a>
+    <a href="index.html" style="margin-top:6px;border-top:1px solid var(--sidebar-border);padding-top:8px"><span class="tag">⌂</span>返回首页</a>
+  </div>
+</nav>
+
+<button class="theme-toggle no-print" onclick="toggleTheme()" title="切换暗黑模式">🌙</button>
+
+<div class="main-wrap">
+<div class="topbar">
+  <div class="topbar-inner">
+    <a href="模拟退火.html">← 模拟退火算法</a>
+    <h2>12. 排队论（随机服务系统理论）</h2>
+    <a href="index.html">返回首页 →</a>
+  </div>
+</div>
+
+<div class="container">
+
+<!-- 概述 -->
+<div class="section">
+<h2>一、排队论概述</h2>
+
+<div class="def-box"><div class="def-title">排队论（Queueing Theory）</div><p>又名<strong>随机服务系统理论</strong>，是运筹学和应用概率的重要分支。研究拥挤现象——通过分析各种服务系统在排队等待中的概率特性，来解决系统的最优设计和最优控制问题。起源于20世纪初丹麦电信工程师A.K.Erlang对电话系统的研究。</p></div>
+
+<h3>1.1 生活中的排队系统</h3>
+<table>
+  <tr><th>顾客</th><th>要求的服务</th><th>服务台</th></tr>
+  <tr><td>储户</td><td>银行储蓄</td><td>出纳员/ATM</td></tr>
+  <tr><td>病人</td><td>就诊</td><td>医生</td></tr>
+  <tr><td>故障机器</td><td>修理</td><td>维修工</td></tr>
+  <tr><td>飞机</td><td>降落</td><td>跑道</td></tr>
+  <tr><td>货轮</td><td>装卸货</td><td>码头</td></tr>
+  <tr><td>车辆</td><td>通过路口</td><td>红绿灯</td></tr>
+</table>
+
+<h3>1.2 排队系统三要素</h3>
+<div class="highlight">
+  <strong>输入过程 → 排队规则 → 服务台</strong><br>
+  顾客到达 → （排队等待）→ 接受服务 → 离开
+</div>
+<ul>
+  <li><strong>输入过程</strong>：顾客源（有限/无限）、到达方式（单个/成批）、间隔时间分布</li>
+  <li><strong>排队规则</strong>：损失制 / 等待制(FCFS/LCFS/随机/优先权) / 混合制</li>
+  <li><strong>服务台</strong>：个数（1/多个/串联/并联）、服务方式、服务时间分布</li>
+</ul>
+</div>
+
+<!-- Kendall记号 -->
+<div class="section">
+<h2>二、Kendall记号与数量指标</h2>
+
+<h3>2.1 排队模型的符号表示</h3>
+<div class="formula">$$X / Y / Z / A / B / C$$</div>
+<table>
+  <tr><th>符号</th><th>含义</th><th>常见取值</th></tr>
+  <tr><td>X</td><td>到达间隔时间分布</td><td>M(负指数), D(定长), Eₖ(k阶Erlang), G(一般)</td></tr>
+  <tr><td>Y</td><td>服务时间分布</td><td>同上</td></tr>
+  <tr><td>Z</td><td>服务台个数</td><td>1, 2, ..., c</td></tr>
+  <tr><td>A</td><td>系统容量限制</td><td>N（默认∞）</td></tr>
+  <tr><td>B</td><td>顾客源数目</td><td>m（默认∞）</td></tr>
+  <tr><td>C</td><td>服务规则</td><td>FCFS（默认）/ LCFS / PS / SIRO</td></tr>
+</table>
+
+<div class="highlight">
+  <strong>简化记号：</strong>略去后三项表示 X/Y/Z/∞/∞/FCFS。如 M/M/1 = M/M/1/∞/∞/FCFS
+</div>
+
+<h3>2.2 关键数量指标</h3>
+<table>
+  <tr><th>符号</th><th>含义</th><th>关系</th></tr>
+  <tr><td>L</td><td>平均队长（系统中全部顾客数）</td><td>L = λW</td></tr>
+  <tr><td>Lq</td><td>平均排队长（队列中等待顾客数）</td><td>Lq = λWq</td></tr>
+  <tr><td>W</td><td>平均逗留时间（等待+服务）</td><td>W = Wq + 1/μ</td></tr>
+  <tr><td>Wq</td><td>平均等待时间</td><td>—</td></tr>
+  <tr><td>ρ</td><td>服务强度 λ/μ（或λ/(cμ)）</td><td>必须 ρ &lt; 1 系统才稳定</td></tr>
+  <tr><td>B / I</td><td>忙期 / 闲期</td><td>反映服务台工作强度</td></tr>
+</table>
+</div>
+
+<!-- 概率分布 -->
+<div class="section">
+<h2>三、常见概率分布</h2>
+
+<h3>3.1 Poisson过程（M — 到达分布）</h3>
+<div class="formula">$$P\{N(t)=k\} = \frac{(\lambda t)^k}{k!} e^{-\lambda t}, \quad k=0,1,2,...$$</div>
+<p>特性：平稳性、独立性、普通性。E[N(t)] = D[N(t)] = λt。λ为单位时间平均到达顾客数。</p>
+
+<h3>3.2 负指数分布（M — 间隔/服务分布）</h3>
+<div class="formula">$$f(t) = \lambda e^{-\lambda t}\ (t \geq 0), \quad E(T)=\frac{1}{\lambda}, \quad D(T)=\frac{1}{\lambda^2}$$</div>
+<div class="highlight">
+  <strong>唯一具有Markov性（无记忆性）的连续分布：</strong><br>
+  P(T > t₀+t | T > t₀) = P(T > t)。这意味着不管已服务了多久，剩余服务时间仍服从同样的分布。
+</div>
+
+<h3>3.3 k阶Erlang分布（Eₖ）</h3>
+<div class="formula">$$f_k(t) = \frac{(k\mu)^k t^{k-1}}{(k-1)!} e^{-k\mu t}, \quad E(T)=\frac{1}{\mu}, \quad D(T)=\frac{1}{k\mu^2}$$</div>
+<p><strong>桥梁作用</strong>：k=1 → 负指数分布；k→∞ → 定长分布。Erlang分布可描述介于完全随机和完全确定之间的服务时间。</p>
+
+<h3>3.4 定长分布（D）</h3>
+<p>无任何随机波动，顾客等间隔到达或服务时间恒定。F(t)=1(t≥α), 0(t&lt;α)。E(T)=α, D(T)=0。</p>
+
+<h3>3.5 分布检验：χ²检验</h3>
+<p>验证实际数据是否服从泊松分布：计算样本均值λ̄ → 求理论频数 e_n = N·P_n → 计算χ² = Σ(f_n−e_n)²/e_n → 查χ²临界值判断。</p>
+</div>
+
+<!-- 生灭过程 -->
+<div class="section">
+<h2>四、生灭过程（Birth-Death Process）</h2>
+
+<div class="def-box"><div class="def-title">核心工具</div><p>处理输入为Poisson流、服务时间为负指数分布的排队模型的标准方法。"生"=顾客到达，"灭"=顾客离去。</p></div>
+
+<p><strong>稳态条件（转入率 = 转出率）：</strong></p>
+<div class="formula">$$\lambda_{n-1}p_{n-1} + \mu_{n+1}p_{n+1} = \lambda_n p_n + \mu_n p_n$$</div>
+<div class="formula">$$\mu_1 p_1 = \lambda_0 p_0$$</div>
+
+<p><strong>稳态概率通解：</strong></p>
+<div class="formula">$$p_n = \frac{\lambda_{n-1}\lambda_{n-2}\cdots\lambda_0}{\mu_n\mu_{n-1}\cdots\mu_1} p_0, \quad p_0 = \frac{1}{1 + \sum_{n=1}^{\infty}\frac{\lambda_{n-1}\cdots\lambda_0}{\mu_n\cdots\mu_1}}$$</div>
+</div>
+
+<!-- M/M/1 -->
+<div class="section">
+<h2>五、M/M/1 单服务台模型（核心）</h2>
+
+<h3>5.1 假设条件</h3>
+<ul>
+  <li>到达：参数为λ的Poisson流（λ_n = λ常数）</li>
+  <li>服务时间：参数为μ的负指数分布（μ_n = μ常数）</li>
+  <li>单服务台，系统容量无限，FCFS排队规则</li>
+  <li><strong>ρ = λ/μ &lt; 1</strong>（到达率小于服务率，系统才能稳定）</li>
+</ul>
+
+<h3>5.2 核心公式</h3>
+<div class="formula">$$p_0 = 1-\rho, \quad p_n = \rho^n(1-\rho)$$</div>
+<div class="formula">$$L = \frac{\lambda}{\mu-\lambda} = \frac{\rho}{1-\rho}$$</div>
+<div class="formula">$$L_q = \frac{\rho^2}{1-\rho} = \frac{\lambda^2}{\mu(\mu-\lambda)}$$</div>
+<div class="formula">$$W = \frac{1}{\mu-\lambda}, \quad W_q = \frac{\lambda}{\mu(\mu-\lambda)}$$</div>
+
+<div class="highlight">
+  <strong>逗留时间分布：</strong>W 服从参数为 μ−λ 的负指数分布<br>
+  f(t) = (μ−λ)e^{−(μ−λ)t}, F(t) = 1−e^{−(μ−λ)t} (t≥0)
+</div>
+</div>
+
+<!-- 其他模型 -->
+<div class="section">
+<h2>六、其他排队模型速查</h2>
+
+<h3>6.1 M/M/1/N（容量有限）</h3>
+<p>系统最多容纳N个顾客（含正在服务的），超出则损失。</p>
+<div class="formula">$$p_n = \rho^n \cdot \frac{1-\rho}{1-\rho^{N+1}}, \quad n=0,1,...,N$$</div>
+
+<h3>6.2 M/M/c（多服务台并联）</h3>
+<div class="def-box"><div class="def-title">c个并联服务台</div><p>$\rho = \lambda/(c\mu) < 1$，$\mu_n = \min(n,c)\cdot\mu$</p></div>
+<div class="formula">$$p_0 = \left[\sum_{k=0}^{c-1}\frac{(c\rho)^k}{k!} + \frac{(c\rho)^c}{c!(1-\rho)}\right]^{-1}$$</div>
+<div class="formula">$$L_q = \frac{(c\rho)^c \rho}{c!(1-\rho)^2} \cdot p_0, \quad L = L_q + c\rho$$</div>
+
+<h3>6.3 M/G/1（一般服务时间）</h3>
+<p>服务时间服从一般分布G，均值为1/μ，方差为σ²。</p>
+<div class="def-box"><div class="def-title">Pollaczek-Khintchine（P-K）公式</div></div>
+<div class="formula">$$L_q = \frac{\lambda^2\sigma^2 + \rho^2}{2(1-\rho)}$$</div>
+
+<h3>6.4 各模型对比</h3>
+<table>
+  <tr><th>模型</th><th>Lq公式</th><th>特点</th></tr>
+  <tr><td>M/M/1</td><td>$\frac{\rho^2}{1-\rho}$</td><td>基准模型</td></tr>
+  <tr><td>M/D/1</td><td>$\frac{\rho^2}{2(1-\rho)}$</td><td>定长服务，Lq为M/M/1的一半</td></tr>
+  <tr><td>M/Eₖ/1</td><td>$\frac{(1+k)\rho^2}{2k(1-\rho)}$</td><td>介于M/M/1和M/D/1之间</td></tr>
+</table>
+</div>
+
+<!-- 优化 -->
+<div class="section">
+<h2>七、排队系统优化</h2>
+
+<h3>7.1 最优服务率（M/M/1）</h3>
+<p>目标：min C(μ) = C_w·L(μ) + C_s·μ，其中C_w为单位等待成本，C_s为单位服务成本。</p>
+<div class="formula">$$\mu^* = \lambda + \sqrt{\frac{C_w\lambda}{C_s}}$$</div>
+
+<h3>7.2 最优服务台数（M/M/c）</h3>
+<p>递增计算c=1,2,...直到 C(c+1) > C(c)：</p>
+<div class="formula">$$\min_c \ C(c) = C_w \cdot L(c) + C_s \cdot c$$</div>
+
+<div class="highlight">
+  <strong>典型例题：</strong>工地发放工具。λ=1.6人/分，μ=0.9人/分，等待费6元/时，空闲费3元/时。求最优服务窗口数。<br>
+  ρ=1.6/0.9≈1.78 > 1 → 一个窗口不够 → 需c≥2个。分别计算c=2,3,4的Wq和总成本。
+</div>
+</div>
+
+<!-- 竞赛应用 -->
+<div class="section">
+<h2>八、数学建模竞赛中的应用</h2>
+
+<div class="highlight">
+  <strong>排队论的竞赛应用场景：</strong><br>
+  1. <strong>服务窗口设计</strong>：银行/医院/收费站窗口数量优化<br>
+  2. <strong>呼叫中心</strong>：客服人员排班、电话线路容量<br>
+  3. <strong>交通工程</strong>：红绿灯配时、收费站车道数<br>
+  4. <strong>生产管理</strong>：流水线工位设计、维修工人数<br>
+  5. <strong>通信网络</strong>：带宽分配、路由器缓冲区大小<br>
+  6. <strong>应急管理</strong>：救护车/消防车部署数量
+</div>
+
+<h3>Python实现（M/M/1和M/M/c）</h3>
+<div class="code-block"><span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">from</span> math <span class="kw">import</span> factorial
+
+<span class="kw">def</span> <span class="fn">mm1</span>(lam, mu):
+    <span class="co">"""M/M/1模型"""</span>
+    rho = lam / mu
+    <span class="kw">assert</span> rho < <span class="num">1</span>, <span class="str">'系统不稳定：ρ >= 1'</span>
+    p0 = <span class="num">1</span> - rho
+    L = rho / (<span class="num">1</span> - rho)
+    Lq = rho**<span class="num">2</span> / (<span class="num">1</span> - rho)
+    W = <span class="num">1</span> / (mu - lam)
+    Wq = lam / (mu * (mu - lam))
+    <span class="kw">return</span> {<span class="str">'rho'</span>: rho, <span class="str">'p0'</span>: p0, <span class="str">'L'</span>: L,
+            <span class="str">'Lq'</span>: Lq, <span class="str">'W'</span>: W, <span class="str">'Wq'</span>: Wq}
+
+<span class="kw">def</span> <span class="fn">mmc</span>(lam, mu, c):
+    <span class="co">"""M/M/c模型"""</span>
+    rho = lam / (c * mu)
+    <span class="kw">assert</span> rho < <span class="num">1</span>, <span class="str">'系统不稳定：ρ >= 1'</span>
+    <span class="co"># p0</span>
+    s = sum((c*rho)**k / factorial(k) <span class="kw">for</span> k <span class="kw">in</span> range(c))
+    p0 = <span class="num">1</span> / (s + (c*rho)**c / (factorial(c) * (<span class="num">1</span>-rho)))
+    Lq = (c*rho)**c * rho / (factorial(c) * (<span class="num">1</span>-rho)**<span class="num">2</span>) * p0
+    L = Lq + c * rho
+    Wq = Lq / lam
+    W = L / lam
+    <span class="kw">return</span> {<span class="str">'rho'</span>: rho, <span class="str">'p0'</span>: p0, <span class="str">'L'</span>: L,
+            <span class="str">'Lq'</span>: Lq, <span class="str">'W'</span>: W, <span class="str">'Wq'</span>: Wq}</div>
+</div>
+
+</div><!-- .container -->
+<div class="footer"><p>📐 数学建模学习平台 &copy; 2026 Jacky</p></div>
+</div>
+
+<button class="back2top" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="回到顶部">↑</button>
+<button class="chapter-nav-toggle" onclick="toggleChapterNav()" title="章节导航">📖 章节导航</button>
+<div class="chapter-nav-panel" id="chapterNav">
+  <div class="nav-header">📐 目录导航</div>
+  <div class="nav-section">核心方法</div>
+  <a href="插值与拟合.html"><span class="num">1</span>插值与拟合</a>
+  <a href="蒙特卡洛.html"><span class="num">2</span>蒙特卡洛方法</a>
+  <a href="线性回归.html"><span class="num">3</span>线性回归</a>
+  <a href="AI与建模.html"><span class="num">4</span>AI与数学建模</a>
+  <a href="主成分与因子分析.html"><span class="num">5</span>主成分与因子分析</a>
+  <a href="时间序列.html"><span class="num">6</span>时间序列分析</a>
+  <a href="图与网络.html"><span class="num">7</span>图与网络</a>
+  <a href="数据处理.html"><span class="num">8</span>数据处理</a>
+  <a href="存储论.html"><span class="num">9</span>存储论</a>
+  <a href="灰色系统.html"><span class="num">10</span>灰色系统</a>
+  <a href="模拟退火.html"><span class="num">11</span>模拟退火算法</a>
+  <a href="排队论.html" class="current"><span class="num">12</span>排队论</a>
+  <div class="nav-section">综合专题</div>
+  <a href="方法大全.html"><span class="num">★</span>方法大全（59种）</a>
+  <div class="nav-section">真题实战</div>
+  <a href="历年真题模拟分析.html"><span class="num">📝</span>历年真题模拟分析</a>
+  <a href="index.html" style="border-top:1px solid var(--sidebar-border);margin-top:6px;padding-top:10px"><span class="num">⌂</span>返回首页</a>
+</div>
+
+<script src="common.js?v=1"></script>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="rag-retriever.js?v=1"></script>
+<script src="ai-chat.js?v=7"></script>
+</body>
+</html>

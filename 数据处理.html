@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>数据处理 — 数学建模学习平台</title>
+<script>
+MathJax = { tex: { inlineMath: [['$','$'],['\\(','\\)']], displayMath: [['$$','$$'],['\\[','\\]']], processEscapes: true } };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" async></script>
+<link rel="stylesheet" href="common.css">
+</head>
+<body>
+
+<!-- ===== Sidebar ===== -->
+<nav class="sidebar">
+  <div class="sidebar-header">
+    <div class="site-name">📐 数学建模</div>
+    <div class="site-sub">学习平台</div>
+  </div>
+  <div class="sidebar-nav">
+    <div class="group-label">核心方法</div>
+    <a href="插值与拟合.html"><span class="tag">1</span>插值与拟合</a>
+    <a href="蒙特卡洛.html"><span class="tag">2</span>蒙特卡洛方法</a>
+    <a href="线性回归.html"><span class="tag">3</span>线性回归</a>
+    <a href="AI与建模.html"><span class="tag">4</span>AI与数学建模</a>
+    <a href="主成分与因子分析.html"><span class="tag">5</span>主成分与因子分析</a>
+    <a href="时间序列.html"><span class="tag">6</span>时间序列分析</a>
+    <a href="图与网络.html"><span class="tag">7</span>图与网络</a>
+    <a href="数据处理.html" class="current"><span class="tag">8</span>数据处理</a>
+    <a href="存储论.html"><span class="tag">9</span>存储论</a>
+    <a href="灰色系统.html"><span class="tag">10</span>灰色系统</a>
+    <a href="模拟退火.html"><span class="tag">11</span>模拟退火算法</a>
+    <a href="排队论.html"><span class="tag">12</span>排队论</a>
+    <div class="group-label">综合专题</div>
+    <a href="方法大全.html"><span class="tag">★</span>方法大全（59种）</a>
+    <div class="group-label">真题实战</div>
+    <a href="历年真题模拟分析.html"><span class="tag">📝</span>历年真题模拟分析</a>
+    <a href="index.html" style="margin-top:6px;border-top:1px solid var(--sidebar-border);padding-top:8px"><span class="tag">⌂</span>返回首页</a>
+  </div>
+</nav>
+
+<!-- ===== Theme Toggle ===== -->
+<button class="theme-toggle no-print" onclick="toggleTheme()" title="切换暗黑模式">🌙</button>
+
+<!-- ===== Main ===== -->
+<div class="main-wrap">
+
+<!-- Topbar -->
+<div class="topbar">
+  <div class="topbar-inner">
+    <a href="图与网络.html">← 图与网络</a>
+    <h2>8. 数据处理与数据预处理</h2>
+    <a href="存储论.html">存储论 →</a>
+  </div>
+</div>
+
+<!-- Content -->
+<div class="container">
+
+<!-- 概述 -->
+<div class="section">
+<h2>一、为什么要预处理数据</h2>
+
+<h3>1.1 现实数据的"脏"特性</h3>
+<p>当今现实世界中的数据库极易受到<strong>噪声数据、空缺数据和不一致性数据</strong>的侵扰。很多数据都是不完整的（值缺失）、含噪声的（错误的或偏离期望的孤立点）、不一致的，无法直接进行数据挖掘，或挖掘结果差强人意。</p>
+
+<div class="highlight">
+  <strong>核心原则：</strong>高质量的决策来自高质量的数据。数据预处理是整个数据挖掘与知识发现过程中的一个重要步骤，在数学建模竞赛中往往是<strong>第一步也是被低估的关键一步</strong>。
+</div>
+
+<h3>1.2 变量的分类</h3>
+<table>
+  <tr><th>分类维度</th><th>类型</th><th>说明</th></tr>
+  <tr><td rowspan="2">按取值性质</td><td>连续型（定量型）</td><td>在区间内可任意取值，如身高、温度</td></tr>
+  <tr><td>离散型（定性型）</td><td>取值有限个，如性别、等级。特殊类型：周期变量（星期、月份）</td></tr>
+  <tr><td rowspan="2">按时间关系</td><td>静态数据</td><td>不随时间变化</td></tr>
+  <tr><td>动态数据（时序）</td><td>随时间变化，挖掘时需要特殊预处理</td></tr>
+</table>
+</div>
+
+<!-- 缺失值填补 -->
+<div class="section">
+<h2>二、缺失值填补</h2>
+
+<p>对数据挖掘的实际应用而言，即使数据量很大，具有完整数据的案例也非常少。最简单的办法是减少数据集（去掉所有有缺失值的样本），但这样会丢失大量信息。因此需要用方法<strong>填补缺失值</strong>。</p>
+
+<h3>2.1 均值填补法</h3>
+<div class="def-box"><div class="def-title">原理</div><p>根据与含缺失值的目标属性相关性高的其他属性将样品分组，分别计算各组目标属性的均值，将各组均值作为组内所有缺失项的填补值。</p></div>
+<table><tr><th>优点</th><th>缺点</th></tr>
+<tr><td>操作简便，有效降低点估计偏差</td><td>同组缺失值用同一值填补，扭曲目标属性分布；导致均值和总量估计中对方差的低估</td></tr>
+</table>
+
+<h3>2.2 随机填补法</h3>
+<div class="def-box"><div class="def-title">原理</div><p>采用某种概率抽样的方式，从有完整信息的元组中抽取缺失数据的填补值。能够避免均值填补中填补值过于凝集的弱点，使填补值分布与真值分布更接近。</p></div>
+<table><tr><th>优点</th><th>缺点</th></tr>
+<tr><td>分布更接近真值</td><td>增大了估计量的方差，稳定性不够</td></tr>
+</table>
+
+<h3>2.3 热卡填补法（Hot Deck Imputation）</h3>
+<div class="def-box"><div class="def-title">原理</div><p>规定一个或多个排序属性，按其观察值大小对全部观察单位排序。排序属性值完全相同的观察单位称为匹配，缺失值用与之匹配的观察单位的属性值来填补。如果没有相匹配的，每次减少一个排序属性再找。</p></div>
+<table><tr><th>优点</th><th>缺点</th></tr>
+<tr><td>保持原始数据分布特征</td><td>需要设计匹配逻辑，匹配不到时需要退化策略</td></tr>
+</table>
+
+<h3>2.4 回归填补法</h3>
+<div class="def-box"><div class="def-title">原理</div><p>在现有观察值基础上，以含有缺失值的目标属性为因变量，以与目标属性相关性高的其他属性为自变量，建立最小二乘回归模型或判别模型，以估计缺失值。</p></div>
+
+<div class="highlight">
+  <strong>注意事项：</strong>以上几种方法都存在扭曲样本分布的问题。均值填补会降低属性之间的相关关系，回归填补则会人为地加大变量之间的相关关系。竞赛中需在论文中说明选择填补方法的理由。
+</div>
+</div>
+
+<!-- 异常值探测 -->
+<div class="section">
+<h2>三、异常值（孤立点）探测</h2>
+
+<p>在大型数据集中，通常存在着不遵循数据模型普遍行为的样本，这些样本和其他数据有很大不同或不一致，叫做<strong>异常点</strong>。异常点可能是由测量误差造成的，也可能是数据固有的变异性结果（如信用卡欺诈检测中异常点恰是关注目标）。</p>
+
+<h3>3.1 一维样本异常点检测</h3>
+<div class="def-box"><div class="def-title">标准差法</div><p>计算均值和标准差，设定阈值 = 均值 ± 2×标准差，区间外的数据视为潜在异常点。</p></div>
+
+<div class="highlight">
+  <strong>示例：</strong>数据集 {3, 56, 23, 39, 156, 52, 41, 22, 9, 28, 139, 31, 55, 20, -67, 37, 11, 55, 45, 37}<br>
+  均值 = 39.9，标准差 = 45.65<br>
+  阈值区间 = [39.9 - 2×45.65, 39.9 + 2×45.65] = [-51.4, 131.2]<br>
+  异常点：156, 139, -67（超出区间）
+</div>
+
+<h3>3.2 基于距离的异常点检测（二维以上）</h3>
+<div class="def-box"><div class="def-title">原理</div><p>计算各点之间的欧氏距离 $d = \sqrt{(X_1-X_2)^2 + (Y_1-Y_2)^2}$，设定阈值距离，超出阈值的点为异常点。</p></div>
+
+<h3>3.3 基于分类预测模型的异常值探测</h3>
+<p>对总体的特征建立分类模型（正常行为特征库），针对新数据判断是否属于正常行为，发生偏离的即是异常值。常用分类器包括：决策树分类、贝叶斯分类、神经网络分类、聚类。</p>
+</div>
+
+<!-- 数据变换 -->
+<div class="section">
+<h2>四、数据变换（标准化/规范化）</h2>
+
+<p>数据变换是将数据转换成适合于挖掘的形式。对于基于距离的方法（如神经网络、KNN、聚类），规范化可以帮助防止具有较大初始值域的属性权重过大。</p>
+
+<h3>4.1 最小-最大规范化</h3>
+<div class="formula">$$v' = \frac{v - \min_A}{\max_A - \min_A} \times (new\_max - new\_min) + new\_min$$</div>
+<p>将数据映射到 [0,1] 或 [-1,1] 区间。保留了原来数据中存在的关系。但若将来遇到超过当前取值范围的数值，会引起系统出错。</p>
+
+<h3>4.2 Z-score规范化（零-均值规范化）</h3>
+<div class="formula">$$v' = \frac{v - \mu}{\sigma}$$</div>
+<p>根据属性的均值和偏差来规格化。常用于属性最大值与最小值未知，或使用最大最小规范化会出现异常数据的情况。</p>
+
+<h3>4.3 小数定标规范化</h3>
+<div class="formula">$$v' = \frac{v}{10^j}$$</div>
+<p>其中 j 为使 max(|v'|) &lt; 1 的最小整数。通过移动小数点的位置来实现规范化。</p>
+</div>
+
+<!-- 定性指标量化 -->
+<div class="section">
+<h2>五、定性（模糊）指标的量化处理</h2>
+
+<p>在实际问题中，很多问题涉及定性或模糊指标的定量处理，如教学质量、科研水平、工作政绩、人员素质、满意度、信誉、态度等。如何对有关问题给出定量分析？</p>
+
+<h3>5.1 等级量化</h3>
+<p>按国家评价标准，评价因素一般分为五个等级 A, B, C, D, E，依次对应 5, 4, 3, 2, 1。若有 A-, B+, C-, D+ 等半级，需进一步合理量化。</p>
+
+<h3>5.2 模糊隶属函数法</h3>
+<div class="def-box"><div class="def-title">方法</div><p>构造模糊隶属函数，如偏大型柯西分布和对数函数作为隶属函数，对任何评价值给出一个合适的量化值。也可根据实际情况构造其他隶属函数，如偏大型正态分布。</p></div>
+
+<div class="highlight">
+  <strong>核心思想：</strong>5个等级 {很满意, 满意, 较满意, 不太满意, 很不满意} → {5, 4, 3, 2, 1}。用隶属函数实现从离散评语到连续数值的平滑映射。
+</div>
+</div>
+
+<!-- 数据平滑 -->
+<div class="section">
+<h2>六、数据平滑（离散化）</h2>
+
+<p>一个数值型特征可能包含许多不同的值。对许多数据挖掘技术来说，这些值之间微小的区别并不重要，但可能会降低挖掘方法的性能并影响最终结果。因此，对变量的值进行<strong>平滑处理</strong>很重要。</p>
+
+<h3>6.1 分箱（Binning）</h3>
+<p>分箱方法通过考察"邻居"来平滑存储数据的值。存储的值被分布到一些"桶"或"箱"中，进行的是局部平滑。</p>
+
+<div class="def-box"><div class="def-title">三种分箱平滑方式</div></div>
+<table>
+  <tr><th>方法</th><th>操作</th><th>示例（箱：{4,8,15}）</th></tr>
+  <tr><td>按箱均值平滑</td><td>箱内所有值替换为箱均值</td><td>{9, 9, 9}</td></tr>
+  <tr><td>按箱中值平滑</td><td>箱内所有值替换为箱中位数</td><td>{8, 8, 8}</td></tr>
+  <tr><td>按箱边界平滑</td><td>每个值替换为最近的箱边界值</td><td>{4, 4, 15}</td></tr>
+</table>
+
+<h3>6.2 其他平滑方法</h3>
+<ul>
+  <li><strong>回归平滑</strong>：用回归函数拟合数据来平滑</li>
+  <li><strong>聚类平滑</strong>：用聚类中心替换原始值</li>
+</ul>
+</div>
+
+<!-- 分类基础 -->
+<div class="section">
+<h2>七、分类方法基础</h2>
+
+<h3>7.1 什么是分类</h3>
+<p>分类的目的是学会一个分类器（分类函数或模型），该分类器能把待分类的数据映射到给定的类别中。分类可用于预测，从历史数据中自动推导出对给定数据的推广描述，从而对未来数据进行类预测。</p>
+
+<div class="highlight">
+  <strong>应用场景：</strong>医疗诊断、信用卡系统的信用分级、图像模式识别等。<br>
+  <strong>分类器构造方法：</strong>统计方法（贝叶斯法、非参数法）、机器学习方法（决策树法、规则归纳法）、神经网络方法、粗糙集等。
+</div>
+
+<h3>7.2 分类的两个步骤</h3>
+<table>
+  <tr><th>步骤</th><th>内容</th></tr>
+  <tr><td><strong>步骤一：建立模型</strong></td><td>训练数据集（每个样本有类标号）→ 学习 → 分类规则/决策树/数学公式</td></tr>
+  <tr><td><strong>步骤二：使用模型</strong></td><td>评估准确率 → 对未知类标号的数据进行分类</td></tr>
+</table>
+
+<h3>7.3 分类评价指标</h3>
+<table>
+  <tr><th>指标</th><th>公式</th><th>含义</th></tr>
+  <tr><td>精确度 Accuracy</td><td>$\frac{\sum TP_j}{N}$</td><td>被正确分类的样本占比</td></tr>
+  <tr><td>查全率 Recall</td><td>$\frac{TP_j}{TP_j + FN_j}$</td><td>本类样本中被正确分类的比例</td></tr>
+  <tr><td>查准率 Precision</td><td>$\frac{TP_j}{TP_j + FP_j}$</td><td>分类为该类的样本中真正属于该类的比例</td></tr>
+  <tr><td>F-measure</td><td>$\frac{(1+\beta^2) \cdot Recall \cdot Precision}{\beta^2 \cdot Recall + Precision}$</td><td>查全率和查准率的加权调和平均（β通常取1）</td></tr>
+</table>
+</div>
+
+<!-- 决策树 -->
+<div class="section">
+<h2>八、决策树（ID3算法）</h2>
+
+<h3>8.1 决策树基本概念</h3>
+<div class="def-box"><div class="def-title">结构</div><p><strong>根节点</strong>（最顶层）→ <strong>内部节点</strong>（属性测试，每个分枝代表一个测试输出）→ <strong>叶节点</strong>（类标号/类分布）。从根到叶的一条路径对应一条合取规则，整棵树对应一组析取表达式规则。</p></div>
+
+<p>决策树最大的优点：学习过程中不需要使用者了解很多背景知识，只要训练例子能用属性-结论式表示出来，就能使用该算法来学习。</p>
+
+<h3>8.2 ID3算法 — 信息增益</h3>
+<p>ID3采用<strong>信息增益</strong>来选择能够最好地将样本分类的属性。</p>
+
+<div class="formula">$$I(n_1, ..., n_m) = -\sum_{j=1}^{m} P(c_j) \log_2 P(c_j)$$</div>
+<p>其中 $P(c_j) = n_j / total$ 为类别 $c_j$ 的先验概率。I 是分类所需的期望信息。</p>
+
+<div class="formula">$$E(A) = \sum_{s=1}^{q} \frac{n_{1s} + ... + n_{ms}}{total} \cdot I(n_{1s}, ..., n_{ms})$$</div>
+<p>E(A) 是描述属性 A 划分数据集所得的熵。熵值越小，表示属性对数据集划分的纯度越高。</p>
+
+<div class="formula">$$Gain(A) = I(n_1, n_2, ..., n_m) - E(A)$$</div>
+<p><strong>信息增益最大的属性选为根节点</strong>，然后递归地在每个分枝上继续选择信息增益最大的属性，直到所有样本属于同一类或没有剩余属性。</p>
+
+<h3>8.3 ID3算法伪代码</h3>
+<div class="code-block"><span class="kw">算法</span> Generate_decision_tree(samples, attribute_list):
+  <span class="co">// 输入：训练样本samples，候选属性集合attribute_list</span>
+  <span class="co">// 输出：一棵决策树</span>
+  (1) 创建结点N
+  (2) <span class="kw">IF</span> samples都在同一个类C <span class="kw">THEN</span> 返回N为叶结点，标记为C
+  (3) <span class="kw">IF</span> attribute_list为空 <span class="kw">THEN</span> 返回N为叶结点，标记为samples中最普遍的类
+  (4) 选择attribute_list中具有最高信息增益的属性test_attribute
+  (5) 标记结点N为test_attribute
+  (6) <span class="kw">FOR EACH</span> test_attribute的已知值a_i:
+       由结点N长出一个条件为test_attribute=a_i的分枝
+       设s_i是samples中test_attribute=a_i的样本集合
+       <span class="kw">IF</span> s_i为空 <span class="kw">THEN</span> 加上叶结点，标记为samples中最普遍的类
+       <span class="kw">ELSE</span> 加上Generate_decision_tree(s_i, attribute_list-test_attribute)返回的结点</div>
+
+<div class="highlight">
+  <strong>信息增益计算示例（买保险数据集）：</strong><br>
+  期望信息 I(9,5) = 0.940<br>
+  Gain(年龄) = 0.246（最大） → 选为根节点<br>
+  Gain(收入) = 0.029，Gain(信誉度) = 0.048<br>
+  年龄按 ≤40 / 41~50 / >50 划分，41~50子集纯度为1（全部买保险），直接成为叶节点。
+</div>
+</div>
+
+<!-- 竞赛应用 -->
+<div class="section">
+<h2>九、数学建模竞赛中的应用策略</h2>
+
+<div class="highlight">
+  <strong>数据处理在竞赛中的标准流程：</strong><br>
+  1. <strong>数据审查</strong>：检查数据维度、变量类型、缺失比例、异常值情况<br>
+  2. <strong>缺失值处理</strong>：缺失&lt;5%可删除；5%~30%用均值/回归填补；>30%考虑删除变量<br>
+  3. <strong>异常值处理</strong>：标准差法初筛 → 结合业务判断是否保留<br>
+  4. <strong>标准化</strong>：涉及距离/梯度的模型用Z-score；只需非负用Min-Max<br>
+  5. <strong>定性指标量化</strong>：等级变量直接赋值或构造隶属函数<br>
+  6. <strong>论文中说明</strong>：所有处理步骤必须在论文中说明理由
+</div>
+
+<h3>Python常用代码</h3>
+<div class="code-block"><span class="kw">import</span> pandas <span class="kw">as</span> pd
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">from</span> sklearn.preprocessing <span class="kw">import</span> StandardScaler, MinMaxScaler
+
+<span class="co"># 缺失值检查</span>
+<span class="kw">print</span>(df.isnull().<span class="fn">sum</span>())
+
+<span class="co"># 均值填补</span>
+df[<span class="str">'col'</span>].<span class="fn">fillna</span>(df[<span class="str">'col'</span>].<span class="fn">mean</span>(), inplace=<span class="kw">True</span>)
+
+<span class="co"># 异常值检测（标准差法）</span>
+mean, std = df[<span class="str">'col'</span>].<span class="fn">mean</span>(), df[<span class="str">'col'</span>].<span class="fn">std</span>()
+outliers = df[(df[<span class="str">'col'</span>] < mean - <span class="num">2</span>*std) | (df[<span class="str">'col'</span>] > mean + <span class="num">2</span>*std)]
+
+<span class="co"># Z-score标准化</span>
+scaler = StandardScaler()
+df_scaled = scaler.<span class="fn">fit_transform</span>(df)
+
+<span class="co"># Min-Max规范化</span>
+minmax = MinMaxScaler()
+df_norm = minmax.<span class="fn">fit_transform</span>(df)</div>
+</div>
+
+</div><!-- .container -->
+
+<div class="footer"><p>📐 数学建模学习平台 &copy; 2026 Jacky</p></div>
+</div><!-- .main-wrap -->
+
+<!-- Back to Top -->
+<button class="back2top" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="回到顶部">↑</button>
+
+<!-- Chapter Nav Toggle + Panel -->
+<button class="chapter-nav-toggle" onclick="toggleChapterNav()" title="章节导航">📖 章节导航</button>
+<div class="chapter-nav-panel" id="chapterNav">
+  <div class="nav-header">📐 目录导航</div>
+  <div class="nav-section">核心方法</div>
+  <a href="插值与拟合.html"><span class="num">1</span>插值与拟合</a>
+  <a href="蒙特卡洛.html"><span class="num">2</span>蒙特卡洛方法</a>
+  <a href="线性回归.html"><span class="num">3</span>线性回归</a>
+  <a href="AI与建模.html"><span class="num">4</span>AI与数学建模</a>
+  <a href="主成分与因子分析.html"><span class="num">5</span>主成分与因子分析</a>
+  <a href="时间序列.html"><span class="num">6</span>时间序列分析</a>
+  <a href="图与网络.html"><span class="num">7</span>图与网络</a>
+  <a href="数据处理.html" class="current"><span class="num">8</span>数据处理</a>
+  <a href="存储论.html"><span class="num">9</span>存储论</a>
+  <a href="灰色系统.html"><span class="num">10</span>灰色系统</a>
+  <a href="模拟退火.html"><span class="num">11</span>模拟退火算法</a>
+  <a href="排队论.html"><span class="num">12</span>排队论</a>
+  <div class="nav-section">综合专题</div>
+  <a href="方法大全.html"><span class="num">★</span>方法大全（59种）</a>
+  <div class="nav-section">真题实战</div>
+  <a href="历年真题模拟分析.html"><span class="num">📝</span>历年真题模拟分析</a>
+  <a href="index.html" style="border-top:1px solid var(--sidebar-border);margin-top:6px;padding-top:10px"><span class="num">⌂</span>返回首页</a>
+</div>
+
+<script src="common.js?v=1"></script>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="rag-retriever.js?v=1"></script>
+<script src="ai-chat.js?v=7"></script>
+</body>
+</html>

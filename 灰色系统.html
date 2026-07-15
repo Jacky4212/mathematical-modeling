@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>灰色系统 — 数学建模学习平台</title>
+<script>
+MathJax = { tex: { inlineMath: [['$','$'],['\\(','\\)']], displayMath: [['$$','$$'],['\\[','\\]']], processEscapes: true } };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" async></script>
+<link rel="stylesheet" href="common.css">
+</head>
+<body>
+
+<nav class="sidebar">
+  <div class="sidebar-header">
+    <div class="site-name">📐 数学建模</div>
+    <div class="site-sub">学习平台</div>
+  </div>
+  <div class="sidebar-nav">
+    <div class="group-label">核心方法</div>
+    <a href="插值与拟合.html"><span class="tag">1</span>插值与拟合</a>
+    <a href="蒙特卡洛.html"><span class="tag">2</span>蒙特卡洛方法</a>
+    <a href="线性回归.html"><span class="tag">3</span>线性回归</a>
+    <a href="AI与建模.html"><span class="tag">4</span>AI与数学建模</a>
+    <a href="主成分与因子分析.html"><span class="tag">5</span>主成分与因子分析</a>
+    <a href="时间序列.html"><span class="tag">6</span>时间序列分析</a>
+    <a href="图与网络.html"><span class="tag">7</span>图与网络</a>
+    <a href="数据处理.html"><span class="tag">8</span>数据处理</a>
+    <a href="存储论.html"><span class="tag">9</span>存储论</a>
+    <a href="灰色系统.html" class="current"><span class="tag">10</span>灰色系统</a>
+    <a href="模拟退火.html"><span class="tag">11</span>模拟退火算法</a>
+    <a href="排队论.html"><span class="tag">12</span>排队论</a>
+    <div class="group-label">综合专题</div>
+    <a href="方法大全.html"><span class="tag">★</span>方法大全（59种）</a>
+    <div class="group-label">真题实战</div>
+    <a href="历年真题模拟分析.html"><span class="tag">📝</span>历年真题模拟分析</a>
+    <a href="index.html" style="margin-top:6px;border-top:1px solid var(--sidebar-border);padding-top:8px"><span class="tag">⌂</span>返回首页</a>
+  </div>
+</nav>
+
+<button class="theme-toggle no-print" onclick="toggleTheme()" title="切换暗黑模式">🌙</button>
+
+<div class="main-wrap">
+<div class="topbar">
+  <div class="topbar-inner">
+    <a href="存储论.html">← 存储论</a>
+    <h2>10. 灰色系统理论及其应用</h2>
+    <a href="模拟退火.html">模拟退火算法 →</a>
+  </div>
+</div>
+
+<div class="container">
+
+<!-- 概述 -->
+<div class="section">
+<h2>一、灰色系统概论</h2>
+
+<h3>1.1 什么是灰色系统</h3>
+<div class="def-box"><div class="def-title">定义</div><p>部分信息已知、部分信息未知的系统称为<strong>灰色系统</strong>。与之对应：信息完全已知为<strong>白色系统</strong>，信息完全未知为<strong>黑色系统</strong>。客观世界中绝对的白色或黑色系统很少，灰色系统大量存在。</p></div>
+
+<table>
+  <tr><th>系统类型</th><th>特征</th><th>示例</th></tr>
+  <tr><td>白色系统</td><td>信息完全已知，因素间关系确定</td><td>牛顿力学系统（F=ma）</td></tr>
+  <tr><td>灰色系统</td><td>部分信息已知，部分未知</td><td>社会经济系统、农业系统、生态系统</td></tr>
+  <tr><td>黑色系统</td><td>信息完全未知</td><td>完全未知的内部机理</td></tr>
+</table>
+
+<h3>1.2 灰色系统理论的创新</h3>
+<div class="highlight">
+  <strong>与传统统计方法的区别：</strong><br>
+  • 回归分析要求<strong>大样本</strong>且<strong>分布规律</strong> → 灰色系统对样本量无要求，不需要典型分布<br>
+  • 概率统计是经验性的<strong>统计规律</strong> → 灰色系统是现实性的<strong>生成律</strong><br>
+  • <strong>核心思想</strong>：将随机量看作灰变量 → 数据生成（AGO）→ 发现规律 → 建模
+</div>
+</div>
+
+<!-- 关联分析 -->
+<div class="section">
+<h2>二、灰色关联分析（GRA）</h2>
+
+<h3>2.1 数据变换（无量纲化）</h3>
+<p>为保证建模质量，需对原始数据消除量纲并使其具有可比性。</p>
+<table>
+  <tr><th>变换方法</th><th>公式</th></tr>
+  <tr><td>初值化变换</td><td>$y(k) = x(k)/x(1)$</td></tr>
+  <tr><td>均值化变换</td><td>$y(k) = x(k)/\bar{x}$</td></tr>
+  <tr><td>区间值化变换</td><td>$y(k) = \frac{x(k) - \min x}{\max x - \min x}$</td></tr>
+  <tr><td>百分比变换</td><td>$y(k) = x(k)/\max x(k)$</td></tr>
+  <tr><td>归一化变换</td><td>$y(k) = x(k)/x_0$（x₀>0为参考值）</td></tr>
+</table>
+
+<h3>2.2 关联系数与关联度</h3>
+<div class="def-box"><div class="def-title">关联系数公式</div></div>
+<div class="formula">$$\xi_i(k) = \frac{\min_s\min_t|x_0(t)-x_s(t)| + \rho \cdot \max_s\max_t|x_0(t)-x_s(t)|}{|x_0(k)-x_i(k)| + \rho \cdot \max_s\max_t|x_0(t)-x_s(t)|}$$</div>
+<p>其中 $\rho \in [0,1]$ 为<strong>分辨系数</strong>（通常取0.5），$\rho$越大分辨率越大。</p>
+
+<div class="def-box"><div class="def-title">关联度</div></div>
+<div class="formula">$$r_i = \frac{1}{n}\sum_{k=1}^{n}\xi_i(k)$$</div>
+<p>关联度越<strong>大</strong>，比较数列与参考数列的关联越<strong>紧密</strong>。</p>
+
+<h3>2.3 应用示例：铅球运动员因素分析</h3>
+<div class="highlight">
+  <strong>案例：</strong>对女子铅球运动员1982-1986年成绩与16项素质指标做关联分析。<br>
+  以铅球专项成绩为参考数列，16项素质为比较数列，计算关联度排序：<br>
+  全蹲(0.933) > 3kg滑步(0.896) > 高翻(0.855) > 4kg原地(0.854) > 挺举(0.847) > 立定跳远(0.776) > 30米(0.745) > 100米(0.726)<br>
+  <strong>结论：</strong>训练应着重这八项指标，减少盲目性。
+</div>
+</div>
+
+<!-- 优势分析 -->
+<div class="section">
+<h2>三、优势分析</h2>
+<p>当参考数列不止一个、比较因素也不止一个时，构建<strong>关联矩阵 R = (rᵢⱼ)</strong>。</p>
+<ul>
+  <li><strong>优势子因素</strong>：某一列元素均大于其他列 → 该子因素对所有母因素影响最大</li>
+  <li><strong>优势母因素</strong>：某一行元素均大于其他行 → 该母因素最易受所有子因素影响</li>
+  <li><strong>潜在优势分析</strong>：通过稀疏化关联矩阵（将小元素近似为零），识别潜在优势因素</li>
+</ul>
+
+<div class="highlight">
+  <strong>案例：</strong>某地区5种投资（子因素）对6种收入（母因素）的关联分析得出：<br>
+  • 交通投资对国民收入影响最大（r₁₅=0.936）<br>
+  • 科技对工业影响最大（r₂₄=0.885），但对农业影响最小（r₃₄=0.577）<br>
+  • 农业需要多方面配合（固定资产投资r₃₁=0.891，工业投资r₃₂=0.858）
+</div>
+</div>
+
+<!-- 生成数 -->
+<div class="section">
+<h2>四、生成数</h2>
+
+<h3>4.1 累加生成（AGO）</h3>
+<div class="def-box"><div class="def-title">1次累加生成（1-AGO）</div></div>
+<div class="formula">$$x^{(1)}(k) = \sum_{i=1}^{k} x^{(0)}(i), \quad k = 1,2,...,n$$</div>
+<p>累加生成可使<strong>非负的摆动数列或任意无规律数列转化为非减的单增数列</strong>，削弱随机性，发现内在规律。r次累加记作r-AGO。</p>
+
+<h3>4.2 累减生成（IAGO）</h3>
+<div class="formula">$$x^{(r-1)}(k) = x^{(r)}(k) - x^{(r)}(k-1), \quad k = 2,3,...,n$$</div>
+<p>用于还原生成数列。AGO和IAGO互为逆运算。</p>
+
+<h3>4.3 紧邻均值生成</h3>
+<div class="formula">$$z^{(1)}(k) = 0.5x^{(1)}(k) + 0.5x^{(1)}(k-1), \quad k = 2,3,...,n$$</div>
+<p>等权邻值生成数，是构造GM模型的关键中间变量。</p>
+</div>
+
+<!-- GM(1,1)模型 -->
+<div class="section">
+<h2>五、GM(1,1)模型（核心预测模型）</h2>
+
+<h3>5.1 模型定义</h3>
+<div class="def-box"><div class="def-title">GM(1,1) — 1阶1变量灰色模型</div><p>最经典、应用最广泛的灰色模型。适用于<strong>具有较强指数规律</strong>的序列，只需4个以上数据点即可建模。</p></div>
+
+<p><strong>灰微分方程：</strong></p>
+<div class="formula">$$x^{(0)}(k) + a z^{(1)}(k) = b$$</div>
+<p>其中 a 为<strong>发展系数</strong>，b 为<strong>灰作用量</strong>。</p>
+
+<p><strong>白化微分方程：</strong></p>
+<div class="formula">$$\frac{dx^{(1)}}{dt} + a x^{(1)} = b$$</div>
+
+<h3>5.2 参数估计（最小二乘法）</h3>
+<div class="formula">$$\hat{u} = (B^T B)^{-1} B^T Y, \quad \hat{u} = [\hat{a}, \hat{b}]^T$$</div>
+<p>其中 $Y = [x^{(0)}(2), x^{(0)}(3), ..., x^{(0)}(n)]^T$，$B = \begin{bmatrix} -z^{(1)}(2) & 1 \\ -z^{(1)}(3) & 1 \\ \vdots & \vdots \\ -z^{(1)}(n) & 1 \end{bmatrix}$</p>
+
+<h3>5.3 时间响应函数（预测公式）</h3>
+<div class="formula">$$\hat{x}^{(1)}(k+1) = \left(x^{(0)}(1) - \frac{b}{a}\right) e^{-ak} + \frac{b}{a}$$</div>
+<div class="formula">$$\hat{x}^{(0)}(k+1) = \hat{x}^{(1)}(k+1) - \hat{x}^{(1)}(k) \quad \text{（累减还原）}$$</div>
+</div>
+
+<!-- 预测步骤 -->
+<div class="section">
+<h2>六、灰色预测的标准步骤</h2>
+
+<h3>步骤一：级比检验</h3>
+<div class="formula">$$\lambda(k) = \frac{x^{(0)}(k-1)}{x^{(0)}(k)}, \quad k = 2,3,...,n$$</div>
+<p>所有 $\lambda(k)$ 必须落入<strong>可容覆盖</strong> $\Theta = (e^{-2/(n+1)}, e^{2/(n+2)})$ 内。若不满足，需对数列做平移变换 $y^{(0)}(k) = x^{(0)}(k) + c$。</p>
+
+<h3>步骤二：建立GM(1,1)模型</h3>
+<p>1-AGO → 构造B和Y → 最小二乘求a,b → 得时间响应式 → 计算预测值。</p>
+
+<h3>步骤三：模型检验</h3>
+<table>
+  <tr><th>检验方法</th><th>标准</th><th>精度等级</th></tr>
+  <tr><td rowspan="4"><strong>残差检验</strong></td><td>相对误差 &lt; 0.01</td><td>一级（优）</td></tr>
+  <tr><td>相对误差 &lt; 0.05</td><td>二级（良）</td></tr>
+  <tr><td>相对误差 &lt; 0.10</td><td>三级（合格）</td></tr>
+  <tr><td>相对误差 &lt; 0.20</td><td>四级（勉强）</td></tr>
+</table>
+$$\varepsilon(k) = \frac{x^{(0)}(k) - \hat{x}^{(0)}(k)}{x^{(0)}(k)}$$
+
+<p><strong>级比偏差检验</strong>：$\rho(k) = 1 - \frac{1-0.5a}{1+0.5a}\lambda(k)$，要求 &lt; 0.1。</p>
+<p><strong>均方差比检验</strong>：$C = S_2/S_1$（残差标准差/原始数据标准差），C越小越好。</p>
+
+<h3>步骤四：预测预报</h3>
+<p>由模型得到指定时区内的预测值，结合实际给出预测预报。</p>
+</div>
+
+<!-- 计算实例 -->
+<div class="section">
+<h2>七、GM(1,1)计算实例</h2>
+
+<h3>7.1 城市交通噪声预测</h3>
+<div class="def-box"><div class="def-title">数据</div><p>北方某城市1986-1992年道路交通噪声平均声级[dB(A)]：71.1, 72.4, 72.4, 72.1, 71.4, 72.0, 71.6</p></div>
+
+<div class="highlight">
+  <strong>求解过程：</strong><br>
+  1. <strong>级比检验</strong>：λ ∈ [0.982, 1.0098]，均落入可容覆盖 → 可建模<br>
+  2. <strong>1-AGO</strong>：x⁽¹⁾ = (71.1, 143.5, 215.9, 288, 359.4, 431.4, 503)<br>
+  3. <strong>最小二乘</strong>：â = 0.0023, b̂ = 72.6573<br>
+  4. <strong>时间响应式</strong>：x̂⁽¹⁾(k+1) = −30929e⁻⁰·⁰⁰²³ᵏ + 31000<br>
+  5. <strong>模型还原值</strong>：71.1, 72.4, 72.2, 72.1, 71.9, 71.7, 71.6<br>
+  6. <strong>精度</strong>：相对误差最大0.7%，模型精度较高
+</div>
+
+<h3>7.2 MATLAB实现</h3>
+<div class="code-block">clc,clear
+x0=[71.1 72.4 72.4 72.1 71.4 72.0 71.6]';  <span class="co">% 原始数据（列向量）</span>
+n=length(x0);
+lamda=x0(1:n-1)./x0(2:n)               <span class="co">% 级比检验</span>
+x1=cumsum(x0);                          <span class="co">% 1-AGO</span>
+B=[-0.5*(x1(1:n-1)+x1(2:n)),ones(n-1,1)];
+Y=x0(2:n);
+u=B\Y                                   <span class="co">% 参数估计 [a; b]</span>
+<span class="co">% 预测</span>
+x1_hat=(x0(1)-u(2)/u(1))*exp(-u(1)*(0:n-1))+u(2)/u(1);
+x0_hat=[x0(1),diff(x1_hat)]             <span class="co">% 还原</span>
+epsilon=x0'-x0_hat                       <span class="co">% 残差</span>
+delta=abs(epsilon./x0')                  <span class="co">% 相对误差</span></div>
+</div>
+
+<!-- GM(1,N)和Verhulst -->
+<div class="section">
+<h2>八、其他灰色模型</h2>
+
+<h3>8.1 GM(1,N) — 多变量灰色模型</h3>
+<div class="def-box"><div class="def-title">用途</div><p>分析N个变量（N-1个子因素）对1个主因素的综合影响。1阶N变量模型。</p></div>
+<div class="formula">$$x_1^{(0)}(k) + a z_1^{(1)}(k) = \sum_{i=2}^{N} b_i x_i^{(1)}(k)$$</div>
+<p>参数向量 $\hat{u} = [\hat{a}, \hat{b}_2, ..., \hat{b}_N]^T$ 同样用最小二乘法估计。</p>
+
+<h3>8.2 Verhulst模型 — S形过程预测</h3>
+<div class="def-box"><div class="def-title">适用场景</div><p>描述具有<strong>饱和状态的S形过程</strong>，如人口预测、生物生长、产品经济寿命、交通事故死亡人数等。</p></div>
+<div class="formula">$$x^{(0)} + a z^{(1)} = b(z^{(1)})^2$$</div>
+<div class="formula">$$\hat{x}^{(1)}(k+1) = \frac{a x^{(0)}(1)}{b x^{(0)}(1) + (a - b x^{(0)}(1)) e^{ak}}$$</div>
+
+<div class="highlight">
+  <strong>Verhulst vs GM(1,1)：</strong>1990-2003年交通事故死亡人数预测中，Verhulst模型平均相对误差3.74%，GM(1,1)为3.6%，精度相当。但Verhulst更适合S形饱和趋势的长期预测。
+</div>
+
+<h3>8.3 GM(2,1) — 二阶灰色模型</h3>
+<div class="formula">$$\alpha^{(1)}x^{(0)}(k) + a_1 x^{(0)}(k) + a_2 z^{(1)}(k) = b$$</div>
+<p>适用于非单调的摆动发展序列，是GM(1,1)的高阶扩展。</p>
+
+<h3>8.4 灾变预测</h3>
+<p>不预测数据本身的数值，而是<strong>预测异常值出现的时间</strong>。例如：给定降雨量≤320mm为旱灾阈值，构建下限灾变数列的时刻序列，用GM(1,1)预测下一次旱灾的发生年份。</p>
+</div>
+
+<!-- SARS案例 -->
+<div class="section">
+<h2>九、经典案例：SARS疫情经济影响评估</h2>
+
+<h3>9.1 问题</h3>
+<p>2003年SARS疫情对某市商品零售业、旅游业和综合服务业造成影响。已知1997-2002年数据，需评估2003年各月损失。</p>
+
+<h3>9.2 方法</h3>
+<p>用GM(1,1)由1997-2002年<strong>年平均值</strong>预测2003年月均值 → 由历史月份比例 $u_i$ 分解到各月 → 与实际值比较得出损失。</p>
+
+<h3>9.3 结果</h3>
+<table>
+  <tr><th>行业</th><th>最严重月份</th><th>预测损失</th><th>恢复时间</th></tr>
+  <tr><td>商品零售业</td><td>4-6月</td><td>~60.1亿元</td><td>8月基本恢复</td></tr>
+  <tr><td>旅游业</td><td>4-7月</td><td>~162万人（约16.2亿美元）</td><td>年底基本恢复</td></tr>
+  <tr><td>综合服务业</td><td>5-8月</td><td>~70亿元</td><td>部分行业影响较小</td></tr>
+</table>
+<p><strong>模型验证：</strong>零售业4-6月预测损失60.1亿元与专家估计的62亿元基本一致。</p>
+</div>
+
+<!-- 竞赛应用 -->
+<div class="section">
+<h2>十、数学建模竞赛中的应用策略</h2>
+
+<div class="highlight">
+  <strong>灰色系统的竞赛优势场景：</strong><br>
+  1. <strong>小样本预测</strong>：只有4-10个数据点时，回归和时序模型不可靠，GM(1,1)是最佳选择<br>
+  2. <strong>因素关联分析</strong>：数据量不足以做回归分析时，用GRA找出主要影响因素<br>
+  3. <strong>贫信息系统</strong>：信息大量缺乏或紊乱的情况下构建预测评估模型<br>
+  4. <strong>灾变/异常预测</strong>：不预测数值而预测事件发生时间<br>
+  5. <strong>S形趋势</strong>：饱和增长趋势用Verhulst模型优于GM(1,1)
+</div>
+
+<h3>Python实现</h3>
+<div class="code-block"><span class="kw">import</span> numpy <span class="kw">as</span> np
+
+<span class="kw">def</span> <span class="fn">gm11</span>(x0):
+    <span class="co">"""GM(1,1)灰色预测模型"""</span>
+    n = len(x0)
+    <span class="co"># 级比检验</span>
+    lamda = x0[:-1] / x0[1:]
+    <span class="kw">if</span> <span class="kw">not</span> np.<span class="fn">all</span>((lamda > np.<span class="fn">exp</span>(-<span class="num">2</span>/(n+<span class="num">1</span>))) &
+                     (lamda < np.<span class="fn">exp</span>(<span class="num">2</span>/(n+<span class="num">2</span>)))):
+        <span class="kw">print</span>(<span class="str">'警告：级比不在可容覆盖内，需平移变换'</span>)
+    <span class="co"># 1-AGO</span>
+    x1 = np.<span class="fn">cumsum</span>(x0)
+    <span class="co"># 紧邻均值</span>
+    z1 = <span class="num">0.5</span> * (x1[<span class="num">1</span>:] + x1[:-<span class="num">1</span>])
+    <span class="co"># 最小二乘估计</span>
+    B = np.<span class="fn">column_stack</span>([-z1, np.<span class="fn">ones</span>(n-<span class="num">1</span>)])
+    Y = x0[<span class="num">1</span>:]
+    u = np.<span class="fn">linalg</span>.<span class="fn">inv</span>(B.T @ B) @ B.T @ Y
+    a, b = u[<span class="num">0</span>], u[<span class="num">1</span>]
+    <span class="co"># 预测</span>
+    k = np.<span class="fn">arange</span>(n)
+    x1_hat = (x0[<span class="num">0</span>] - b/a) * np.<span class="fn">exp</span>(-a*k) + b/a
+    x0_hat = np.<span class="fn">diff</span>(x1_hat, prepend=x0[<span class="num">0</span>])
+    <span class="co"># 检验</span>
+    epsilon = x0 - x0_hat[:n]
+    delta = np.<span class="fn">abs</span>(epsilon / x0)
+    <span class="kw">return</span> x0_hat, delta, (a, b)
+
+<span class="co"># === 灰色关联分析 ===</span>
+<span class="kw">def</span> <span class="fn">grey_relational</span>(x0, xi, rho=<span class="num">0.5</span>):
+    <span class="co">"""x0: 参考数列, xi: 比较数列(2D array), rho: 分辨系数"""</span>
+    <span class="co"># 初值化</span>
+    x0_norm = x0 / x0[<span class="num">0</span>]
+    xi_norm = xi / xi[:, [<span class="num">0</span>]]
+    diff = np.<span class="fn">abs</span>(xi_norm - x0_norm)
+    mn, mx = diff.<span class="fn">min</span>(), diff.<span class="fn">max</span>()
+    ksi = (mn + rho*mx) / (diff + rho*mx)
+    r = ksi.<span class="fn">mean</span>(axis=<span class="num">1</span>)
+    <span class="kw">return</span> r</div>
+</div>
+
+</div><!-- .container -->
+
+<div class="footer"><p>📐 数学建模学习平台 &copy; 2026 Jacky</p></div>
+</div><!-- .main-wrap -->
+
+<button class="back2top" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="回到顶部">↑</button>
+
+<button class="chapter-nav-toggle" onclick="toggleChapterNav()" title="章节导航">📖 章节导航</button>
+<div class="chapter-nav-panel" id="chapterNav">
+  <div class="nav-header">📐 目录导航</div>
+  <div class="nav-section">核心方法</div>
+  <a href="插值与拟合.html"><span class="num">1</span>插值与拟合</a>
+  <a href="蒙特卡洛.html"><span class="num">2</span>蒙特卡洛方法</a>
+  <a href="线性回归.html"><span class="num">3</span>线性回归</a>
+  <a href="AI与建模.html"><span class="num">4</span>AI与数学建模</a>
+  <a href="主成分与因子分析.html"><span class="num">5</span>主成分与因子分析</a>
+  <a href="时间序列.html"><span class="num">6</span>时间序列分析</a>
+  <a href="图与网络.html"><span class="num">7</span>图与网络</a>
+  <a href="数据处理.html"><span class="num">8</span>数据处理</a>
+  <a href="存储论.html"><span class="num">9</span>存储论</a>
+  <a href="灰色系统.html" class="current"><span class="num">10</span>灰色系统</a>
+  <a href="模拟退火.html"><span class="num">11</span>模拟退火算法</a>
+  <a href="排队论.html"><span class="num">12</span>排队论</a>
+  <div class="nav-section">综合专题</div>
+  <a href="方法大全.html"><span class="num">★</span>方法大全（59种）</a>
+  <div class="nav-section">真题实战</div>
+  <a href="历年真题模拟分析.html"><span class="num">📝</span>历年真题模拟分析</a>
+  <a href="index.html" style="border-top:1px solid var(--sidebar-border);margin-top:6px;padding-top:10px"><span class="num">⌂</span>返回首页</a>
+</div>
+
+<script src="common.js?v=1"></script>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="rag-retriever.js?v=1"></script>
+<script src="ai-chat.js?v=7"></script>
+</body>
+</html>

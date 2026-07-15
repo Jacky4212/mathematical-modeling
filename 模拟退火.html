@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>模拟退火算法 — 数学建模学习平台</title>
+<script>
+MathJax = { tex: { inlineMath: [['$','$'],['\\(','\\)']], displayMath: [['$$','$$'],['\\[','\\]']], processEscapes: true } };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" async></script>
+<link rel="stylesheet" href="common.css">
+</head>
+<body>
+
+<nav class="sidebar">
+  <div class="sidebar-header">
+    <div class="site-name">📐 数学建模</div>
+    <div class="site-sub">学习平台</div>
+  </div>
+  <div class="sidebar-nav">
+    <div class="group-label">核心方法</div>
+    <a href="插值与拟合.html"><span class="tag">1</span>插值与拟合</a>
+    <a href="蒙特卡洛.html"><span class="tag">2</span>蒙特卡洛方法</a>
+    <a href="线性回归.html"><span class="tag">3</span>线性回归</a>
+    <a href="AI与建模.html"><span class="tag">4</span>AI与数学建模</a>
+    <a href="主成分与因子分析.html"><span class="tag">5</span>主成分与因子分析</a>
+    <a href="时间序列.html"><span class="tag">6</span>时间序列分析</a>
+    <a href="图与网络.html"><span class="tag">7</span>图与网络</a>
+    <a href="数据处理.html"><span class="tag">8</span>数据处理</a>
+    <a href="存储论.html"><span class="tag">9</span>存储论</a>
+    <a href="灰色系统.html"><span class="tag">10</span>灰色系统</a>
+    <a href="模拟退火.html" class="current"><span class="tag">11</span>模拟退火算法</a>
+    <a href="排队论.html"><span class="tag">12</span>排队论</a>
+    <div class="group-label">综合专题</div>
+    <a href="方法大全.html"><span class="tag">★</span>方法大全（59种）</a>
+    <div class="group-label">真题实战</div>
+    <a href="历年真题模拟分析.html"><span class="tag">📝</span>历年真题模拟分析</a>
+    <a href="index.html" style="margin-top:6px;border-top:1px solid var(--sidebar-border);padding-top:8px"><span class="tag">⌂</span>返回首页</a>
+  </div>
+</nav>
+
+<button class="theme-toggle no-print" onclick="toggleTheme()" title="切换暗黑模式">🌙</button>
+
+<div class="main-wrap">
+<div class="topbar">
+  <div class="topbar-inner">
+    <a href="灰色系统.html">← 灰色系统</a>
+    <h2>11. 模拟退火算法</h2>
+    <a href="排队论.html">排队论 →</a>
+  </div>
+</div>
+
+<div class="container">
+
+<!-- 概述 -->
+<div class="section">
+<h2>一、算法简介</h2>
+
+<h3>1.1 起源与思想</h3>
+<div class="def-box"><div class="def-title">物理退火 → 算法模拟</div><p>固体退火：将金属加热至高温 → 粒子自由运动（高能态）→ <strong>缓慢降温</strong> → 粒子趋于有序排列（低能态/全局最优）。模拟退火算法(Simulated Annealing, SA)由Kirkpatrick于1983年引入优化领域，模拟这一物理过程来求解组合优化问题。</p></div>
+
+<table>
+  <tr><th>物理退火</th><th>模拟退火算法</th></tr>
+  <tr><td>粒子状态</td><td>问题的解（状态空间中的点）</td></tr>
+  <tr><td>能量最低态</td><td>全局最优解</td></tr>
+  <tr><td>加温过程</td><td>设定较高的初始温度T₀</td></tr>
+  <tr><td>等温过程</td><td>Metropolis采样过程（内循环）</td></tr>
+  <tr><td>冷却过程</td><td>控制参数T下降（外循环）</td></tr>
+  <tr><td>系统能量</td><td>目标函数值 f(x)</td></tr>
+</table>
+
+<h3>1.2 为什么要用模拟退火</h3>
+<div class="highlight">
+  <strong>核心优势：概率性跳出局部最优。</strong>传统贪心/爬山算法只接受更优解 → 陷入局部最优。模拟退火在高温时以一定概率接受更差解 → 有机会跳出局部最优 → 随着温度降低逐渐收敛到全局最优。
+</div>
+</div>
+
+<!-- 核心机制 -->
+<div class="section">
+<h2>二、核心机制</h2>
+
+<h3>2.1 Metropolis接受准则</h3>
+<div class="def-box"><div class="def-title">接受概率</div><p>从当前解x产生新解x'，计算目标函数增量 Δf = f(x') − f(x)：</p></div>
+<ul>
+  <li>若 <strong>Δf < 0</strong>（新解更优）→ <strong>必定接受</strong></li>
+  <li>若 <strong>Δf ≥ 0</strong>（新解更差）→ 以概率 <strong>P = exp(−Δf / T)</strong> 接受</li>
+</ul>
+
+<div class="highlight">
+  <strong>关键洞察：</strong>T越大 → exp(−Δf/T)越接近1 → 越容易接受差解（探索能力强）。T越小 → 接受概率趋于0 → 只接受更优解（趋于局部搜索）。这正是"退火"的精髓。
+</div>
+
+<h3>2.2 冷却调度（Cooling Schedule）</h3>
+<table>
+  <tr><th>降温方式</th><th>公式</th><th>特点</th></tr>
+  <tr><td>指数降温（最常用）</td><td>T_{k+1} = α·T_k, α∈[0.9, 0.99]</td><td>前期快后期慢，广泛应用</td></tr>
+  <tr><td>对数降温</td><td>T_k = T₀/ln(1+k)</td><td>收敛有理论保证但太慢</td></tr>
+  <tr><td>线性降温</td><td>T_{k+1} = T_k − ΔT</td><td>匀速降温，简单但效果一般</td></tr>
+</table>
+
+<p>每个温度下进行<strong>L次迭代</strong>（Markov链长度），确保在该温度下充分搜索。</p>
+</div>
+
+<!-- 算法流程 -->
+<div class="section">
+<h2>三、算法流程</h2>
+
+<div class="code-block"><span class="co">// 模拟退火算法伪代码</span>
+x = x0;                    <span class="co">// 初始解</span>
+T = T0;                    <span class="co">// 初始温度</span>
+<span class="kw">while</span> T > T_min:
+    <span class="kw">for</span> i = 1 <span class="kw">to</span> L:              <span class="co">// 内循环 (Markov链)</span>
+        x_new = neighbor(x)  <span class="co">// 产生邻域新解</span>
+        Δf = f(x_new) - f(x)
+        <span class="kw">if</span> Δf < 0 <span class="kw">or</span> exp(-Δf/T) > random(0,1):
+            x = x_new        <span class="co">// 接受新解</span>
+    T = α * T                <span class="co">// 降温</span>
+<span class="kw">return</span> x</div>
+
+<h3>关键参数选取</h3>
+<table>
+  <tr><th>参数</th><th>建议值</th><th>影响</th></tr>
+  <tr><td>初始温度 T₀</td><td>使初始接受率≈0.8~0.95</td><td>太高浪费计算，太低易陷入局部最优</td></tr>
+  <tr><td>降温率 α</td><td>0.9~0.99</td><td>越接近1精度越高但耗时</td></tr>
+  <tr><td>内循环长度 L</td><td>100~1000×问题规模</td><td>保证该温度下达到热平衡</td></tr>
+  <tr><td>终止温度 T_min</td><td>10⁻⁶~10⁻³</td><td>确保最终收敛到稳定解</td></tr>
+</table>
+</div>
+
+<!-- TSP应用 -->
+<div class="section">
+<h2>四、经典应用：TSP旅行商问题</h2>
+
+<h3>4.1 问题描述</h3>
+<p>给定N个城市的经纬度坐标，找到一条经过每个城市恰好一次并返回起点的最短路径。</p>
+
+<h3>4.2 模拟退火求解设计</h3>
+<table>
+  <tr><th>设计要素</th><th>实现</th></tr>
+  <tr><td>解的表示</td><td>城市访问序列 path = [1, c₁, c₂, ..., c_N, 1]</td></tr>
+  <tr><td>初始解</td><td>随机排列 + 选取最短的（如用randperm生成1000个取最优）</td></tr>
+  <tr><td>邻域操作（2-opt）</td><td>随机选两点c₁,c₂，反转两位置之间的子路径</td></tr>
+  <tr><td>距离计算</td><td>球面距离（Haversine公式）：d = 6370·acos(...)</td></tr>
+  <tr><td>目标函数</td><td>路径总长度</td></tr>
+</table>
+
+<h3>4.3 MATLAB实现（PPT原代码）</h3>
+<div class="code-block"><span class="co">% 距离矩阵（球面距离）</span>
+d = zeros(102);
+<span class="kw">for</span> i = 1:101
+  <span class="kw">for</span> j = i+1:102
+    d(i,j) = 6370 * acos(cos(xy(i,1)-xy(j,1)) * cos(xy(i,2))...
+           * cos(xy(j,2)) + sin(xy(i,2)) * sin(xy(j,2)));
+  <span class="kw">end</span>
+<span class="kw">end</span>
+d = d + d';  <span class="co">% 对称化</span>
+
+<span class="co">% 模拟退火主循环</span>
+e = 0.1^30; L = 20000; at = 0.999; T = 1;
+<span class="kw">for</span> k = 1:L                    <span class="co">% 外循环：退火</span>
+  c = 2 + floor(100 * rand(1,2));  <span class="co">% 随机选两个位置</span>
+  c = sort(c); c1 = c(1); c2 = c(2);
+  df = d(path(c1-1),path(c2)) + d(path(c1),path(c2+1))...
+     - d(path(c1-1),path(c1)) - d(path(c2),path(c2+1));
+  <span class="kw">if</span> df < 0                       <span class="co">% 新路径更短 → 接受</span>
+    path = [path(1:c1-1), path(c2:-1:c1), path(c2+1:102)];
+    long = long + df;
+  <span class="kw">elseif</span> exp(-df/T) >= rand       <span class="co">% Metropolis准则 → 接受</span>
+    path = [path(1:c1-1), path(c2:-1:c1), path(c2+1:102)];
+    long = long + df;
+  <span class="kw">end</span>
+  T = T * at;                     <span class="co">% 降温 α=0.999</span>
+  <span class="kw">if</span> T < e, <span class="kw">break</span>; <span class="kw">end</span>
+<span class="kw">end</span></div>
+</div>
+
+<!-- Python实现 -->
+<div class="section">
+<h2>五、Python通用实现</h2>
+
+<div class="code-block"><span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">import</span> random
+
+<span class="kw">def</span> <span class="fn">simulated_annealing</span>(f, neighbor, x0, T0=<span class="num">1000</span>,
+                          alpha=<span class="num">0.95</span>, L=<span class="num">100</span>, T_min=<span class="num">1e-6</span>):
+    <span class="co">"""
+    f: 目标函数 f(x) -> float
+    neighbor: 邻域函数 neighbor(x) -> x_new
+    x0: 初始解
+    """</span>
+    x = x0
+    fx = f(x)
+    best_x, best_f = x, fx
+    T = T0
+
+    <span class="kw">while</span> T > T_min:
+        <span class="kw">for</span> _ <span class="kw">in</span> range(L):
+            x_new = neighbor(x)
+            fx_new = f(x_new)
+            delta = fx_new - fx
+
+            <span class="kw">if</span> delta < <span class="num">0</span> <span class="kw">or</span> np.random.<span class="fn">random</span>() < np.<span class="fn">exp</span>(-delta / T):
+                x, fx = x_new, fx_new
+                <span class="kw">if</span> fx < best_f:
+                    best_x, best_f = x, fx
+
+        T *= alpha  <span class="co"># 降温</span>
+
+    <span class="kw">return</span> best_x, best_f
+
+<span class="co"># === TSP邻域：2-opt交换 ===</span>
+<span class="kw">def</span> <span class="fn">tsp_neighbor</span>(path):
+    <span class="co">"""随机选两点，反转中间路径"""</span>
+    i, j = sorted(random.<span class="fn">sample</span>(range(<span class="num">1</span>, len(path)-<span class="num">1</span>), <span class="num">2</span>))
+    new_path = path[:i] + path[i:j+<span class="num">1</span>][::-<span class="num">1</span>] + path[j+<span class="num">1</span>:]
+    <span class="kw">return</span> new_path</div>
+</div>
+
+<!-- 竞赛应用 -->
+<div class="section">
+<h2>六、数学建模竞赛中的应用</h2>
+
+<div class="highlight">
+  <strong>适用场景：</strong><br>
+  1. <strong>TSP/VRP</strong>：旅行商、车辆路径规划<br>
+  2. <strong>调度优化</strong>：车间调度、航班调度、考试排考<br>
+  3. <strong>布局/选址</strong>：设施布局、网络节点部署<br>
+  4. <strong>参数优化</strong>：机器学习超参数调优<br>
+  5. <strong>对比基准</strong>：与遗传算法(GA)、粒子群(PSO)对比，体现算法选择的严谨性
+</div>
+
+<h3>优缺点</h3>
+<table>
+  <tr><th>优点</th><th>缺点</th></tr>
+  <tr><td>全局搜索能力强，能跳出局部最优</td><td>参数敏感（T₀/α/L需精心调参）</td></tr>
+  <tr><td>不依赖梯度信息，适用于任意目标函数</td><td>运行时间长，难以实时使用</td></tr>
+  <tr><td>通用性强，几乎所有组合优化问题都可用</td><td>最优解不能保证，是近似算法</td></tr>
+  <tr><td>易于并行化（多链并行退火）</td><td>冷却调度选择缺乏理论指导</td></tr>
+</table>
+</div>
+
+</div><!-- .container -->
+<div class="footer"><p>📐 数学建模学习平台 &copy; 2026 Jacky</p></div>
+</div>
+
+<button class="back2top" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="回到顶部">↑</button>
+<button class="chapter-nav-toggle" onclick="toggleChapterNav()" title="章节导航">📖 章节导航</button>
+<div class="chapter-nav-panel" id="chapterNav">
+  <div class="nav-header">📐 目录导航</div>
+  <div class="nav-section">核心方法</div>
+  <a href="插值与拟合.html"><span class="num">1</span>插值与拟合</a>
+  <a href="蒙特卡洛.html"><span class="num">2</span>蒙特卡洛方法</a>
+  <a href="线性回归.html"><span class="num">3</span>线性回归</a>
+  <a href="AI与建模.html"><span class="num">4</span>AI与数学建模</a>
+  <a href="主成分与因子分析.html"><span class="num">5</span>主成分与因子分析</a>
+  <a href="时间序列.html"><span class="num">6</span>时间序列分析</a>
+  <a href="图与网络.html"><span class="num">7</span>图与网络</a>
+  <a href="数据处理.html"><span class="num">8</span>数据处理</a>
+  <a href="存储论.html"><span class="num">9</span>存储论</a>
+  <a href="灰色系统.html"><span class="num">10</span>灰色系统</a>
+  <a href="模拟退火.html" class="current"><span class="num">11</span>模拟退火算法</a>
+  <a href="排队论.html"><span class="num">12</span>排队论</a>
+  <div class="nav-section">综合专题</div>
+  <a href="方法大全.html"><span class="num">★</span>方法大全（59种）</a>
+  <div class="nav-section">真题实战</div>
+  <a href="历年真题模拟分析.html"><span class="num">📝</span>历年真题模拟分析</a>
+  <a href="index.html" style="border-top:1px solid var(--sidebar-border);margin-top:6px;padding-top:10px"><span class="num">⌂</span>返回首页</a>
+</div>
+
+<script src="common.js?v=1"></script>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="rag-retriever.js?v=1"></script>
+<script src="ai-chat.js?v=7"></script>
+</body>
+</html>
