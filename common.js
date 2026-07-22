@@ -79,9 +79,7 @@ document.addEventListener('click', function(e){
       { href: '存储论.html',          num: '9',  text: '存储论' },
       { href: '灰色系统.html',        num: '10', text: '灰色系统' },
       { href: '模拟退火.html',        num: '11', text: '模拟退火算法' },
-      { href: '排队论.html',          num: '12', text: '排队论' }
-    ]},
-    { section: '进阶方法', links: [
+      { href: '排队论.html',          num: '12', text: '排队论' },
       { href: '神经网络模型.html',    num: '13', text: '神经网络模型' },
       { href: '常微分方程.html',      num: '14', text: '常微分方程建模' },
       { href: '偏微分方程.html',      num: '15', text: '偏微分方程建模' },
