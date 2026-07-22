@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>聚类分析 — 数学建模学习平台</title>
+<script>
+MathJax = { tex: { inlineMath: [['$','$'],['\\(','\\)']], displayMath: [['$$','$$'],['\\[','\\]']], processEscapes: true } };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" async></script>
+<link rel="stylesheet" href="common.css">
+</head>
+<body>
+
+<nav class="sidebar">
+  <div class="sidebar-header">
+    <div class="site-name">📐 数学建模</div>
+    <div class="site-sub">学习平台</div>
+  </div>
+  <div class="sidebar-nav">
+    <div class="group-label">核心方法</div>
+    <a href="插值与拟合.html"><span class="tag">1</span>插值与拟合</a>
+    <a href="蒙特卡洛.html"><span class="tag">2</span>蒙特卡洛方法</a>
+    <a href="线性回归.html"><span class="tag">3</span>线性回归</a>
+    <a href="AI与建模.html"><span class="tag">4</span>AI与数学建模</a>
+    <a href="主成分与因子分析.html"><span class="tag">5</span>主成分与因子分析</a>
+    <a href="时间序列.html"><span class="tag">6</span>时间序列分析</a>
+    <a href="图与网络.html"><span class="tag">7</span>图与网络</a>
+    <a href="数据处理.html"><span class="tag">8</span>数据处理</a>
+    <a href="存储论.html"><span class="tag">9</span>存储论</a>
+    <a href="灰色系统.html"><span class="tag">10</span>灰色系统</a>
+    <a href="模拟退火.html"><span class="tag">11</span>模拟退火算法</a>
+    <a href="排队论.html"><span class="tag">12</span>排队论</a>
+    <div class="group-label">进阶方法</div>
+    <a href="神经网络模型.html"><span class="tag">13</span>神经网络模型</a>
+    <a href="常微分方程.html"><span class="tag">14</span>常微分方程建模</a>
+    <a href="偏微分方程.html"><span class="tag">15</span>偏微分方程建模</a>
+    <a href="卡尔曼滤波.html"><span class="tag">16</span>卡尔曼滤波</a>
+    <a href="遗传算法.html"><span class="tag">17</span>遗传算法</a>
+    <a href="聚类分析.html" class="current"><span class="tag">18</span>聚类分析</a>
+    <div class="group-label">综合专题</div>
+    <a href="方法大全.html"><span class="tag">★</span>方法大全（59种）</a>
+    <div class="group-label">真题实战</div>
+    <a href="历年真题模拟分析.html"><span class="tag">📝</span>历年真题模拟分析</a>
+    <a href="index.html" style="margin-top:6px;border-top:1px solid var(--sidebar-border);padding-top:8px"><span class="tag">⌂</span>返回首页</a>
+  </div>
+</nav>
+
+<button class="theme-toggle no-print" onclick="toggleTheme()" title="切换暗黑模式">🌙</button>
+
+<div class="main-wrap">
+<div class="topbar">
+  <div class="topbar-inner">
+    <a href="遗传算法.html">← 遗传算法</a>
+    <h2>18. 聚类分析（Cluster Analysis）</h2>
+    <a href="index.html">返回首页 →</a>
+  </div>
+</div>
+
+<div class="container">
+
+<!-- 概述 -->
+<div class="section">
+<h2>一、聚类分析概述</h2>
+
+<div class="def-box"><div class="def-title">聚类分析（Cluster Analysis）</div><p>聚类分析是一种<strong>无监督学习</strong>方法，目标是将数据集中的样本按照<strong>相似性</strong>划分为若干组（簇），使得<strong>同一簇内样本尽可能相似，不同簇间样本尽可能相异</strong>。与分类不同，聚类<strong>不需要预先标注的标签</strong>，完全基于数据的内在结构进行分组。</p></div>
+
+<h3>1.1 聚类 ≠ 分类</h3>
+<table>
+  <tr><th>特性</th><th>聚类（Clustering）</th><th>分类（Classification）</th></tr>
+  <tr><td>学习类型</td><td>无监督学习</td><td>有监督学习</td></tr>
+  <tr><td>标签需求</td><td>不需要</td><td>需要标注好的训练数据</td></tr>
+  <tr><td>目标</td><td>发现数据内在结构</td><td>学习决策边界</td></tr>
+  <tr><td>评估</td><td>内部指标（轮廓系数等）</td><td>准确率、精确率、召回率</td></tr>
+</table>
+
+<h3>1.2 相似性度量</h3>
+<p>聚类分析的核心是<strong>如何定义"相似"</strong>。常用距离度量包括：</p>
+<table>
+  <tr><th>距离</th><th>公式</th><th>适用场景</th></tr>
+  <tr><td>欧氏距离</td><td>$d_{ij} = \sqrt{\sum_k (x_{ik} - x_{jk})^2}$</td><td>连续变量，最常用</td></tr>
+  <tr><td>曼哈顿距离</td><td>$d_{ij} = \sum_k |x_{ik} - x_{jk}|$</td><td>高维数据，对异常值较鲁棒</td></tr>
+  <tr><td>闵可夫斯基距离</td><td>$d_{ij} = (\sum_k |x_{ik} - x_{jk}|^p)^{1/p}$</td><td>$p=1$曼哈顿，$p=2$欧氏</td></tr>
+  <tr><td>余弦相似度</td><td>$\cos\theta = \frac{\mathbf{x}_i \cdot \mathbf{x}_j}{\|\mathbf{x}_i\|\|\mathbf{x}_j\|}$</td><td>文本聚类、高维稀疏数据</td></tr>
+  <tr><td>马氏距离</td><td>$d_{ij} = \sqrt{(\mathbf{x}_i-\mathbf{x}_j)^T\mathbf{S}^{-1}(\mathbf{x}_i-\mathbf{x}_j)}$</td><td>考虑变量间相关性</td></tr>
+</table>
+
+<div class="highlight"><strong>关键</strong>：聚类前必须做<strong>数据标准化</strong>（Z-score或Min-Max），否则量纲大的变量会主导距离计算结果。</div>
+</div>
+
+<!-- K-Means -->
+<div class="section">
+<h2>二、K-Means 聚类</h2>
+
+<h3>2.1 算法原理</h3>
+<p>K-Means 是最经典的<strong>划分式聚类</strong>算法，目标是最小化簇内平方误差和（Within-Cluster Sum of Squares, WCSS）：</p>
+
+<div class="formula">$$\text{WCSS} = \sum_{i=1}^{K} \sum_{x \in C_i} \|x - \mu_i\|^2$$</div>
+
+<p>其中 $\mu_i$ 为第 $i$ 个簇的质心（均值向量）。</p>
+
+<h3>2.2 算法步骤</h3>
+<div class="highlight">
+<strong>K-Means 迭代流程：</strong><br>
+<strong>Step 1</strong>：随机选择 $K$ 个初始质心 $\mu_1^{(0)}, \ldots, \mu_K^{(0)}$<br>
+<strong>Step 2（分配）</strong>：将每个样本分配到距离最近的质心所在簇<br>
+<strong>Step 3（更新）</strong>：重新计算每个簇的质心（簇内样本均值）<br>
+<strong>Step 4</strong>：重复 Step 2-3 直到质心不再显著变化或达到最大迭代次数
+</div>
+
+<h3>2.3 K 值选择</h3>
+<table>
+  <tr><th>方法</th><th>原理</th></tr>
+  <tr><td><strong>肘部法则</strong></td><td>绘制 WCSS vs K 曲线，选择"拐点"（WCSS下降速率明显减缓的位置）</td></tr>
+  <tr><td><strong>轮廓系数</strong></td><td>$s(i) = \frac{b(i)-a(i)}{\max\{a(i),b(i)\}}$，$a$ 为簇内平均距离，$b$ 为到最近簇的平均距离。取使平均轮廓系数最大的 $K$</td></tr>
+  <tr><td><strong>Gap Statistic</strong></td><td>比较聚类结果与均匀随机分布的 WCSS 差距，取差距最大的 $K$</td></tr>
+</table>
+
+<div class="formula">$$\text{轮廓系数: } s(i) = \frac{b(i)-a(i)}{\max\{a(i),b(i)\}}, \quad s \in [-1, 1]$$</div>
+
+<h3>2.4 最佳实践</h3>
+<ul>
+  <li><strong>标准化</strong>是必须的前置步骤</li>
+  <li><strong>避免随机初始化的局部最优</strong>：多次运行取最优结果，或使用 K-Means++（智能初始化）</li>
+  <li><strong>不适合非凸形状簇</strong>：K-Means 假设簇是球形的，对细长、环形簇表现差</li>
+  <li><strong>对异常值敏感</strong>：异常值会显著拉偏质心，可考虑 K-Medoids（用实际数据点做簇中心）</li>
+</ul>
+</div>
+
+<!-- 层次聚类 -->
+<div class="section">
+<h2>三、层次聚类</h2>
+
+<h3>3.1 两种策略</h3>
+<table>
+  <tr><th>策略</th><th>方法</th><th>说明</th></tr>
+  <tr><td><strong>凝聚式（AGNES）</strong></td><td>自底向上</td><td>每个样本起始为一个簇，逐步合并最近的簇（常用）</td></tr>
+  <tr><td><strong>分裂式（DIANA）</strong></td><td>自顶向下</td><td>所有样本起始为一个大簇，逐步分裂</td></tr>
+</table>
+
+<h3>3.2 簇间距离定义（Linkage Criteria）</h3>
+<table>
+  <tr><th>方法</th><th>定义</th><th>特点</th></tr>
+  <tr><td>单链接（Single）</td><td>$d(C_i, C_j) = \min_{x \in C_i, y \in C_j} d(x,y)$</td><td>对细长簇好，但易产生"链式效应"</td></tr>
+  <tr><td>全链接（Complete）</td><td>$d(C_i, C_j) = \max_{x \in C_i, y \in C_j} d(x,y)$</td><td>倾向于紧凑簇，但对异常值敏感</td></tr>
+  <tr><td>平均链接（Average）</td><td>$d(C_i, C_j) = \frac{1}{|C_i||C_j|}\sum_{x\in C_i}\sum_{y\in C_j}d(x,y)$</td><td>折中方案，较常用</td></tr>
+  <tr><td>Ward 法</td><td>最小化合并后簇内方差增量</td><td>倾向于产生大小均匀的簇（推荐）</td></tr>
+</table>
+
+<h3>3.3 树状图（Dendrogram）</h3>
+<p>层次聚类的核心优势在于可生成<strong>树状图</strong>可视化聚类过程和层次结构。通过在不同高度截断树状图，可获得不同数量的簇——无需重新运行算法。</p>
+</div>
+
+<!-- DBSCAN -->
+<div class="section">
+<h2>四、DBSCAN 密度聚类</h2>
+
+<h3>4.1 核心概念</h3>
+<div class="def-box"><div class="def-title">DBSCAN（Density-Based Spatial Clustering of Applications with Noise）</div><p>基于密度的聚类算法，通过<strong>数据点的紧密程度</strong>来划分簇，能发现任意形状的簇并自动识别噪声点。两个关键参数：$\varepsilon$（邻域半径）和 $MinPts$（最小点数）。</p></div>
+
+<table>
+  <tr><th>概念</th><th>定义</th></tr>
+  <tr><td>核心点</td><td>在 $\varepsilon$ 邻域内至少包含 $MinPts$ 个样本的点</td></tr>
+  <tr><td>边界点</td><td>在核心点的 $\varepsilon$ 邻域内，但自身邻域点数 < $MinPts$</td></tr>
+  <tr><td>噪声点</td><td>既不是核心点也不是边界点的样本</td></tr>
+  <tr><td>密度直达</td><td>若 $q$ 在 $p$ 的 $\varepsilon$ 邻域内且 $p$ 是核心点，则 $q$ 从 $p$ 密度直达</td></tr>
+  <tr><td>密度可达</td><td>存在一系列点 $p_1, \ldots, p_n$，使得 $p_{i+1}$ 从 $p_i$ 密度直达</td></tr>
+</table>
+
+<h3>4.2 算法流程</h3>
+<div class="highlight">
+<strong>Step 1</strong>：标记所有点为"未访问"<br>
+<strong>Step 2</strong>：随机选取一个未访问点 $p$，标记为"已访问"<br>
+<strong>Step 3</strong>：若 $p$ 是核心点，创建一个新簇，将 $p$ 所有密度可达的点加入该簇<br>
+<strong>Step 4</strong>：若 $p$ 不是核心点，暂时标记为噪声<br>
+<strong>Step 5</strong>：重复 Step 2-4 直到所有点都已被访问
+</div>
+
+<h3>4.3 优缺点</h3>
+<table>
+  <tr><th>优点</th><th>缺点</th></tr>
+  <tr><td>不需要预设簇数 $K$</td><td>参数 $\varepsilon$ 和 $MinPts$ 调优困难</td></tr>
+  <tr><td>能发现任意形状的簇</td><td>对密度不均匀的数据效果差</td></tr>
+  <tr><td>能自动识别噪声/异常点</td><td>高维数据中"密度"概念失效（维度灾难）</td></tr>
+  <tr><td>对数据输入顺序不敏感</td><td>距离度量在高维空间中区分性下降</td></tr>
+</table>
+</div>
+
+<!-- 其他方法 -->
+<div class="section">
+<h2>五、其他聚类方法</h2>
+
+<table>
+  <tr><th>方法</th><th>原理</th><th>适用场景</th></tr>
+  <tr><td><strong>高斯混合模型（GMM）</strong></td><td>假设数据由多个高斯分布混合生成，用 EM 算法估计参数</td><td>簇有重叠、需要软分配（概率隶属度）</td></tr>
+  <tr><td><strong>谱聚类</strong></td><td>基于图拉普拉斯矩阵的特征向量进行聚类</td><td>复杂拓扑结构、非凸簇</td></tr>
+  <tr><td><strong>Mean Shift</strong></td><td>基于核密度估计，沿密度梯度方向移动数据点</td><td>图像分割、目标跟踪</td></tr>
+  <tr><td><strong>K-Medoids / PAM</strong></td><td>用实际数据点（而非均值）做簇中心</td><td>含异常值的数据、需中心点有实际意义</td></tr>
+  <tr><td><strong>BIRCH</strong></td><td>构建 CF 树进行增量聚类</td><td>大规模数据集</td></tr>
+</table>
+</div>
+
+<!-- 对比 -->
+<div class="section">
+<h2>六、聚类方法对比与选择指南</h2>
+
+<table>
+  <tr><th>场景</th><th>推荐方法</th></tr>
+  <tr><td>数据量适中，簇近似球形</td><td>K-Means（先标准化 + 肘部法则定 K）</td></tr>
+  <tr><td>需要看层次结构</td><td>层次聚类 + 树状图（Ward 链接法）</td></tr>
+  <tr><td>簇形状任意，有噪声</td><td>DBSCAN（需调试 $\varepsilon$ 和 $MinPts$）</td></tr>
+  <tr><td>需要软聚类（概率隶属）</td><td>高斯混合模型 GMM + EM</td></tr>
+  <tr><td>非凸/复杂拓扑</td><td>谱聚类</td></tr>
+  <tr><td>有异常值且需要鲁棒性</td><td>K-Medoids / DBSCAN</td></tr>
+  <tr><td>竞赛快速探索性分析</td><td>K-Means（标准化 → 肘部法则 → 多次随机初始取最优）</td></tr>
+</table>
+
+<div class="highlight"><strong>竞赛提示</strong>：聚类分析在竞赛中常见于<strong>客户分群、区域分类、模式识别、数据探索</strong>等任务。推荐工作流：标准化 → PCA降维可视化 → K-Means/层次聚类 → 轮廓系数评估 → 结果解读（给每个簇赋予业务含义）。</div>
+</div>
+
+</div><!-- .container -->
+
+<div class="nav-links">
+  <a href="遗传算法.html">← 第17章：遗传算法</a>
+  <a href="index.html">返回首页 →</a>
+</div>
+
+<div class="footer"><p>📐 数学建模学习平台 &copy; 2026 Jacky</p></div>
+</div><!-- .main-wrap -->
+
+<button class="back2top" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="回到顶部">↑</button>
+<button class="chapter-nav-toggle" onclick="toggleChapterNav()" title="章节导航">📖 章节导航</button>
+<div class="chapter-nav-panel" id="chapterNav"></div>
+
+<script src="common.js?v=1"></script>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="rag-retriever.js?v=1"></script>
+<script src="ai-chat.js?v=7"></script>
+</body>
+</html>

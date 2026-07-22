@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>偏微分方程建模 — 数学建模学习平台</title>
+<script>
+MathJax = { tex: { inlineMath: [['$','$'],['\\(','\\)']], displayMath: [['$$','$$'],['\\[','\\]']], processEscapes: true } };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" async></script>
+<link rel="stylesheet" href="common.css">
+</head>
+<body>
+
+<nav class="sidebar">
+  <div class="sidebar-header">
+    <div class="site-name">📐 数学建模</div>
+    <div class="site-sub">学习平台</div>
+  </div>
+  <div class="sidebar-nav">
+    <div class="group-label">核心方法</div>
+    <a href="插值与拟合.html"><span class="tag">1</span>插值与拟合</a>
+    <a href="蒙特卡洛.html"><span class="tag">2</span>蒙特卡洛方法</a>
+    <a href="线性回归.html"><span class="tag">3</span>线性回归</a>
+    <a href="AI与建模.html"><span class="tag">4</span>AI与数学建模</a>
+    <a href="主成分与因子分析.html"><span class="tag">5</span>主成分与因子分析</a>
+    <a href="时间序列.html"><span class="tag">6</span>时间序列分析</a>
+    <a href="图与网络.html"><span class="tag">7</span>图与网络</a>
+    <a href="数据处理.html"><span class="tag">8</span>数据处理</a>
+    <a href="存储论.html"><span class="tag">9</span>存储论</a>
+    <a href="灰色系统.html"><span class="tag">10</span>灰色系统</a>
+    <a href="模拟退火.html"><span class="tag">11</span>模拟退火算法</a>
+    <a href="排队论.html"><span class="tag">12</span>排队论</a>
+    <div class="group-label">进阶方法</div>
+    <a href="神经网络模型.html"><span class="tag">13</span>神经网络模型</a>
+    <a href="常微分方程.html"><span class="tag">14</span>常微分方程建模</a>
+    <a href="偏微分方程.html" class="current"><span class="tag">15</span>偏微分方程建模</a>
+    <a href="卡尔曼滤波.html"><span class="tag">16</span>卡尔曼滤波</a>
+    <a href="遗传算法.html"><span class="tag">17</span>遗传算法</a>
+    <a href="聚类分析.html"><span class="tag">18</span>聚类分析</a>
+    <div class="group-label">综合专题</div>
+    <a href="方法大全.html"><span class="tag">★</span>方法大全（59种）</a>
+    <div class="group-label">真题实战</div>
+    <a href="历年真题模拟分析.html"><span class="tag">📝</span>历年真题模拟分析</a>
+    <a href="index.html" style="margin-top:6px;border-top:1px solid var(--sidebar-border);padding-top:8px"><span class="tag">⌂</span>返回首页</a>
+  </div>
+</nav>
+
+<button class="theme-toggle no-print" onclick="toggleTheme()" title="切换暗黑模式">🌙</button>
+
+<div class="main-wrap">
+<div class="topbar">
+  <div class="topbar-inner">
+    <a href="常微分方程.html">← 常微分方程</a>
+    <h2>15. 偏微分方程建模</h2>
+    <a href="卡尔曼滤波.html">卡尔曼滤波 →</a>
+  </div>
+</div>
+
+<div class="container">
+
+<!-- 概述 -->
+<div class="section">
+<h2>一、偏微分方程概述</h2>
+
+<div class="def-box"><div class="def-title">偏微分方程（Partial Differential Equation, PDE）</div><p>偏微分方程是包含<strong>多元未知函数及其偏导数</strong>的方程。与常微分方程（ODE）描述仅依赖单一自变量（通常是时间）的系统不同，PDE 能同时刻画空间分布与时间演化，是物理、工程、金融建模的核心数学工具。</p></div>
+
+<h3>1.1 PDE 与数学建模竞赛</h3>
+<p>在数学建模竞赛中，PDE 常用于以下场景：</p>
+<table>
+  <tr><th>场景</th><th>PDE 类型</th><th>典型竞赛案例</th></tr>
+  <tr><td>热传导/扩散</td><td>热传导方程（抛物型）</td><td>2018年A题：防热服设计；2020年A题：炉温曲线</td></tr>
+  <tr><td>波动传播</td><td>波动方程（双曲型）</td><td>声波传播、地震波、琴弦振动</td></tr>
+  <tr><td>稳态场</td><td>拉普拉斯/泊松方程（椭圆型）</td><td>静电场、稳态温度分布、势流</td></tr>
+  <tr><td>流体力学</td><td>Navier-Stokes方程</td><td>污染物扩散、烟雾消散</td></tr>
+</table>
+
+<h3>1.2 三大经典 PDE 类型</h3>
+<table>
+  <tr><th>类型</th><th>典型方程</th><th>物理含义</th></tr>
+  <tr><td>抛物型</td><td>$\frac{\partial u}{\partial t} = a^2 \nabla^2 u$</td><td>扩散过程、热传导（时间不可逆）</td></tr>
+  <tr><td>双曲型</td><td>$\frac{\partial^2 u}{\partial t^2} = c^2 \nabla^2 u$</td><td>波动传播（时间可逆，有有限传播速度）</td></tr>
+  <tr><td>椭圆型</td><td>$\nabla^2 u = 0$（Laplace）/ $\nabla^2 u = f$（Poisson）</td><td>稳态场（与时间无关）</td></tr>
+</table>
+</div>
+
+<!-- 热传导方程 -->
+<div class="section">
+<h2>二、热传导方程（扩散方程）的建立</h2>
+
+<h3>2.1 物理基础：傅里叶热传导定律</h3>
+<p>当导热介质中各点温度分布不均匀时，热量从高温处流向低温处。在 $dt$ 时间内通过面积元 $dS$ 流入体积 $V$ 的热量为：</p>
+<div class="formula">$$dQ = -k \nabla T \cdot \mathbf{n} \, dS \, dt$$</div>
+<p>其中 $k$ 为导热系数，$\nabla T$ 为温度梯度。</p>
+
+<h3>2.2 方程的推导（简要）</h3>
+<p>通过高斯公式将面积分转为体积分，结合能量守恒（流入热量 = 温度变化所需热量），可得三维热传导方程：</p>
+<div class="formula">$$\frac{\partial T}{\partial t} = \alpha \nabla^2 T = \alpha\left(\frac{\partial^2 T}{\partial x^2} + \frac{\partial^2 T}{\partial y^2} + \frac{\partial^2 T}{\partial z^2}\right)$$</div>
+<p>其中 $\alpha = k/(\rho c_p)$ 为<strong>热扩散系数</strong>。一维情况简化为：</p>
+<div class="formula">$$\frac{\partial T}{\partial t} = \alpha \frac{\partial^2 T}{\partial x^2}$$</div>
+
+<h3>2.3 定解条件</h3>
+<p>完整的 PDE 问题需要<strong>初始条件</strong>和<strong>边界条件</strong>：</p>
+
+<table>
+  <tr><th>条件类型</th><th>数学形式</th><th>物理含义</th></tr>
+  <tr><td>初始条件</td><td>$T(x, 0) = T_0(x)$</td><td>$t=0$ 时刻的温度分布</td></tr>
+  <tr><td>第一类边界条件（Dirichlet）</td><td>$T|_{\partial\Omega} = T_b$</td><td>边界上温度给定</td></tr>
+  <tr><td>第二类边界条件（Neumann）</td><td>$\frac{\partial T}{\partial n}|_{\partial\Omega} = q$</td><td>边界上热流给定（绝热时 $q=0$）</td></tr>
+  <tr><td>第三类边界条件（Robin）</td><td>$-k\frac{\partial T}{\partial n} = h(T - T_{\infty})$</td><td>边界与外界有热交换（牛顿冷却定律）</td></tr>
+</table>
+</div>
+
+<!-- 求解方法 -->
+<div class="section">
+<h2>三、求解方法概览</h2>
+
+<h3>3.1 解析方法</h3>
+<table>
+  <tr><th>方法</th><th>原理</th><th>适用范围</th></tr>
+  <tr><td><strong>分离变量法</strong></td><td>设 $u(x,t)=X(x)T(t)$，化为 ODE 求解</td><td>线性齐次方程 + 齐次边界条件</td></tr>
+  <tr><td><strong>行波法</strong></td><td>利用特征线将 PDE 化为 ODE</td><td>一维波动方程</td></tr>
+  <tr><td><strong>积分变换法</strong></td><td>Fourier 变换（空间域）/ Laplace 变换（时间域）</td><td>无限域或半无限域问题</td></tr>
+  <tr><td><strong>格林函数法</strong></td><td>将 PDE 转化为积分方程</td><td>非齐次方程、复杂源项</td></tr>
+</table>
+
+<h3>3.2 积分变换法示例：Laplace 变换解热传导问题</h3>
+<div class="def-box"><div class="def-title">例：半无限长杆的温度分布</div><p>问题：一条半无限长的杆（$x \ge 0$），端点温度变化为 $T(0,t) = f(t)$，初始温度为 $0$。求杆上温度分布。</p></div>
+
+<p>对时间 $t$ 做 Laplace 变换 $\mathcal{L}\{T(x,t)\} = U(x,p)$，利用微分性质将 PDE 转化为关于 $x$ 的 ODE，求解后再做逆变换得到原问题的解析解。</p>
+
+<h3>3.3 数值方法：有限差分法</h3>
+<p>实际竞赛中，大多数 PDE 需数值求解。最常用的方法是对时间和空间分别离散：</p>
+
+<div class="def-box"><div class="def-title">二阶中心差商（空间离散）</div>
+<div class="formula">$$\frac{\partial^2 T}{\partial x^2}\bigg|_{x_i} \approx \frac{T_{i+1} - 2T_i + T_{i-1}}{\Delta x^2}$$</div>
+</div>
+
+<p><strong>显式格式</strong>（最简单，但有稳定性条件 $\Delta t \le \Delta x^2/(2\alpha)$）：</p>
+<div class="formula">$$T_i^{n+1} = T_i^n + \frac{\alpha \Delta t}{\Delta x^2}(T_{i+1}^n - 2T_i^n + T_{i-1}^n)$$</div>
+
+<p><strong>Crank-Nicolson 格式</strong>（隐式，无条件稳定，推荐竞赛使用）：时间取 $n$ 和 $n+1$ 时刻的平均值，需解三对角线性方程组——可用追赶法（Thomas Algorithm）高效求解。</p>
+
+<h3>3.4 傅里叶变换法示例：烟雾扩散问题</h3>
+<div class="def-box"><div class="def-title">例：炮弹爆炸后的烟雾扩散</div><p>问题：炮弹在空中爆炸，烟雾向四周扩散，烟雾区域不断扩大然后缩小直至消失。建立模型描述烟雾扩散和消失过程。</p></div>
+<p>对方程两边做空间傅里叶变换，将 PDE 化为关于时间的 ODE，利用初始条件求解后再做逆变换。这是典型的<strong>瞬时点源扩散问题</strong>，其解为高斯分布形式。</p>
+</div>
+
+<!-- 竞赛案例 -->
+<div class="section">
+<h2>四、竞赛真题案例</h2>
+
+<h3>4.1 2018年A题：防热服设计</h3>
+<p>问题涉及人体-服装-环境之间的热传递，需要建立多层介质中的热传导 PDE 模型。关键点：</p>
+<ul>
+  <li>各层材料的热物理参数（导热系数、比热容、密度）不同</li>
+  <li>边界条件：皮肤侧（恒温或恒热流）、环境侧（对流+辐射）</li>
+  <li>可用 Crank-Nicolson 差分格式数值求解</li>
+</ul>
+
+<h3>4.2 2020年A题：回焊炉温曲线</h3>
+<p>电路板在回流焊炉中经历预热→恒温→回流→冷却的温变过程。模型涉及：</p>
+<ul>
+  <li>一维非稳态热传导方程</li>
+  <li>炉内各温区设定不同的环境温度和对流换热系数</li>
+  <li>目标：控制传送带速度使焊点温度曲线符合工艺窗口</li>
+</ul>
+
+<div class="highlight"><strong>竞赛要点</strong>：处理 PDE 建模题时，<strong>不要追求解析解</strong>（大多数情况根本不存在），直接使用有限差分等数值方法。论文中需说清楚离散格式、网格大小选择、稳定性条件、边界条件处理，并给出可视化结果。</div>
+</div>
+
+<!-- 优缺点 -->
+<div class="section">
+<h2>五、优缺点总结</h2>
+
+<h3>5.1 优点</h3>
+<table>
+  <tr><th>优点</th><th>说明</th></tr>
+  <tr><td>时空同时建模</td><td>能同时描述空间分布和时间演化，物理机制丰富</td></tr>
+  <tr><td>定量预测精度高</td><td>基于物理定律（守恒律、本构关系），结果可验证</td></tr>
+  <tr><td>数值方法成熟</td><td>有限差分/有限元/谱方法等，MATLAB/Python 有丰富工具</td></tr>
+  <tr><td>竞赛区分度高</td><td>PDE 建模在竞赛中较少出现，能做好的团队容易脱颖而出</td></tr>
+</table>
+
+<h3>5.2 局限性</h3>
+<table>
+  <tr><th>局限性</th><th>说明</th></tr>
+  <tr><td>数学门槛高</td><td>需要微积分、数理方程等相关基础</td></tr>
+  <tr><td>计算量大</td><td>数值求解 PDE（尤其二维以上）计算耗时</td></tr>
+  <tr><td>参数获取难</td><td>物理参数（导热系数等）常需查文献或实验测定</td></tr>
+  <tr><td>模型复杂度高</td><td>建模和编程工作量显著大于统计方法</td></tr>
+</table>
+</div>
+
+</div><!-- .container -->
+
+<div class="nav-links">
+  <a href="常微分方程.html">← 第14章：常微分方程建模</a>
+  <a href="卡尔曼滤波.html">第16章：卡尔曼滤波 →</a>
+</div>
+
+<div class="footer"><p>📐 数学建模学习平台 &copy; 2026 Jacky</p></div>
+</div><!-- .main-wrap -->
+
+<button class="back2top" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="回到顶部">↑</button>
+<button class="chapter-nav-toggle" onclick="toggleChapterNav()" title="章节导航">📖 章节导航</button>
+<div class="chapter-nav-panel" id="chapterNav"></div>
+
+<script src="common.js?v=1"></script>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="rag-retriever.js?v=1"></script>
+<script src="ai-chat.js?v=7"></script>
+</body>
+</html>

@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>遗传算法 — 数学建模学习平台</title>
+<script>
+MathJax = { tex: { inlineMath: [['$','$'],['\\(','\\)']], displayMath: [['$$','$$'],['\\[','\\]']], processEscapes: true } };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" async></script>
+<link rel="stylesheet" href="common.css">
+</head>
+<body>
+
+<nav class="sidebar">
+  <div class="sidebar-header">
+    <div class="site-name">📐 数学建模</div>
+    <div class="site-sub">学习平台</div>
+  </div>
+  <div class="sidebar-nav">
+    <div class="group-label">核心方法</div>
+    <a href="插值与拟合.html"><span class="tag">1</span>插值与拟合</a>
+    <a href="蒙特卡洛.html"><span class="tag">2</span>蒙特卡洛方法</a>
+    <a href="线性回归.html"><span class="tag">3</span>线性回归</a>
+    <a href="AI与建模.html"><span class="tag">4</span>AI与数学建模</a>
+    <a href="主成分与因子分析.html"><span class="tag">5</span>主成分与因子分析</a>
+    <a href="时间序列.html"><span class="tag">6</span>时间序列分析</a>
+    <a href="图与网络.html"><span class="tag">7</span>图与网络</a>
+    <a href="数据处理.html"><span class="tag">8</span>数据处理</a>
+    <a href="存储论.html"><span class="tag">9</span>存储论</a>
+    <a href="灰色系统.html"><span class="tag">10</span>灰色系统</a>
+    <a href="模拟退火.html"><span class="tag">11</span>模拟退火算法</a>
+    <a href="排队论.html"><span class="tag">12</span>排队论</a>
+    <div class="group-label">进阶方法</div>
+    <a href="神经网络模型.html"><span class="tag">13</span>神经网络模型</a>
+    <a href="常微分方程.html"><span class="tag">14</span>常微分方程建模</a>
+    <a href="偏微分方程.html"><span class="tag">15</span>偏微分方程建模</a>
+    <a href="卡尔曼滤波.html"><span class="tag">16</span>卡尔曼滤波</a>
+    <a href="遗传算法.html" class="current"><span class="tag">17</span>遗传算法</a>
+    <a href="聚类分析.html"><span class="tag">18</span>聚类分析</a>
+    <div class="group-label">综合专题</div>
+    <a href="方法大全.html"><span class="tag">★</span>方法大全（59种）</a>
+    <div class="group-label">真题实战</div>
+    <a href="历年真题模拟分析.html"><span class="tag">📝</span>历年真题模拟分析</a>
+    <a href="index.html" style="margin-top:6px;border-top:1px solid var(--sidebar-border);padding-top:8px"><span class="tag">⌂</span>返回首页</a>
+  </div>
+</nav>
+
+<button class="theme-toggle no-print" onclick="toggleTheme()" title="切换暗黑模式">🌙</button>
+
+<div class="main-wrap">
+<div class="topbar">
+  <div class="topbar-inner">
+    <a href="卡尔曼滤波.html">← 卡尔曼滤波</a>
+    <h2>17. 遗传算法（Genetic Algorithm, GA）</h2>
+    <a href="聚类分析.html">聚类分析 →</a>
+  </div>
+</div>
+
+<div class="container">
+
+<!-- 概述 -->
+<div class="section">
+<h2>一、遗传算法概述</h2>
+
+<div class="def-box"><div class="def-title">遗传算法（Genetic Algorithm, GA）</div><p>遗传算法是通过<strong>模拟生物进化过程</strong>来完成优化搜索的仿生类算法。它将"<strong>优胜劣汰、适者生存</strong>"的生物进化原理引入优化参数形成的编码群体中，按适应度函数通过<strong>选择（复制）、交叉和变异</strong>对个体进行筛选，使适应度高的个体被保留并产生更优的后代。算法简单、可并行处理、能收敛到全局最优解。</p></div>
+
+<h3>1.1 三种基本遗传操作</h3>
+<table>
+  <tr><th>操作</th><th>生物学类比</th><th>实现方式</th><th>作用</th></tr>
+  <tr><td><strong>选择（复制）</strong></td><td>适者生存</td><td>按适应度比例随机选择（轮盘赌）</td><td>保留优良个体，淘汰劣质个体</td></tr>
+  <tr><td><strong>交叉</strong></td><td>繁殖（基因重组）</td><td>两个染色体交换部分基因片段</td><td>产生新的个体，在解空间中搜索</td></tr>
+  <tr><td><strong>变异</strong></td><td>基因突变</td><td>以很小概率随机改变某位基因</td><td>增加种群多样性，防止陷入局部最优</td></tr>
+</table>
+
+<h3>1.2 算法流程图</h3>
+<div class="highlight">
+<strong>遗传算法流程：</strong><br>
+初始化种群 → 计算适应度 → <strong>循环</strong>：选择 → 交叉 → 变异 → 计算适应度 → 检查终止条件 → 输出最优解
+</div>
+</div>
+
+<!-- 运行参数 -->
+<div class="section">
+<h2>二、基本运行参数</h2>
+
+<table>
+  <tr><th>参数</th><th>符号</th><th>推荐范围</th><th>说明</th></tr>
+  <tr><td>种群大小</td><td>$M$</td><td>20 ~ 100</td><td>太小采样不足，太大计算量大收敛慢</td></tr>
+  <tr><td>终止代数</td><td>$G$</td><td>100 ~ 500</td><td>进化多少代后停止</td></tr>
+  <tr><td>交叉概率</td><td>$P_c$</td><td>0.4 ~ 0.99</td><td>太大破坏优良个体，太小搜索停滞</td></tr>
+  <tr><td>变异概率</td><td>$P_m$</td><td>0.0001 ~ 0.1</td><td>太小难产生新模式，太大退化为随机搜索</td></tr>
+</table>
+
+<h3>2.1 遗传算法应用步骤（七步法）</h3>
+<div class="highlight">
+<strong>Step 1</strong>：确定决策变量及约束条件（表现型 $X$ 和解空间）<br>
+<strong>Step 2</strong>：建立优化模型（目标函数类型和数学描述）<br>
+<strong>Step 3</strong>：确定染色体编码方法（基因型 $x$ 和搜索空间）<br>
+<strong>Step 4</strong>：确定解码方法（基因型 → 表现型的映射）<br>
+<strong>Step 5</strong>：确定个体适应度的量化评价方法（目标函数值 → 适应度）<br>
+<strong>Step 6</strong>：设计遗传算子（选择、交叉、变异的具体操作方法）<br>
+<strong>Step 7</strong>：确定运行参数（$M, G, P_c, P_m$ 等）
+</div>
+</div>
+
+<!-- 收敛性 -->
+<div class="section">
+<h2>三、收敛性分析与参数影响</h2>
+
+<h3>3.1 各因素对收敛性的影响</h3>
+<table>
+  <tr><th>因素</th><th>太小</th><th>太大</th></tr>
+  <tr><td>种群规模 $M$</td><td>采样点不足，算法性能差</td><td>增加计算量，收敛缓慢</td></tr>
+  <tr><td>选择操作</td><td>收敛速度慢</td><td>配合最优保存策略，以概率1收敛于全局最优</td></tr>
+  <tr><td>交叉概率 $P_c$</td><td>搜索停滞，不收敛</td><td>优良个体被快速破坏</td></tr>
+  <tr><td>变异概率 $P_m$</td><td>难产生新模式</td><td>算法退化为随机搜索</td></tr>
+</table>
+
+<h3>3.2 遗传算法的本质</h3>
+<p>遗传算法本质上是对<strong>染色体模式</strong>所进行的一系列运算：选择算子将优良模式遗传到下一代，交叉算子进行模式重组，变异算子进行模式突变。通过这三类操作，模式逐步向更优方向进化，最终得到问题的最优解。</p>
+
+<h3>3.3 遗传欺骗问题</h3>
+<div class="def-box"><div class="def-title">遗传欺骗（Deception）</div><p>在进化过程中，有时会产生一些超常个体，因竞争力过强而控制了选择过程，导致种群多样性迅速丧失，算法收敛到<strong>局部最优解</strong>而非全局最优解。</p></div>
+</div>
+
+<!-- 改进 -->
+<div class="section">
+<h2>四、遗传算法的改进</h2>
+
+<h3>4.1 编码方式的改进</h3>
+<table>
+  <tr><th>编码方式</th><th>优点</th><th>缺点</th></tr>
+  <tr><td>二进制编码</td><td>编码解码简单，交叉变异易实现</td><td>精度高时编码串过长，搜索空间急剧扩大</td></tr>
+  <tr><td>格雷编码</td><td>克服二进制编码的不连续问题</td><td>编解码稍复杂</td></tr>
+  <tr><td>浮点数编码</td><td>改善计算复杂性，适合高精度连续优化</td><td>遗传算子设计更复杂</td></tr>
+</table>
+
+<h3>4.2 遗传算子的改进</h3>
+<table>
+  <tr><th>改进</th><th>方法</th></tr>
+  <tr><td>排序选择</td><td>按适应度降序排列，设计概率分配表分配选择概率，再用轮盘赌产生下一代</td></tr>
+  <tr><td>均匀交叉</td><td>产生与编码长度相同的二进制屏蔽字，$W_i=0$ 继承A基因，$W_i=1$ 交换AB基因</td></tr>
+  <tr><td>逆序变异</td><td>随机选择两个断点，将断点间的基因序列反转</td></tr>
+</table>
+
+<h3>4.3 自适应遗传算法</h3>
+<p>Srinivas 等人提出：$P_c$ 和 $P_m$ 随适应度自动调整——适应度趋于一致时增大 $P_c$ 和 $P_m$，适应度分散时减小。对高于平均适应度的个体采用较低的 $P_c$ 和 $P_m$（保护优良个体），低于平均的采用较高值（淘汰劣质个体）。</p>
+</div>
+
+<!-- MATLAB -->
+<div class="section">
+<h2>五、MATLAB 遗传算法工具箱</h2>
+
+<h3>5.1 基本语法</h3>
+<div class="code-block">x = ga(fitnessfcn, nvars)                    <span class="co">% 最简形式</span>
+x = ga(fitnessfcn, nvars, A, b)              <span class="co">% 线性不等式约束</span>
+x = ga(fitnessfcn, nvars, A, b, Aeq, beq)    <span class="co">% 线性等式约束</span>
+x = ga(fitnessfcn, nvars, A, b, Aeq, beq, LB, UB)  <span class="co">% 变量上下界</span>
+x = ga(fitnessfcn, nvars, A, b, Aeq, beq, LB, UB, nonlcon, intcon, options)</div>
+
+<h3>5.2 参数设置</h3>
+<div class="code-block">options = gaoptimset('PropertyName1', PropertyValue1, ...
+                     'PropertyName2', PropertyValue2, ...);
+[x, fval, reason, output, final_pop] = ga(@fitnessfun, nvars, options);
+
+<span class="co">% 将上次的最终种群作为下次的初始种群</span>
+options = gaoptimset('InitialPopulation', final_pop);</div>
+
+<h3>5.3 图形界面</h3>
+<p>在 MATLAB 命令窗口输入 <code>optimtool</code>，单目标选 <code>ga</code>，多目标选 <code>gamultiobj</code>，即可通过图形界面设置参数并运行。</p>
+
+<h3>5.4 示例：求函数最大值</h3>
+<p>问题：求 $f(x) = 10\sin(5x) + 7\cos(4x)$ 在 $x \in [0, 10]$ 的最大值。</p>
+<div class="code-block"><span class="kw">function</span> [y] = fitness1(x)
+    y = x + 10*sin(x) + 7*cos(x);   <span class="co">% ga 默认求最小值</span>
+<span class="kw">end</span></div>
+<p>将 $x$ 用 10 位二进制编码，分辨率 $\approx 0.01$。注意：初始种群越大，优化效果通常越明显。</p>
+</div>
+
+<!-- 优缺点 -->
+<div class="section">
+<h2>六、优缺点总结</h2>
+
+<h3>6.1 优点</h3>
+<table>
+  <tr><th>优点</th><th>说明</th></tr>
+  <tr><td>全局搜索能力强</td><td>基于种群搜索，不易陷入局部最优（相比梯度下降法）</td></tr>
+  <tr><td>无需梯度信息</td><td>不需要目标函数可微、连续，适合黑箱优化</td></tr>
+  <tr><td>可并行处理</td><td>种群中各个体可独立评估，天然适合并行计算</td></tr>
+  <tr><td>通用性强</td><td>对问题类型（连续/离散/混合）几乎无限制</td></tr>
+  <tr><td>易于与其它方法结合</td><td>可与局部搜索（memetic算法）、多目标优化（NSGA-II）等结合</td></tr>
+</table>
+
+<h3>6.2 局限性</h3>
+<table>
+  <tr><th>局限性</th><th>说明</th></tr>
+  <tr><td>收敛速度较慢</td><td>相比梯度类方法，需要更多函数评估次数</td></tr>
+  <tr><td>参数调优困难</td><td>$M, G, P_c, P_m$ 等参数对性能影响大，需反复试调</td></tr>
+  <tr><td>缺乏严格收敛性保证</td><td>启发式算法，不能保证一定找到全局最优</td></tr>
+  <tr><td>编码方式影响性能</td><td>不恰当的编码会导致搜索效率低下</td></tr>
+</table>
+
+<div class="highlight"><strong>竞赛提示</strong>：遗传算法在竞赛中适用于<strong>复杂约束优化、组合优化、多目标优化</strong>等问题，特别是传统优化方法（LP/NLP）难以处理的非凸、离散问题。建议使用 MATLAB 自带的 ga 函数或 Python 的 geneticalgorithm 库。</div>
+</div>
+
+</div><!-- .container -->
+
+<div class="nav-links">
+  <a href="卡尔曼滤波.html">← 第16章：卡尔曼滤波</a>
+  <a href="聚类分析.html">第18章：聚类分析 →</a>
+</div>
+
+<div class="footer"><p>📐 数学建模学习平台 &copy; 2026 Jacky</p></div>
+</div><!-- .main-wrap -->
+
+<button class="back2top" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="回到顶部">↑</button>
+<button class="chapter-nav-toggle" onclick="toggleChapterNav()" title="章节导航">📖 章节导航</button>
+<div class="chapter-nav-panel" id="chapterNav"></div>
+
+<script src="common.js?v=1"></script>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="rag-retriever.js?v=1"></script>
+<script src="ai-chat.js?v=7"></script>
+</body>
+</html>

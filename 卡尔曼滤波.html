@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>卡尔曼滤波 — 数学建模学习平台</title>
+<script>
+MathJax = { tex: { inlineMath: [['$','$'],['\\(','\\)']], displayMath: [['$$','$$'],['\\[','\\]']], processEscapes: true } };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" async></script>
+<link rel="stylesheet" href="common.css">
+</head>
+<body>
+
+<nav class="sidebar">
+  <div class="sidebar-header">
+    <div class="site-name">📐 数学建模</div>
+    <div class="site-sub">学习平台</div>
+  </div>
+  <div class="sidebar-nav">
+    <div class="group-label">核心方法</div>
+    <a href="插值与拟合.html"><span class="tag">1</span>插值与拟合</a>
+    <a href="蒙特卡洛.html"><span class="tag">2</span>蒙特卡洛方法</a>
+    <a href="线性回归.html"><span class="tag">3</span>线性回归</a>
+    <a href="AI与建模.html"><span class="tag">4</span>AI与数学建模</a>
+    <a href="主成分与因子分析.html"><span class="tag">5</span>主成分与因子分析</a>
+    <a href="时间序列.html"><span class="tag">6</span>时间序列分析</a>
+    <a href="图与网络.html"><span class="tag">7</span>图与网络</a>
+    <a href="数据处理.html"><span class="tag">8</span>数据处理</a>
+    <a href="存储论.html"><span class="tag">9</span>存储论</a>
+    <a href="灰色系统.html"><span class="tag">10</span>灰色系统</a>
+    <a href="模拟退火.html"><span class="tag">11</span>模拟退火算法</a>
+    <a href="排队论.html"><span class="tag">12</span>排队论</a>
+    <div class="group-label">进阶方法</div>
+    <a href="神经网络模型.html"><span class="tag">13</span>神经网络模型</a>
+    <a href="常微分方程.html"><span class="tag">14</span>常微分方程建模</a>
+    <a href="偏微分方程.html"><span class="tag">15</span>偏微分方程建模</a>
+    <a href="卡尔曼滤波.html" class="current"><span class="tag">16</span>卡尔曼滤波</a>
+    <a href="遗传算法.html"><span class="tag">17</span>遗传算法</a>
+    <a href="聚类分析.html"><span class="tag">18</span>聚类分析</a>
+    <div class="group-label">综合专题</div>
+    <a href="方法大全.html"><span class="tag">★</span>方法大全（59种）</a>
+    <div class="group-label">真题实战</div>
+    <a href="历年真题模拟分析.html"><span class="tag">📝</span>历年真题模拟分析</a>
+    <a href="index.html" style="margin-top:6px;border-top:1px solid var(--sidebar-border);padding-top:8px"><span class="tag">⌂</span>返回首页</a>
+  </div>
+</nav>
+
+<button class="theme-toggle no-print" onclick="toggleTheme()" title="切换暗黑模式">🌙</button>
+
+<div class="main-wrap">
+<div class="topbar">
+  <div class="topbar-inner">
+    <a href="偏微分方程.html">← 偏微分方程</a>
+    <h2>16. 卡尔曼滤波（Kalman Filter）</h2>
+    <a href="遗传算法.html">遗传算法 →</a>
+  </div>
+</div>
+
+<div class="container">
+
+<!-- 概述 -->
+<div class="section">
+<h2>一、卡尔曼滤波概述</h2>
+
+<div class="def-box"><div class="def-title">卡尔曼滤波（Kalman Filter）</div><p>卡尔曼滤波是一种<strong>线性、无偏、估计偏差方差最小</strong>的最优估计算法，由匈牙利数学家 Rudolf Emil Kalman 于 1960 年提出。其核心思想是：<strong>既不盲目相信理论计算（状态方程），也不盲目相信传感器测量（量测方程），而是通过加权融合二者的信息</strong>，迭代地给出系统状态的最优估计。</p></div>
+
+<h3>1.1 直观理解：导弹打航母</h3>
+<div class="highlight">
+<strong>引例</strong>：要估计导弹与航母的距离，有两种途径：<br>
+<strong>方法一</strong>：用运动学公式计算 → 物理场景中充满误差和噪声，理论公式过于理想化<br>
+<strong>方法二</strong>：用雷达直接测量 → 传感器经过信号转换、A/D转换等环节，每一步都引入噪声<br>
+<strong>Kalman 的回答</strong>：两者都不完美，但可以通过<strong>加权平均</strong>得到比任一单一来源更准确的估计！
+</div>
+
+<h3>1.2 历史与应用</h3>
+<p>卡尔曼滤波曾成功应用于美国 Apollo 登月飞船和 C-5A 运输机的组合导航系统中。目前已广泛应用于：</p>
+<table>
+  <tr><th>领域</th><th>应用</th></tr>
+  <tr><td>导航与制导</td><td>GPS/INS组合导航、自动驾驶定位</td></tr>
+  <tr><td>气象预测</td><td>数值天气预报中的数据同化</td></tr>
+  <tr><td>金融数据分析</td><td>状态空间模型参数估计、波动率建模</td></tr>
+  <tr><td>通信与信号处理</td><td>信道估计、语音增强、回波消除</td></tr>
+  <tr><td>工业控制</td><td>传感器数据融合、电机状态估计</td></tr>
+  <tr><td>电池管理</td><td>SOC（荷电状态）估计、电池寿命预测</td></tr>
+</table>
+
+<h3>1.3 核心特点</h3>
+<ul>
+  <li><strong>迭代算法</strong>：每一步只需要当前测量值和上一时刻估计值，无需存储全部历史数据</li>
+  <li><strong>同时使用状态方程和量测方程</strong>：融合了系统的动力学先验知识和实时观测信息</li>
+  <li><strong>适用于非平稳过程</strong>：不像经典 Wiener 滤波仅适用于平稳随机过程</li>
+</ul>
+</div>
+
+<!-- 原理 -->
+<div class="section">
+<h2>二、离散 Kalman 滤波原理</h2>
+
+<h3>2.1 系统建模（两方程模型）</h3>
+
+<div class="def-box"><div class="def-title">状态方程（系统动力学）</div>
+<div class="formula">$$\mathbf{X}_k = \mathbf{\Phi}_{k,k-1}\mathbf{X}_{k-1} + \mathbf{\Gamma}_{k-1}\mathbf{W}_{k-1}$$</div>
+<p>其中 $\mathbf{X}_k$ 为 $k$ 时刻的 $n$ 维状态向量，$\mathbf{\Phi}_{k,k-1}$ 为状态转移矩阵，$\mathbf{W}_{k-1}$ 为状态噪声（零均值白噪声，协方差矩阵为 $\mathbf{Q}_k$）。</p>
+</div>
+
+<div class="def-box"><div class="def-title">量测方程（观测模型）</div>
+<div class="formula">$$\mathbf{Z}_k = \mathbf{H}_k\mathbf{X}_k + \mathbf{V}_k$$</div>
+<p>其中 $\mathbf{Z}_k$ 为 $k$ 时刻的 $m$ 维量测向量，$\mathbf{H}_k$ 为量测矩阵，$\mathbf{V}_k$ 为量测噪声（零均值白噪声，协方差矩阵为 $\mathbf{R}_k$，与 $\mathbf{W}_k$ 不相关）。</p>
+</div>
+
+<h3>2.2 Kalman 滤波五大公式</h3>
+
+<div class="highlight">
+<strong>一步预测（时间更新）：</strong><br>
+① 状态预测：$\hat{\mathbf{X}}_{k|k-1} = \mathbf{\Phi}_{k,k-1}\hat{\mathbf{X}}_{k-1}$<br>
+② 预测协方差：$\mathbf{P}_{k|k-1} = \mathbf{\Phi}_{k,k-1}\mathbf{P}_{k-1}\mathbf{\Phi}_{k,k-1}^T + \mathbf{\Gamma}_{k-1}\mathbf{Q}_{k-1}\mathbf{\Gamma}_{k-1}^T$<br><br>
+<strong>量测更新（修正）：</strong><br>
+③ 卡尔曼增益：$\mathbf{K}_k = \mathbf{P}_{k|k-1}\mathbf{H}_k^T(\mathbf{H}_k\mathbf{P}_{k|k-1}\mathbf{H}_k^T + \mathbf{R}_k)^{-1}$<br>
+④ 状态修正：$\hat{\mathbf{X}}_k = \hat{\mathbf{X}}_{k|k-1} + \mathbf{K}_k(\mathbf{Z}_k - \mathbf{H}_k\hat{\mathbf{X}}_{k|k-1})$<br>
+⑤ 修正协方差：$\mathbf{P}_k = (\mathbf{I} - \mathbf{K}_k\mathbf{H}_k)\mathbf{P}_{k|k-1}$
+</div>
+
+<h3>2.3 算法流程解析</h3>
+<p>Kalman 滤波是一种<strong>预测-修正</strong>循环：</p>
+<ol>
+  <li><strong>预测阶段</strong>：利用上一时刻的最优估计 $\hat{\mathbf{X}}_{k-1}$ 和状态方程，推算当前时刻的先验估计 $\hat{\mathbf{X}}_{k|k-1}$</li>
+  <li><strong>计算增益</strong>：根据预测协方差 $\mathbf{P}_{k|k-1}$ 和量测噪声 $\mathbf{R}_k$，确定最优加权系数 $\mathbf{K}_k$</li>
+  <li><strong>修正阶段</strong>：用当前量测 $\mathbf{Z}_k$ 修正先验估计，得到后验最优估计 $\hat{\mathbf{X}}_k$</li>
+</ol>
+<p>增益矩阵 $\mathbf{K}_k$ 的核心作用：<strong>$\mathbf{R}_k$ 大（量测不可靠）→ $\mathbf{K}_k$ 小 → 更相信预测 → $\mathbf{P}_{k|k-1}$ 大（模型不可靠）→ $\mathbf{K}_k$ 大 → 更相信量测</strong></p>
+</div>
+
+<!-- 应用案例 -->
+<div class="section">
+<h2>三、应用案例</h2>
+
+<h3>3.1 案例1：直线运动物体的状态估计</h3>
+<p>物体做直线运动，仅测量位移，需估计位移、速度和加速度。取状态变量 $\mathbf{X} = [x, \dot{x}, \ddot{x}]^T$，采样周期 $T$：</p>
+<div class="formula">$$\mathbf{\Phi} = \begin{bmatrix} 1 & T & T^2/2 \\ 0 & 1 & T \\ 0 & 0 & 1 \end{bmatrix}, \quad \mathbf{H} = [1, 0, 0]$$</div>
+<p>数值实验结果：变增益 Kalman 滤波在滤波初期优于稳态增益滤波（因为是最优的），但随迭代进行二者趋同。</p>
+
+<h3>3.2 案例2：汽车速度融合估计</h3>
+<p>汽车仪表显示速度 30 m/s，同时有 BDS 卫星导航测速（$\sigma_{\text{BDS}}=0.1$ m/s）和车载测速仪（$\sigma_{\text{车}}=0.2$ m/s）。两测量相互独立且无偏。</p>
+<p>Kalman 估计结果为两者的最优加权平均——精度与 BDS 相当，显著优于车载测速仪。</p>
+
+<h3>3.3 案例3：房间温度估计</h3>
+<p>房间温度约 25°C，因空气流通和阳光照射有微小波动。温度计测量误差方差为 0.25。</p>
+<p>Kalman 滤波通过递归融合 k-1 时刻预测值与 k 时刻测量值，使估计结果（23.944°C）比单纯依赖测量值（24.5°C）或预测值（23.9°C）都更接近真实值（24.1°C）。</p>
+</div>
+
+<!-- EKF -->
+<div class="section">
+<h2>四、扩展卡尔曼滤波（EKF）</h2>
+
+<h3>4.1 为什么需要 EKF？</h3>
+<p>标准 Kalman 滤波仅适用于<strong>线性系统</strong>。实际工程中大量系统是非线性的，例如电池容量衰减模型、弹道轨迹等。EKF 通过对非线性函数做<strong>一阶泰勒展开</strong>（局部线性化），将 Kalman 滤波推广到非线性系统。</p>
+
+<h3>4.2 非线性系统模型</h3>
+<div class="formula">$$\begin{cases} \mathbf{X}_k = f(\mathbf{X}_{k-1}) + \mathbf{\Gamma}_{k-1}\mathbf{W}_{k-1} \\ \mathbf{Z}_k = h(\mathbf{X}_k) + \mathbf{V}_k \end{cases}$$</div>
+
+<h3>4.3 EKF 的核心——雅可比矩阵</h3>
+<p>对非线性函数 $f(\cdot)$ 和 $h(\cdot)$ 在当前滤波值处求雅可比矩阵（一阶偏导数矩阵），替代标准 KF 中的 $\mathbf{\Phi}$ 和 $\mathbf{H}$：</p>
+<div class="formula">$$\mathbf{\Phi}_k = \left.\frac{\partial f}{\partial \mathbf{X}}\right|_{\hat{\mathbf{X}}_{k-1}}, \quad \mathbf{H}_k = \left.\frac{\partial h}{\partial \mathbf{X}}\right|_{\hat{\mathbf{X}}_{k|k-1}}$$</div>
+
+<h3>4.4 案例4：锂电池寿命预测（EKF 应用）</h3>
+<p>电池容量随充放电循环次数衰减，容量衰减模型为非线性方程。利用前 30 次循环的容量数据，EKF 对状态进行滤波优化后建立预测模型，预测电池的失效循环次数。结果表明 Kalman 滤波预测数据与测量数据吻合良好。</p>
+</div>
+
+<!-- 优缺点 -->
+<div class="section">
+<h2>五、优缺点与竞赛建议</h2>
+
+<h3>5.1 优点</h3>
+<table>
+  <tr><th>优点</th><th>说明</th></tr>
+  <tr><td>最优性（在线性高斯条件下）</td><td>是线性、无偏、最小方差的最优估计</td></tr>
+  <tr><td>迭代计算效率高</td><td>只需上一时刻状态，不需存储完整历史</td></tr>
+  <tr><td>同时融合模型与数据</td><td>"数据同化"思想——理论推导与实测数据互补</td></tr>
+  <tr><td>适用于非平稳过程</td><td>比 Wiener 滤波更通用</td></tr>
+</table>
+
+<h3>5.2 局限性</h3>
+<table>
+  <tr><th>局限性</th><th>说明</th></tr>
+  <tr><td>线性假设</td><td>标准 KF 要求线性的状态和量测方程（非线性需 EKF/UKF）</td></tr>
+  <tr><td>高斯噪声假设</td><td>要求过程噪声和量测噪声为高斯白噪声且统计特性已知</td></tr>
+  <tr><td>EKF 的一阶近似</td><td>局部线性化在强非线性时可能发散</td></tr>
+  <tr><td>需要精确的系统模型</td><td>状态方程和噪声协方差需要较好的先验知识</td></tr>
+</table>
+
+<div class="highlight"><strong>竞赛建议</strong>：卡尔曼滤波适合<strong>有物理模型+有传感器数据</strong>的状态估计问题，如导航定位、目标跟踪、电池SOC估计。竞赛中使用时，重点说明状态方程和量测方程如何建立，以及噪声协方差 $\mathbf{Q}$ 和 $\mathbf{R}$ 的选取依据。</div>
+</div>
+
+</div><!-- .container -->
+
+<div class="nav-links">
+  <a href="偏微分方程.html">← 第15章：偏微分方程建模</a>
+  <a href="遗传算法.html">第17章：遗传算法 →</a>
+</div>
+
+<div class="footer"><p>📐 数学建模学习平台 &copy; 2026 Jacky</p></div>
+</div><!-- .main-wrap -->
+
+<button class="back2top" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="回到顶部">↑</button>
+<button class="chapter-nav-toggle" onclick="toggleChapterNav()" title="章节导航">📖 章节导航</button>
+<div class="chapter-nav-panel" id="chapterNav"></div>
+
+<script src="common.js?v=1"></script>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="rag-retriever.js?v=1"></script>
+<script src="ai-chat.js?v=7"></script>
+</body>
+</html>

@@ -36,7 +36,7 @@ MathJax = { tex: { inlineMath: [['$','$'],['\(','\)']], displayMath: [['$$','$$'
     <a href="排队论.html"><span class="tag">12</span>排队论</a>
     <div class="group-label">综合专题</div>
     <a href="AI与建模.html"><span class="tag">4</span>AI与数学建模</a>
-    <a href="方法大全.html" class="current"><span class="tag">★</span>方法大全(59种)</a>
+    <a href="方法大全.html" class="current"><span class="tag">★</span>方法大全(60+种)</a>
     <div class="group-label">真题实战</div>
     <a href="历年真题模拟分析.html"><span class="tag">📝</span>历年真题模拟分析</a>
     <a href="index.html" style="margin-top:6px;border-top:1px solid var(--sidebar-border);padding-top:8px"><span class="tag">⌂</span>返回首页</a>
@@ -59,8 +59,8 @@ MathJax = { tex: { inlineMath: [['$','$'],['\(','\)']], displayMath: [['$$','$$'
 
 <div class="section">
   <h2>📖 关于本章</h2>
-  <p>本章系统收录<strong>59种数学建模方法</strong>，涵盖综合评价、预测、优化规划、统计分析与机器学习、插值拟合、图论网络和竞赛方法论七大类。每种方法包含<strong>核心原理、数学公式、适用场景、优点和缺点</strong>。相近方法之间提供<strong>对比表格</strong>，帮助快速选择合适方法。</p>
-  <p>方法来源：知识库58种方法 + learning文件夹PPT/PDF讲义提取。右侧面板可快速导航至任意章节和具体方法。</p>
+  <p>本章系统收录<strong>60+种数学建模方法</strong>，涵盖综合评价、预测、优化规划、统计分析与机器学习、插值拟合、图论网络和竞赛方法论七大类。新增<strong>卡尔曼滤波</strong>等进阶方法。每种方法包含<strong>核心原理、数学公式、适用场景、优点和缺点</strong>。相近方法之间提供<strong>对比表格</strong>，帮助快速选择合适方法。</p>
+  <p>方法来源：知识库58种方法 + learning文件夹PPT/PDF讲义提取 + 新增6个章节（神经网络/常微分方程/偏微分方程/卡尔曼滤波/遗传算法/聚类分析）。右侧面板可快速导航至任意章节和具体方法。</p>
 </div>
 
 
@@ -267,13 +267,23 @@ MathJax = { tex: { inlineMath: [['$','$'],['\(','\)']], displayMath: [['$$','$$'
 </table>
 
 <h3 id="BP神经网络预测">BP神经网络预测</h3>
-<div class="def-box"><div class="def-title">核心原理</div><p>万能逼近定理→单隐藏层+Sigmoid→反向传播+链式法则→权重更新。ReLU/Dropout/EarlyStopping防过拟合。</p></div>
+<div class="def-box"><div class="def-title">核心原理</div><p>万能逼近定理→单隐藏层+Sigmoid→反向传播+链式法则→权重更新。ReLU/Dropout/EarlyStopping防过拟合。同时适用于分类(Softmax输出+交叉熵损失)和回归(线性输出+MSE损失)。</p></div>
 <div class="formula">$$h=\sigma(W_1 x+b_1),\ \hat{y}=W_2 h+b_2$$</div>
 <table><tr><th style="width:25%">适用场景</th><th style="width:37%">优点</th><th style="width:38%">缺点</th></tr>
-<tr><td>非线性复杂预测</td><td>非线性万能逼近</td><td>需大量数据</td></tr>
-<tr><td>多输入多输出</td><td>处理复杂多变量</td><td>可解释性极差(黑箱)</td></tr>
-<tr><td>模式识别</td><td>框架灵活</td><td>超参数多</td></tr>
-<tr><td></td><td></td><td>小样本过拟合</td></tr>
+<tr><td>非线性复杂预测/分类</td><td>非线性万能逼近</td><td>需大量数据</td></tr>
+<tr><td>多输入多输出(MIMO)</td><td>处理复杂多变量</td><td>可解释性极差(黑箱)</td></tr>
+<tr><td>模式识别/图像分类</td><td>框架灵活、可扩展深度网络</td><td>超参数多、调参依赖经验</td></tr>
+<tr><td>函数逼近</td><td>自学习、数据融合能力强</td><td>小样本易过拟合、局部极小</td></tr>
+</table>
+
+<h3 id="卡尔曼滤波KF">卡尔曼滤波(KF)</h3>
+<div class="def-box"><div class="def-title">核心原理</div><p>线性、无偏、最小方差的最优状态估计算法。通过状态方程(系统动力学)和量测方程(传感器数据)的加权融合，迭代地给出系统状态的最优估计。核心为预测-修正循环的五大公式。</p></div>
+<div class="formula">$$\hat{\mathbf{X}}_k = \mathbf{\Phi}\hat{\mathbf{X}}_{k-1} + \mathbf{K}_k(\mathbf{Z}_k - \mathbf{H}\mathbf{\Phi}\hat{\mathbf{X}}_{k-1})$$</div>
+<table><tr><th style="width:25%">适用场景</th><th style="width:37%">优点</th><th style="width:38%">缺点</th></tr>
+<tr><td>导航定位/目标跟踪</td><td>迭代计算效率高、只需上一时刻状态</td><td>要求线性系统+高斯噪声</td></tr>
+<tr><td>传感器数据融合</td><td>同时融合模型预测与实测数据</td><td>非线性需EKF(局部线性化近似)</td></tr>
+<tr><td>电池SOC/寿命估计</td><td>适用于非平稳过程</td><td>需精确的系统模型和噪声先验</td></tr>
+<tr><td>气象数据同化</td><td>最优性(在线性高斯条件下)</td><td>EKF在强非线性下发散</td></tr>
 </table>
 
 <h3 id="集成学习XGBoost_LightGBM_CatBoost_">集成学习(XGBoost/LightGBM/CatBoost/RF)</h3>

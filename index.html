@@ -31,53 +31,11 @@ MathJax = {
 
 /* ===== Chapter Grid (homepage module cards) ===== */
 .chapter-grid{display:grid;grid-template-columns:repeat(auto-fill, minmax(280px, 1fr));gap:18px;margin-top:6px}
-.chapter-grid .card{background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--radius);padding:22px 24px;transition:all .25s}
+.chapter-grid .card{background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--radius);padding:22px 24px;transition:all .25s;border-left:4px solid var(--card-accent, var(--accent))}
 .chapter-grid .card:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.08)}
-.chapter-grid .card h3{font-size:1.08em;margin-bottom:8px}
+.chapter-grid .card h3{font-size:1.08em;margin-bottom:8px;color:var(--card-accent, var(--accent))}
 .chapter-grid .card p{color:var(--ink-light);font-size:.95em;line-height:1.7;margin-bottom:10px}
-.chapter-grid .card .card-tag{display:inline-block;padding:2px 10px;border-radius:4px;font-size:.78em;font-weight:600}
-.chapter-grid .card:nth-child(1){border-left:4px solid var(--accent)}
-.chapter-grid .card:nth-child(1) h3{color:var(--accent)}
-.chapter-grid .card:nth-child(1) .card-tag{background:var(--tag-freq-bg);color:var(--accent)}
-.chapter-grid .card:nth-child(2){border-left:4px solid #16a085}
-.chapter-grid .card:nth-child(2) h3{color:#16a085}
-.chapter-grid .card:nth-child(2) .card-tag{background:#e8f8f0;color:#16a085}
-.chapter-grid .card:nth-child(3){border-left:4px solid #e67e22}
-.chapter-grid .card:nth-child(3) h3{color:#e67e22}
-.chapter-grid .card:nth-child(3) .card-tag{background:#fef5e8;color:#e67e22}
-.chapter-grid .card:nth-child(4){border-left:4px solid #8e44ad}
-.chapter-grid .card:nth-child(4) h3{color:#8e44ad}
-.chapter-grid .card:nth-child(4) .card-tag{background:#f5eef8;color:#8e44ad}
-.chapter-grid .card:nth-child(5){border-left:4px solid #0d9488}
-.chapter-grid .card:nth-child(5) h3{color:#0d9488}
-.chapter-grid .card:nth-child(5) .card-tag{background:#e8f8f5;color:#0d9488}
-.chapter-grid .card:nth-child(6){border-left:4px solid #0d7377}
-.chapter-grid .card:nth-child(6) h3{color:#0d7377}
-.chapter-grid .card:nth-child(6) .card-tag{background:#e0f5f5;color:#0d7377}
-.chapter-grid .card:nth-child(7){border-left:4px solid #8e44ad}
-.chapter-grid .card:nth-child(7) h3{color:#8e44ad}
-.chapter-grid .card:nth-child(7) .card-tag{background:#f5eef8;color:#8e44ad}
-.chapter-grid .card:nth-child(8){border-left:4px solid #0d9488}
-.chapter-grid .card:nth-child(8) h3{color:#0d9488}
-.chapter-grid .card:nth-child(8) .card-tag{background:#e8f8f5;color:#0d9488}
-.chapter-grid .card:nth-child(9){border-left:4px solid #e74c3c}
-.chapter-grid .card:nth-child(9) h3{color:#e74c3c}
-.chapter-grid .card:nth-child(9) .card-tag{background:#fde8e8;color:#e74c3c}
-.chapter-grid .card:nth-child(10){border-left:4px solid #2ecc71}
-.chapter-grid .card:nth-child(10) h3{color:#27ae60}
-.chapter-grid .card:nth-child(10) .card-tag{background:#e8f8f0;color:#27ae60}
-.chapter-grid .card:nth-child(11){border-left:4px solid #3498db}
-.chapter-grid .card:nth-child(11) h3{color:#2980b9}
-.chapter-grid .card:nth-child(11) .card-tag{background:#e8f0f8;color:#2980b9}
-.chapter-grid .card:nth-child(12){border-left:4px solid #9b59b6}
-.chapter-grid .card:nth-child(12) h3{color:#8e44ad}
-.chapter-grid .card:nth-child(12) .card-tag{background:#f5eef8;color:#8e44ad}
-.chapter-grid .card:nth-child(13){border-left:4px solid #e91e63}
-.chapter-grid .card:nth-child(13) h3{color:#c2185b}
-.chapter-grid .card:nth-child(13) .card-tag{background:#fce4ec;color:#c2185b}
-.chapter-grid .card:nth-child(14){border-left:4px solid #00bcd4}
-.chapter-grid .card:nth-child(14) h3{color:#0097a7}
-.chapter-grid .card:nth-child(14) .card-tag{background:#e0f7fa;color:#0097a7}
+.chapter-grid .card .card-tag{display:inline-block;padding:2px 10px;border-radius:4px;font-size:.78em;font-weight:600;background:var(--card-tag-bg, var(--tag-freq-bg));color:var(--card-tag-color, var(--tag-freq-color))}
 </style>
 </head>
 <body>
@@ -93,7 +51,8 @@ MathJax = {
     <a href="插值与拟合.html"><span class="tag">1</span>插值与拟合</a>
     <a href="蒙特卡洛.html"><span class="tag">2</span>蒙特卡洛方法</a>
     <a href="线性回归.html"><span class="tag">3</span>线性回归</a>
-            <a href="主成分与因子分析.html"><span class="tag">5</span>主成分与因子分析</a>
+    <a href="AI与建模.html"><span class="tag">4</span>AI与数学建模</a>
+    <a href="主成分与因子分析.html"><span class="tag">5</span>主成分与因子分析</a>
     <a href="时间序列.html"><span class="tag">6</span>时间序列分析</a>
     <a href="图与网络.html"><span class="tag">7</span>图与网络</a>
     <a href="数据处理.html"><span class="tag">8</span>数据处理</a>
@@ -101,8 +60,14 @@ MathJax = {
     <a href="灰色系统.html"><span class="tag">10</span>灰色系统</a>
     <a href="模拟退火.html"><span class="tag">11</span>模拟退火算法</a>
     <a href="排队论.html"><span class="tag">12</span>排队论</a>
+    <div class="group-label">进阶方法</div>
+    <a href="神经网络模型.html"><span class="tag">13</span>神经网络模型</a>
+    <a href="常微分方程.html"><span class="tag">14</span>常微分方程建模</a>
+    <a href="偏微分方程.html"><span class="tag">15</span>偏微分方程建模</a>
+    <a href="卡尔曼滤波.html"><span class="tag">16</span>卡尔曼滤波</a>
+    <a href="遗传算法.html"><span class="tag">17</span>遗传算法</a>
+    <a href="聚类分析.html"><span class="tag">18</span>聚类分析</a>
     <div class="group-label">综合专题</div>
-    <a href="AI与建模.html"><span class="tag">4</span>AI与数学建模</a>
     <a href="方法大全.html"><span class="tag">★</span>方法大全（59种）</a>
     <div class="group-label">真题实战</div>
     <a href="历年真题模拟分析.html"><span class="tag">📝</span>历年真题模拟分析</a>
@@ -127,28 +92,28 @@ MathJax = {
 <!-- Info Card -->
 <div class="info-card">
   <h2>📚 学习模块</h2>
-  <p>共 12 个模块，涵盖数学建模核心方法与竞赛策略。从最基础的 <strong>插值与拟合</strong> 方法开始，逐步深入到 <strong>蒙特卡洛随机模拟</strong>、<strong>线性回归统计建模</strong>、<strong>主成分与因子分析</strong>、<strong>时间序列分析</strong>、<strong>图与网络</strong>、<strong>数据处理</strong>、<strong>存储论</strong>、<strong>灰色系统</strong>、<strong>模拟退火算法</strong> 和 <strong>排队论</strong>，最后通过 <strong>AI 与数学建模</strong> 专题掌握竞赛实战技巧。</p>
+  <p>共 <strong>18 个模块</strong>，涵盖数学建模核心方法与竞赛策略。从最基础的 <strong>插值与拟合</strong> 开始，逐步深入到 <strong>蒙特卡洛随机模拟</strong>、<strong>线性回归</strong>、<strong>主成分与因子分析</strong>、<strong>时间序列分析</strong>、<strong>图与网络</strong>、<strong>数据处理</strong>、<strong>存储论</strong>、<strong>灰色系统</strong>、<strong>模拟退火</strong>、<strong>排队论</strong>，新增 <strong>神经网络</strong>、<strong>常微分方程建模</strong>、<strong>偏微分方程建模</strong>、<strong>卡尔曼滤波</strong>、<strong>遗传算法</strong>、<strong>聚类分析</strong>等进阶方法。</p>
 </div>
 
 <!-- Chapter Grid -->
 <div class="chapter-grid">
 
   <!-- Card 1: 插值与拟合 -->
-  <a href="插值与拟合.html" class="card">
+  <a href="插值与拟合.html" class="card" style="--card-accent:var(--accent);--card-tag-bg:var(--tag-freq-bg);--card-tag-color:var(--accent)">
     <h3>1. 插值与拟合</h3>
     <p>MATLAB绘图基础、一维/二维插值方法（Lagrange/Spline/PCHIP）、最小二乘拟合与非线性拟合</p>
     <span class="card-tag">核心方法</span>
   </a>
 
   <!-- Card 2: 蒙特卡洛方法 -->
-  <a href="蒙特卡洛.html" class="card">
+  <a href="蒙特卡洛.html" class="card" style="--card-accent:#16a085;--card-tag-bg:#e8f8f0;--card-tag-color:#16a085">
     <h3>2. 蒙特卡洛方法</h3>
     <p>随机模拟原理、MC积分与误差分析、经典应用案例（π估计/中子屏蔽）、竞赛实战</p>
     <span class="card-tag">随机模拟</span>
   </a>
 
   <!-- Card 3: 线性回归 -->
-  <a href="线性回归.html" class="card">
+  <a href="线性回归.html" class="card" style="--card-accent:#e67e22;--card-tag-bg:#fef5e8;--card-tag-color:#e67e22">
     <h3>3. 线性回归</h3>
     <p>一元/多元回归、Logistic回归、逐步回归、多重共线性诊断、灰色预测GM(1,1)</p>
     <span class="card-tag">统计分析</span>
@@ -157,71 +122,113 @@ MathJax = {
   <!-- Card 4: AI与数学建模 -->
 
   <!-- Card 5: 主成分与因子分析 -->
-  <a href="主成分与因子分析.html" class="card">
+  <a href="主成分与因子分析.html" class="card" style="--card-accent:#8e44ad;--card-tag-bg:#f5eef8;--card-tag-color:#8e44ad">
     <h3>5. 主成分与因子分析</h3>
     <p>PCA降维与综合评价、因子载荷与旋转、KMO检验、SPSS/MATLAB实现、竞赛应用策略</p>
     <span class="card-tag">降维分析</span>
   </a>
 
   <!-- Card 6: 时间序列 -->
-  <a href="时间序列.html" class="card">
+  <a href="时间序列.html" class="card" style="--card-accent:#0d9488;--card-tag-bg:#e8f8f5;--card-tag-color:#0d9488">
     <h3>6. 时间序列分析</h3>
     <p>平稳性检验与差分、移动平均/指数平滑/Holt模型、ARMA/ARIMA/SARIMA建模、ACF/PACF定阶、竞赛预测路线</p>
     <span class="card-tag">时序预测</span>
   </a>
 
   <!-- Card 7: 图与网络 -->
-  <a href="图与网络.html" class="card">
+  <a href="图与网络.html" class="card" style="--card-accent:#0d7377;--card-tag-bg:#e0f5f5;--card-tag-color:#0d7377">
     <h3>7. 图与网络</h3>
     <p>最短路(Dijkstra/Floyd)、最小生成树(Kruskal/Prim)、网络流与最大流、TSP/VRP/CPP、二分图匹配、关键路径CPM</p>
     <span class="card-tag">图论优化</span>
   </a>
 
   <!-- Card 8: 数据处理 -->
-  <a href="数据处理.html" class="card">
+  <a href="数据处理.html" class="card" style="--card-accent:#8e44ad;--card-tag-bg:#f5eef8;--card-tag-color:#8e44ad">
     <h3>8. 数据处理</h3>
     <p>缺失值填补（均值/随机/热卡/回归）、异常值探测、标准化与规范化、定性指标量化、数据平滑与分类基础</p>
     <span class="card-tag">数据预处理</span>
   </a>
 
   <!-- Card 9: 存储论 -->
-  <a href="存储论.html" class="card">
+  <a href="存储论.html" class="card" style="--card-accent:#0d9488;--card-tag-bg:#e8f8f5;--card-tag-color:#0d9488">
     <h3>9. 存储论</h3>
     <p>EOQ经济订购批量模型、经济生产批量、折扣模型、报童问题（单周期随机库存）、最优补货策略</p>
     <span class="card-tag">运筹优化</span>
   </a>
 
   <!-- Card 10: 灰色系统 -->
-  <a href="灰色系统.html" class="card">
+  <a href="灰色系统.html" class="card" style="--card-accent:#e74c3c;--card-tag-bg:#fde8e8;--card-tag-color:#e74c3c">
     <h3>10. 灰色系统</h3>
     <p>灰色关联分析(GRA)、GM(1,1)预测模型、Verhulst模型、GM(1,N)多变量模型、灾变预测、小样本建模利器</p>
     <span class="card-tag">灰色理论</span>
   </a>
 
   <!-- Card 11: 模拟退火算法 -->
-  <a href="模拟退火.html" class="card">
+  <a href="模拟退火.html" class="card" style="--card-accent:#2ecc71;--card-tag-bg:#e8f8f0;--card-tag-color:#27ae60">
     <h3>11. 模拟退火算法</h3>
     <p>Metropolis接受准则、冷却调度策略、TSP旅行商问题求解、全局优化跳出局部最优的经典启发式算法</p>
     <span class="card-tag">智能优化</span>
   </a>
 
   <!-- Card 12: 排队论 -->
-  <a href="排队论.html" class="card">
+  <a href="排队论.html" class="card" style="--card-accent:#3498db;--card-tag-bg:#e8f0f8;--card-tag-color:#2980b9">
     <h3>12. 排队论</h3>
     <p>Kendall记号X/Y/Z、M/M/1与M/M/c模型、生灭过程、Little公式、Pollaczek-Khintchine公式、服务系统优化</p>
     <span class="card-tag">随机服务</span>
   </a>
 
-  <a href="AI与建模.html" class="card">
+  <a href="AI与建模.html" class="card" style="--card-accent:#9b59b6;--card-tag-bg:#f5eef8;--card-tag-color:#8e44ad">
     <h3>4. AI与数学建模</h3>
     <p>竞赛AI规则解读、四阶段提示工程框架、团队分工与备赛策略、论文写作技巧</p>
     <span class="card-tag">竞赛策略</span>
   </a>
 
-  <a href="方法大全.html" class="card">
+  <a href="方法大全.html" class="card" style="--card-accent:#e91e63;--card-tag-bg:#fce4ec;--card-tag-color:#c2185b">
     <h3>★ 方法大全（59种）</h3>
     <p>综合评价、预测、优化规划、统计ML、插值拟合、图论网络、竞赛方法论——七大类59种方法速查</p>
     <span class="card-tag">速查手册</span>
+  </a>
+
+  <!-- Card 13: 神经网络模型 -->
+  <a href="神经网络模型.html" class="card" style="--card-accent:#e74c3c;--card-tag-bg:#fde8e8;--card-tag-color:#e74c3c">
+    <h3>13. 神经网络模型</h3>
+    <p>BP神经网络原理、正向/反向传播、激活函数、网络结构设计、手写数字识别（MNIST）实战案例</p>
+    <span class="card-tag">深度学习</span>
+  </a>
+
+  <!-- Card 14: 常微分方程建模 -->
+  <a href="常微分方程.html" class="card" style="--card-accent:#e67e22;--card-tag-bg:#fef5e8;--card-tag-color:#e67e22">
+    <h3>14. 常微分方程建模</h3>
+    <p>Malthus人口模型、Logistic阻滞增长、Lotka-Volterra捕食模型、药物处方、三级火箭推导</p>
+    <span class="card-tag">动态系统</span>
+  </a>
+
+  <!-- Card 15: 偏微分方程建模 -->
+  <a href="偏微分方程.html" class="card" style="--card-accent:#16a085;--card-tag-bg:#e8f8f0;--card-tag-color:#16a085">
+    <h3>15. 偏微分方程建模</h3>
+    <p>热传导方程、扩散方程、有限差分法、分离变量法、防热服/回焊炉等竞赛A题案例</p>
+    <span class="card-tag">物理建模</span>
+  </a>
+
+  <!-- Card 16: 卡尔曼滤波 -->
+  <a href="卡尔曼滤波.html" class="card" style="--card-accent:#0d9488;--card-tag-bg:#e8f8f5;--card-tag-color:#0d9488">
+    <h3>16. 卡尔曼滤波</h3>
+    <p>最优状态估计、预测-修正循环、五大核心公式、扩展卡尔曼滤波EKF、导航与电池SOC估计</p>
+    <span class="card-tag">信号处理</span>
+  </a>
+
+  <!-- Card 17: 遗传算法 -->
+  <a href="遗传算法.html" class="card" style="--card-accent:#8e44ad;--card-tag-bg:#f5eef8;--card-tag-color:#8e44ad">
+    <h3>17. 遗传算法</h3>
+    <p>选择/交叉/变异操作、收敛性分析、自适应遗传算法、MATLAB ga工具箱、组合优化求解</p>
+    <span class="card-tag">进化计算</span>
+  </a>
+
+  <!-- Card 18: 聚类分析 -->
+  <a href="聚类分析.html" class="card" style="--card-accent:#0d7377;--card-tag-bg:#e0f5f5;--card-tag-color:#0d7377">
+    <h3>18. 聚类分析</h3>
+    <p>K-Means/层次聚类/DBSCAN、轮廓系数、肘部法则、距离度量、无监督学习的核心方法</p>
+    <span class="card-tag">无监督学习</span>
   </a>
 
 </div>
@@ -236,27 +243,7 @@ MathJax = {
 
 <!-- Chapter Nav Toggle + Panel -->
 <button class="chapter-nav-toggle" onclick="toggleChapterNav()" title="章节导航">📖 章节导航</button>
-<div class="chapter-nav-panel" id="chapterNav">
-  <div class="nav-header">📐 目录导航</div>
-  <div class="nav-section">核心方法</div>
-  <a href="插值与拟合.html"><span class="num">1</span>插值与拟合</a>
-  <a href="蒙特卡洛.html"><span class="num">2</span>蒙特卡洛方法</a>
-  <a href="线性回归.html"><span class="num">3</span>线性回归</a>
-          <a href="主成分与因子分析.html"><span class="num">5</span>主成分与因子分析</a>
-          <a href="时间序列.html"><span class="num">6</span>时间序列分析</a>
-          <a href="图与网络.html"><span class="num">7</span>图与网络</a>
-  <a href="数据处理.html"><span class="num">8</span>数据处理</a>
-  <a href="存储论.html"><span class="num">9</span>存储论</a>
-  <a href="灰色系统.html"><span class="num">10</span>灰色系统</a>
-  <a href="模拟退火.html"><span class="num">11</span>模拟退火算法</a>
-  <a href="排队论.html"><span class="num">12</span>排队论</a>
-  <div class="nav-section">综合专题</div>
-  <a href="AI与建模.html"><span class="num">4</span>AI与数学建模</a>
-  <a href="方法大全.html"><span class="num">★</span>方法大全（59种）</a>
-  <div class="nav-section">真题实战</div>
-  <a href="历年真题模拟分析.html"><span class="num">📝</span>历年真题模拟分析</a>
-  <a href="index.html" style="border-top:1px solid var(--sidebar-border);margin-top:6px;padding-top:10px"><span class="num">⌂</span>返回首页</a>
-</div>
+<div class="chapter-nav-panel" id="chapterNav"></div>
 
 <!-- ===== JavaScript ===== -->
 <script src="common.js?v=1"></script>

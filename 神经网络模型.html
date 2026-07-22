@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>神经网络模型 — 数学建模学习平台</title>
+<script>
+MathJax = { tex: { inlineMath: [['$','$'],['\\(','\\)']], displayMath: [['$$','$$'],['\\[','\\]']], processEscapes: true } };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" async></script>
+<link rel="stylesheet" href="common.css">
+</head>
+<body>
+
+<nav class="sidebar">
+  <div class="sidebar-header">
+    <div class="site-name">📐 数学建模</div>
+    <div class="site-sub">学习平台</div>
+  </div>
+  <div class="sidebar-nav">
+    <div class="group-label">核心方法</div>
+    <a href="插值与拟合.html"><span class="tag">1</span>插值与拟合</a>
+    <a href="蒙特卡洛.html"><span class="tag">2</span>蒙特卡洛方法</a>
+    <a href="线性回归.html"><span class="tag">3</span>线性回归</a>
+    <a href="AI与建模.html"><span class="tag">4</span>AI与数学建模</a>
+    <a href="主成分与因子分析.html"><span class="tag">5</span>主成分与因子分析</a>
+    <a href="时间序列.html"><span class="tag">6</span>时间序列分析</a>
+    <a href="图与网络.html"><span class="tag">7</span>图与网络</a>
+    <a href="数据处理.html"><span class="tag">8</span>数据处理</a>
+    <a href="存储论.html"><span class="tag">9</span>存储论</a>
+    <a href="灰色系统.html"><span class="tag">10</span>灰色系统</a>
+    <a href="模拟退火.html"><span class="tag">11</span>模拟退火算法</a>
+    <a href="排队论.html"><span class="tag">12</span>排队论</a>
+    <div class="group-label">进阶方法</div>
+    <a href="神经网络模型.html" class="current"><span class="tag">13</span>神经网络模型</a>
+    <a href="常微分方程.html"><span class="tag">14</span>常微分方程建模</a>
+    <a href="偏微分方程.html"><span class="tag">15</span>偏微分方程建模</a>
+    <a href="卡尔曼滤波.html"><span class="tag">16</span>卡尔曼滤波</a>
+    <a href="遗传算法.html"><span class="tag">17</span>遗传算法</a>
+    <a href="聚类分析.html"><span class="tag">18</span>聚类分析</a>
+    <div class="group-label">综合专题</div>
+    <a href="方法大全.html"><span class="tag">★</span>方法大全（59种）</a>
+    <div class="group-label">真题实战</div>
+    <a href="历年真题模拟分析.html"><span class="tag">📝</span>历年真题模拟分析</a>
+    <a href="index.html" style="margin-top:6px;border-top:1px solid var(--sidebar-border);padding-top:8px"><span class="tag">⌂</span>返回首页</a>
+  </div>
+</nav>
+
+<button class="theme-toggle no-print" onclick="toggleTheme()" title="切换暗黑模式">🌙</button>
+
+<div class="main-wrap">
+<div class="topbar">
+  <div class="topbar-inner">
+    <a href="排队论.html">← 排队论</a>
+    <h2>13. 神经网络模型（BP神经网络）</h2>
+    <a href="常微分方程.html">常微分方程 →</a>
+  </div>
+</div>
+
+<div class="container">
+
+<!-- 概述 -->
+<div class="section">
+<h2>一、神经网络概述</h2>
+
+<div class="def-box"><div class="def-title">人工神经网络（Artificial Neural Network, ANN）</div><p>人工神经网络是模拟生物神经系统结构与功能的数学模型。它由大量简单的处理单元（<strong>神经元</strong>）广泛互联而成，具有<strong>非线性映射、并行分布式处理、自适应学习和数据融合</strong>等能力。BP（Back Propagation）神经网络是应用最广泛的前馈神经网络之一。</p></div>
+
+<h3>1.1 核心思想</h3>
+<p>神经网络通过<strong>正向传播</strong>计算输出，通过<strong>反向传播</strong>调整权重。给定训练数据（输入→期望输出），网络反复迭代、减小误差，最终学习到输入与输出之间的非线性映射关系。</p>
+
+<h3>1.2 应用场景</h3>
+<table>
+  <tr><th>场景</th><th>说明</th><th>竞赛案例</th></tr>
+  <tr><td>分类识别</td><td>手写数字识别、图像分类、故障诊断</td><td>MNIST手写数字分类</td></tr>
+  <tr><td>函数逼近</td><td>对复杂非线性函数进行拟合</td><td>非线性系统建模</td></tr>
+  <tr><td>预测回归</td><td>时间序列预测、销量预测</td><td>商品销量预测、股票预测</td></tr>
+  <tr><td>模式识别</td><td>语音识别、人脸识别</td><td>竞赛中的分类问题</td></tr>
+  <tr><td>控制系统</td><td>自适应控制、系统辨识</td><td>PID参数自整定</td></tr>
+</table>
+
+<div class="highlight"><strong>竞赛提示</strong>：BP神经网络在数学建模竞赛中常用于处理<strong>非线性分类/回归问题</strong>，尤其是当传统线性模型表现不佳时。注意：神经网络需要足够的训练样本，小样本问题慎用。</div>
+</div>
+
+<!-- 原理 -->
+<div class="section">
+<h2>二、BP神经网络原理</h2>
+
+<h3>2.1 神经元模型</h3>
+<p>单个人工神经元接收多个输入信号，通过加权求和和激活函数产生输出：</p>
+
+<div class="formula">$$y = f\left(\sum_{i=1}^{n} x_i \cdot w_i + b\right) = f(\mathbf{W} \cdot \mathbf{X} + b)$$</div>
+
+<table>
+  <tr><th>符号</th><th>含义</th></tr>
+  <tr><td>$x_1, x_2, \ldots, x_n$</td><td>输入信号（n维）</td></tr>
+  <tr><td>$w_1, w_2, \ldots, w_n$</td><td>权重（Weight），表示连接强度</td></tr>
+  <tr><td>$b$</td><td>偏置（Bias），调节神经元兴奋阈值</td></tr>
+  <tr><td>$f(\cdot)$</td><td>激活函数（Activation Function），引入非线性</td></tr>
+  <tr><td>$y$</td><td>神经元输出</td></tr>
+</table>
+
+<div class="highlight"><strong>关键要求</strong>：BP网络的激活函数 $f(\cdot)$ 必须是<strong>可微的</strong>（因为反向传播需要求梯度），因此不能使用阶跃等二值函数。常用S型函数（Sigmoid/Tanh）或ReLU。</div>
+
+<h3>2.2 多层前馈网络结构</h3>
+<p>典型的三层BP网络结构：</p>
+
+<div class="highlight">
+<strong>输入层 → 隐藏层 → 输出层</strong><br>
+• <strong>输入层</strong>：接收外部数据，节点数 = 特征维度<br>
+• <strong>隐藏层</strong>：提取特征、非线性变换，可多层<br>
+• <strong>输出层</strong>：产生最终结果，节点数 = 输出维度
+</div>
+
+<p>信息单向流动（前馈）：输入→隐藏→输出。没有反馈回路。</p>
+
+<h3>2.3 正向传播</h3>
+<p>设输入层有 $n$ 个节点，隐藏层有 $q$ 个节点，输出层有 $m$ 个节点：</p>
+<ul>
+  <li>输入层→隐藏层权值：$v_{ki}$（$k=1,\ldots,q$; $i=1,\ldots,n$）</li>
+  <li>隐藏层→输出层权值：$w_{jk}$（$j=1,\ldots,m$; $k=1,\ldots,q$）</li>
+  <li>隐藏层激活函数：$f_1(\cdot)$，输出层激活函数：$f_2(\cdot)$</li>
+</ul>
+
+<div class="formula">$$\text{隐藏层输出: } z_k = f_1\left(\sum_{i=1}^{n} v_{ki} x_i\right)$$</div>
+<div class="formula">$$\text{输出层输出: } y_j = f_2\left(\sum_{k=1}^{q} w_{jk} z_k\right)$$</div>
+
+<h3>2.4 反向传播（BP算法核心）</h3>
+<p>BP算法的实质是最小化误差函数——采用<strong>最速下降法</strong>，按误差函数的负梯度方向逐层修正权值。</p>
+
+<div class="def-box"><div class="def-title">误差函数（损失函数）</div><p>对第 $p$ 个训练样本，定义误差为期望输出 $d_j^{(p)}$ 与实际输出 $y_j^{(p)}$ 之差的平方和：</p></div>
+
+<div class="formula">$$E_p = \frac{1}{2}\sum_{j=1}^{m}\left(d_j^{(p)} - y_j^{(p)}\right)^2$$</div>
+<div class="formula">$$E = \sum_{p=1}^{P} E_p = \frac{1}{2}\sum_{p=1}^{P}\sum_{j=1}^{m}\left(d_j^{(p)} - y_j^{(p)}\right)^2$$</div>
+
+<p>按梯度下降方向调整权值（$\eta$ 为学习率）：</p>
+<div class="formula">$$\Delta w_{jk} = -\eta \frac{\partial E}{\partial w_{jk}}, \quad \Delta v_{ki} = -\eta \frac{\partial E}{\partial v_{ki}}$$</div>
+
+<h3>2.5 学习算法流程</h3>
+<div class="highlight">
+<strong>BP网络训练步骤：</strong><br>
+<strong>Step 1</strong>：取一个训练样本，输入网络<br>
+<strong>Step 2</strong>：正向计算各层节点输出<br>
+<strong>Step 3</strong>：计算实际输出与期望输出的误差<br>
+<strong>Step 4</strong>：从输出层反向计算到第一个隐藏层，按梯度方向调整各层权值<br>
+<strong>Step 5</strong>：对每个训练样本重复 Step 1-4，直至全局误差达标
+</div>
+</div>
+
+<!-- 建模步骤 -->
+<div class="section">
+<h2>三、BP网络建模步骤</h2>
+
+<h3>3.1 数据准备</h3>
+<table>
+  <tr><th>步骤</th><th>方法</th><th>注意事项</th></tr>
+  <tr><td>数据收集</td><td>获取足够样本数据</td><td>训练样本数 ≥ 网络连接权数的 2~10 倍</td></tr>
+  <tr><td>数据清洗</td><td>处理缺失值、异常值</td><td>保证数据质量</td></tr>
+  <tr><td>归一化</td><td>标准化（Z-score）或极差变换（Min-Max）</td><td>输入值一般在 0~1 之间（0.2~0.8 最佳），避开 Sigmoid 饱和区</td></tr>
+  <tr><td>数据划分</td><td>训练集/验证集/测试集</td><td>常用比例 6:2:2 或 7:2:1</td></tr>
+</table>
+
+<div class="highlight"><strong>重要</strong>：训练集用于调整权值，验证集用于调超参数和早停，测试集仅用于最终评估泛化能力。预处理后的数据在得到网络输出后需要<strong>反变换</strong>才能得到实际值。</div>
+
+<h3>3.2 网络结构设计</h3>
+<table>
+  <tr><th>设计项</th><th>原则</th></tr>
+  <tr><td>输入层节点数</td><td>= 特征变量的维数（必须小于 N-1，N 为训练样本数）</td></tr>
+  <tr><td>输出层节点数</td><td>= 目标变量的维数</td></tr>
+  <tr><td>隐藏层数</td><td>一般 1~2 层即可，先尝试单隐藏层</td></tr>
+  <tr><td>隐藏层节点数</td><td>必须 < N-1；在满足精度的前提下取尽可能少的节点数（紧凑结构）</td></tr>
+  <tr><td>激活函数</td><td>隐藏层常用 Sigmoid/Tanh/ReLU；输出层回归用线性、分类用 Softmax</td></tr>
+</table>
+
+<div class="def-box"><div class="def-title">确定隐含层节点数的两种方法</div>
+<p><strong>方法一（试凑法）</strong>：$q = \sqrt{n+m} + \alpha$，其中 $\alpha$ 为 1~10 的常数，通过多次训练选择最优值。</p>
+<p><strong>方法二（经验公式）</strong>：$q = \log_2 n$ 或 $q = 2n+1$（Kolmogorov定理），$n$ 为输入节点数。</p>
+</div>
+
+<h3>3.3 参数初始化与训练</h3>
+<table>
+  <tr><th>参数</th><th>推荐设置</th><th>说明</th></tr>
+  <tr><td>初始权值</td><td>[-0.5, 0.5] 内的随机小值</td><td>Xavier/Glorot 初始化可避免梯度消失/爆炸</td></tr>
+  <tr><td>学习率 $\eta$</td><td>0.01 ~ 0.8</td><td>太小收敛慢，太大容易震荡</td></tr>
+  <tr><td>动量系数</td><td>0 ~ 1（通常比学习率大）</td><td>带动量的梯度下降可加速收敛、平滑震荡</td></tr>
+  <tr><td>训练终止条件</td><td>误差 < 期望值 或 达到最大迭代次数</td><td>结合早停（Early Stopping）防止过拟合</td></tr>
+</table>
+
+<div class="highlight"><strong>过拟合防范</strong>：仅给出训练误差而不给出测试误差是没有意义的。训练好的网络对<strong>非训练样本</strong>的泛化能力才是核心。防止过拟合的方法：① 早停（验证集误差不再下降时停止）；② 正则化（L1/L2）；③ Dropout。</div>
+</div>
+
+<!-- 案例 -->
+<div class="section">
+<h2>四、手写数字识别案例（MNIST）</h2>
+
+<h3>4.1 数据预处理</h3>
+<p>MNIST 数据集包含 60,000 张训练图片 + 10,000 张测试图片，每张为 28×28 像素的灰度图。</p>
+
+<div class="def-box"><div class="def-title">预处理流程</div>
+<p><strong>图像拉平</strong>：将 28×28 的二维图像展平为 784 维的一维向量 → (样本数, 784)</p>
+<p><strong>归一化</strong>：$X = X / 255.0$，将像素值从 [0, 255] 映射到 [0, 1]</p>
+<p><strong>标签编码</strong>：将 0~9 的整数标签转为 One-Hot 向量<br>例如：3 → [0,0,0,1,0,0,0,0,0,0]；7 → [0,0,0,0,0,0,0,1,0,0]</p>
+</div>
+
+<h3>4.2 模型结构</h3>
+<table>
+  <tr><th>层</th><th>节点数</th><th>激活函数</th></tr>
+  <tr><td>输入层</td><td>784（28×28）</td><td>—</td></tr>
+  <tr><td>隐藏层</td><td>128</td><td>Sigmoid</td></tr>
+  <tr><td>输出层</td><td>10（0~9类）</td><td>Softmax</td></tr>
+</table>
+
+<h3>4.3 训练配置</h3>
+<table>
+  <tr><th>配置项</th><th>选择</th></tr>
+  <tr><td>损失函数</td><td>交叉熵损失（CrossEntropyLoss），适合多分类</td></tr>
+  <tr><td>优化器</td><td>SGD（带动量）或 Adam，学习率 0.001~0.01</td></tr>
+  <tr><td>批量大小</td><td>64 或 128（平衡内存与收敛速度）</td></tr>
+  <tr><td>迭代次数</td><td>10~50 个 Epoch（监控验证准确率）</td></tr>
+  <tr><td>正则化</td><td>可选 Dropout（如 0.2）防止过拟合</td></tr>
+</table>
+
+<h3>4.4 模型评估</h3>
+<ul>
+  <li><strong>测试集准确率</strong>：分类正确的样本数 / 总样本数</li>
+  <li><strong>混淆矩阵</strong>：各数字类别之间的误分类情况</li>
+  <li><strong>训练/测试准确率曲线</strong>：观察收敛情况和过拟合迹象</li>
+</ul>
+</div>
+
+<!-- 优点与局限 -->
+<div class="section">
+<h2>五、BP神经网络的优缺点</h2>
+
+<h3>5.1 优点</h3>
+<table>
+  <tr><th>优点</th><th>说明</th></tr>
+  <tr><td>非线性映射能力强</td><td>通过隐含层和激活函数实现高度非线性变换，可逼近任意连续函数（万能逼近定理）</td></tr>
+  <tr><td>并行分布式处理</td><td>多层结构可并行执行，适合大规模数据训练</td></tr>
+  <tr><td>自学习和自适应</td><td>基于梯度下降自动优化权重，无需人工干预，能动态适应数据分布变化</td></tr>
+  <tr><td>数据融合能力</td><td>可整合多源异构数据（数值、图像、文本），通过隐含层实现跨模态信息融合</td></tr>
+  <tr><td>多变量系统建模</td><td>支持高维输入/输出（MIMO），广泛应用于多变量系统控制与预测</td></tr>
+</table>
+
+<h3>5.2 局限性</h3>
+<table>
+  <tr><th>局限性</th><th>说明</th></tr>
+  <tr><td>局部极小问题</td><td>梯度下降法容易陷入局部极小点，找不到全局最优（可用多次初始化或改进算法缓解）</td></tr>
+  <tr><td>过拟合风险</td><td>样本少、网络复杂时容易过拟合，泛化能力差（需早停/正则化/增加样本）</td></tr>
+  <tr><td>黑箱性质</td><td>学习到的权重缺乏可解释性，难以理解内部决策机制</td></tr>
+  <tr><td>样本需求大</td><td>需要足够多的训练样本（≥ 连接权数的 2~10 倍）</td></tr>
+  <tr><td>参数敏感</td><td>初始权值、学习率、网络结构等对结果影响大，调参依赖经验</td></tr>
+</table>
+</div>
+
+<!-- 竞赛建议 -->
+<div class="section">
+<h2>六、竞赛应用建议</h2>
+
+<div class="highlight">
+<strong>竞赛中使用BP神经网络的最佳实践：</strong><br>
+<strong>1. 前置检查</strong>：确认样本量是否充足（训练样本 ≥ 2~10 × 网络参数个数）<br>
+<strong>2. 数据预处理</strong>：务必归一化到 [0,1] 区间（最好 [0.2,0.8]），分类标签做 One-Hot 编码<br>
+<strong>3. 网络设计</strong>：从单隐藏层开始，逐步增加复杂度；隐藏层节点数参考 $\sqrt{n+m} + \alpha$<br>
+<strong>4. 训练策略</strong>：推荐 Adam 优化器 + 早停策略；做多次随机初始化取最优<br>
+<strong>5. 结果评估</strong>：必须报告<strong>测试集</strong>表现（准确率/MSE），不要只报训练集误差<br>
+<strong>6. 对比基线</strong>：与传统方法（线性回归/逻辑回归）对比，证明神经网络的必要性
+</div>
+</div>
+
+</div><!-- .container -->
+
+<div class="nav-links">
+  <a href="排队论.html">← 第12章：排队论</a>
+  <a href="常微分方程.html">第14章：常微分方程建模 →</a>
+</div>
+
+<div class="footer"><p>📐 数学建模学习平台 &copy; 2026 Jacky</p></div>
+</div><!-- .main-wrap -->
+
+<button class="back2top" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="回到顶部">↑</button>
+<button class="chapter-nav-toggle" onclick="toggleChapterNav()" title="章节导航">📖 章节导航</button>
+<div class="chapter-nav-panel" id="chapterNav"></div>
+
+<script src="common.js?v=1"></script>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="rag-retriever.js?v=1"></script>
+<script src="ai-chat.js?v=7"></script>
+</body>
+</html>

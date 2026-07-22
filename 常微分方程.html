@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>常微分方程建模 — 数学建模学习平台</title>
+<script>
+MathJax = { tex: { inlineMath: [['$','$'],['\\(','\\)']], displayMath: [['$$','$$'],['\\[','\\]']], processEscapes: true } };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" async></script>
+<link rel="stylesheet" href="common.css">
+</head>
+<body>
+
+<nav class="sidebar">
+  <div class="sidebar-header">
+    <div class="site-name">📐 数学建模</div>
+    <div class="site-sub">学习平台</div>
+  </div>
+  <div class="sidebar-nav">
+    <div class="group-label">核心方法</div>
+    <a href="插值与拟合.html"><span class="tag">1</span>插值与拟合</a>
+    <a href="蒙特卡洛.html"><span class="tag">2</span>蒙特卡洛方法</a>
+    <a href="线性回归.html"><span class="tag">3</span>线性回归</a>
+    <a href="AI与建模.html"><span class="tag">4</span>AI与数学建模</a>
+    <a href="主成分与因子分析.html"><span class="tag">5</span>主成分与因子分析</a>
+    <a href="时间序列.html"><span class="tag">6</span>时间序列分析</a>
+    <a href="图与网络.html"><span class="tag">7</span>图与网络</a>
+    <a href="数据处理.html"><span class="tag">8</span>数据处理</a>
+    <a href="存储论.html"><span class="tag">9</span>存储论</a>
+    <a href="灰色系统.html"><span class="tag">10</span>灰色系统</a>
+    <a href="模拟退火.html"><span class="tag">11</span>模拟退火算法</a>
+    <a href="排队论.html"><span class="tag">12</span>排队论</a>
+    <div class="group-label">进阶方法</div>
+    <a href="神经网络模型.html"><span class="tag">13</span>神经网络模型</a>
+    <a href="常微分方程.html" class="current"><span class="tag">14</span>常微分方程建模</a>
+    <a href="偏微分方程.html"><span class="tag">15</span>偏微分方程建模</a>
+    <a href="卡尔曼滤波.html"><span class="tag">16</span>卡尔曼滤波</a>
+    <a href="遗传算法.html"><span class="tag">17</span>遗传算法</a>
+    <a href="聚类分析.html"><span class="tag">18</span>聚类分析</a>
+    <div class="group-label">综合专题</div>
+    <a href="方法大全.html"><span class="tag">★</span>方法大全（59种）</a>
+    <div class="group-label">真题实战</div>
+    <a href="历年真题模拟分析.html"><span class="tag">📝</span>历年真题模拟分析</a>
+    <a href="index.html" style="margin-top:6px;border-top:1px solid var(--sidebar-border);padding-top:8px"><span class="tag">⌂</span>返回首页</a>
+  </div>
+</nav>
+
+<button class="theme-toggle no-print" onclick="toggleTheme()" title="切换暗黑模式">🌙</button>
+
+<div class="main-wrap">
+<div class="topbar">
+  <div class="topbar-inner">
+    <a href="神经网络模型.html">← 神经网络模型</a>
+    <h2>14. 常微分方程建模</h2>
+    <a href="偏微分方程.html">偏微分方程 →</a>
+  </div>
+</div>
+
+<div class="container">
+
+<!-- 概述 -->
+<div class="section">
+<h2>一、常微分方程建模概述</h2>
+
+<div class="def-box"><div class="def-title">常微分方程（Ordinary Differential Equation, ODE）</div><p>常微分方程是描述<strong>未知函数的导数与自变量之间关系</strong>的方程。在微分方程中，未知函数的导数是关键——导数在连续问题中表示<strong>瞬时变化率</strong>，在离散问题中用来<strong>逼近平均变化率</strong>。用导数逼近平均变化率的好处在于能利用微积分揭示变量间的函数关系。</p></div>
+
+<h3>1.1 导数在建模中的双重作用</h3>
+<table>
+  <tr><th>作用</th><th>场景</th><th>典型例子</th></tr>
+  <tr><td>瞬时变化率</td><td>连续问题</td><td>速度 = 位移的导数、温度变化率、种群增长率</td></tr>
+  <tr><td>逼近平均变化率</td><td>离散问题</td><td>用差分逼近导数、药物浓度衰减近似</td></tr>
+</table>
+
+<h3>1.2 建模一般步骤</h3>
+<div class="highlight">
+<strong>微分方程建模五步法：</strong><br>
+<strong>Step 1</strong>：认识和理解问题——明确研究对象和关键变量<br>
+<strong>Step 2</strong>：提出合理假设——抓主要因素，忽略次要因素<br>
+<strong>Step 3</strong>：建立模型并求解——解析求解 / 数值求解 / 定性分析<br>
+<strong>Step 4</strong>：检验模型——与实际数据对比验证<br>
+<strong>Step 5</strong>：模型改进——评价不足，迭代优化（Step 4-5 可能重复多次）
+</div>
+
+<h3>1.3 三类求解方法</h3>
+<table>
+  <tr><th>方法</th><th>适用情况</th><th>常用技巧</th></tr>
+  <tr><td>解析求解</td><td>简单方程（一阶、线性）</td><td>分离变量法、常数变易法、积分因子法、恰当微分方程</td></tr>
+  <tr><td>数值求解</td><td>复杂/非线性方程</td><td>Euler法、Runge-Kutta法（ode45）、ode15s（刚性方程）</td></tr>
+  <tr><td>定性分析</td><td>平衡解稳定性</td><td>相平面分析、轨线作图、平衡点分类（结点/鞍点/焦点）</td></tr>
+</table>
+</div>
+
+<!-- 人口模型 -->
+<div class="section">
+<h2>二、经典案例：人口增长模型</h2>
+
+<h3>2.1 Malthus 指数增长模型</h3>
+<div class="def-box"><div class="def-title">基本假设</div><p>人口增长率与当前人口数成正比（$\lambda$ 为增长率常数）。适用于资源充足、无外部限制时的短期预测。</p></div>
+
+<div class="formula">$$\frac{dN(t)}{dt} = \lambda N(t), \quad N(0) = N_0$$</div>
+<div class="formula">$$N(t) = N_0 e^{\lambda t}$$</div>
+
+<div class="highlight"><strong>局限性</strong>：当 $t \to \infty$ 时 $N(t) \to \infty$，不符合实际（资源有限）。仅在短期内（如工业革命初期的欧洲人口）拟合较好。</div>
+
+<h3>2.2 Logistic 阻滞增长模型</h3>
+<div class="def-box"><div class="def-title">改进假设</div><p>增长率随人口增加而递减：$\lambda(N) = r\left(1 - \frac{N}{K}\right)$，其中 $K$ 为<strong>环境容纳量</strong>（最大可承载人口），$r$ 为内禀增长率。</p></div>
+
+<div class="formula">$$\frac{dN}{dt} = rN\left(1 - \frac{N}{K}\right), \quad N(0) = N_0$$</div>
+<div class="formula">$$N(t) = \frac{K}{1 + \left(\frac{K}{N_0} - 1\right)e^{-rt}}$$</div>
+
+<p>Logistic曲线呈<strong>S型</strong>：初期近似指数增长，中期增速最快（拐点在 $N = K/2$），后期趋于饱和值 $K$。该模型广泛用于人口预测、生物种群动态、技术扩散（Bass模型）和市场渗透率分析。</p>
+
+<h3>2.3 模型推广</h3>
+<ul>
+  <li><strong>时滞模型</strong>：$\frac{dN}{dt} = rN(t)\left(1 - \frac{N(t-\tau)}{K}\right)$，考虑妊娠期等延迟效应</li>
+  <li><strong>Allee效应</strong>：种群密度过低时增长率反而下降（配偶难寻）</li>
+  <li><strong>分段模型</strong>：不同发展阶段采用不同增长率参数</li>
+</ul>
+</div>
+
+<!-- 更多案例 -->
+<div class="section">
+<h2>三、经典案例：药物处方问题</h2>
+
+<h3>3.1 问题背景</h3>
+<p>在药理学中，药物浓度低于 $L$（最低有效量）则无效，高于 $H$（最高安全量）则有危险。核心问题：<strong>如何确定用药剂量 $C_0$ 和用药间隔时间 $T$</strong>，使血液中的药物浓度始终维持在 $[L, H]$ 之间？</p>
+
+<h3>3.2 排出率子模型</h3>
+<p>临床实验表明，血液中药物浓度 $C(t)$ 的减少速率与当前浓度成正比（一级动力学）：</p>
+
+<div class="formula">$$C'(t) = -k C(t), \quad C(0) = C_0$$</div>
+<div class="formula">$$C(t) = C_0 e^{-kt}$$</div>
+<p>其中 $k > 0$ 为药物排出常数（单位：h$^{-1}$）。</p>
+
+<h3>3.3 多次用药的积累模型</h3>
+<p>设每次用药剂量 $C_0$，间隔时间 $T$。第 $n$ 次用药后的剩余浓度 $R_n$ 满足递推关系：</p>
+
+<div class="formula">$$R_n = C_0 e^{-kT} + C_0 e^{-2kT} + \cdots + C_0 e^{-nkT} = C_0 e^{-kT} \cdot \frac{1 - e^{-nkT}}{1 - e^{-kT}}$$</div>
+
+<p>当 $n \to \infty$ 时，稳态剩余浓度：</p>
+<div class="formula">$$R = \lim_{n\to\infty} R_n = \frac{C_0 e^{-kT}}{1 - e^{-kT}}$$</div>
+
+<h3>3.4 确定用药方案</h3>
+<p>期望药物浓度在 $L$ 和 $H$ 之间，即 $C_0 = H - L$，且稳态时：</p>
+<div class="formula">$$C_0 + R = H \quad \Rightarrow \quad C_0 + \frac{C_0 e^{-kT}}{1 - e^{-kT}} = H$$</div>
+<p>由此可求解出最佳用药间隔 $T$。</p>
+</div>
+
+<!-- 竞争捕猎 -->
+<div class="section">
+<h2>四、经典案例：竞争捕猎模型</h2>
+
+<h3>4.1 Lotka-Volterra 捕食者-食饵模型</h3>
+<div class="def-box"><div class="def-title">模型假设</div><p>设 $x(t)$ 为食饵（如兔子）数量，$y(t)$ 为捕食者（如狐狸）数量：<br>• 食饵单独存在时按指数增长（增长率 $a$）<br>• 捕食者单独存在时因缺食而衰减（死亡率 $c$）<br>• 两者相遇时食饵减少（$-bxy$）、捕食者增加（$+dxy$）</p></div>
+
+<div class="formula">$$\begin{cases}
+\frac{dx}{dt} = ax - bxy = x(a - by) \\
+\frac{dy}{dt} = -cy + dxy = y(-c + dx)
+\end{cases}$$</div>
+
+<p>该方程组存在周期解——捕食者和食饵数量呈现<strong>周期性振荡</strong>，在相平面上形成闭合轨线。平衡点为 $(x^*, y^*) = (c/d, a/b)$。</p>
+
+<h3>4.2 Lanchester 战斗模型</h3>
+<p>用于军事对抗分析。设 $x(t)$、$y(t)$ 分别为红蓝双方的兵力：</p>
+<div class="formula">$$\begin{cases}
+\frac{dx}{dt} = -ay \quad \text{（红军损失率正比于蓝军兵力）}\\
+\frac{dy}{dt} = -bx \quad \text{（蓝军损失率正比于红军兵力）}
+\end{cases}$$</div>
+
+<div class="formula">$$a y^2 - b x^2 = \text{常数} \quad \text{（平方律）}$$</div>
+
+<div class="highlight"><strong>Lanchester 平方律</strong>的含义：战斗胜负由 $a$（蓝军对红军的杀伤效率）和 $b$（红军对蓝军的杀伤效率）以及初始兵力共同决定。若 $a y_0^2 > b x_0^2$，则蓝军获胜。这意味着<strong>集中优势兵力可产生平方效应</strong>。</div>
+</div>
+
+<!-- 三级火箭 -->
+<div class="section">
+<h2>五、经典案例：三级火箭问题</h2>
+
+<h3>5.1 为什么不能用一级火箭发射卫星？</h3>
+<p>卫星进入 600 km 高空轨道需要的最低速度约为 $v_{\text{min}} \approx 7.58$ km/s（第一宇宙速度 ~7.9 km/s）。</p>
+<p>由齐奥尔科夫斯基公式，一级火箭的末速度上限为：</p>
+<div class="formula">$$v = u \ln\frac{M_0}{M_f}$$</div>
+<p>其中 $u$ 为喷气速度（约 3 km/s），$M_0$ 为初始质量，$M_f$ 为燃料耗尽后质量。即使结构质量趋近于零，单级火箭也难以达到所需速度。</p>
+
+<h3>5.2 理想火箭模型</h3>
+<p>假设火箭<strong>连续喷射</strong>已燃尽的燃料外壳（即即时抛弃死重），运动方程为：</p>
+<div class="formula">$$m\frac{dv}{dt} = -u\frac{dm}{dt} - mg$$</div>
+
+<h3>5.3 多级火箭的优势</h3>
+<p>$n$ 级火箭的总末速度为各级速度增量之和：</p>
+<div class="formula">$$v_{\text{total}} = u_1\ln\frac{M_0^{(1)}}{M_f^{(1)}} + u_2\ln\frac{M_0^{(2)}}{M_f^{(2)}} + \cdots + u_n\ln\frac{M_0^{(n)}}{M_f^{(n)}}$$</div>
+<p>三级火箭在<strong>成本-效益</strong>上达到平衡——增加级数可提升末速度，但会增大结构复杂度。三级是最优折中。</p>
+</div>
+
+<!-- 竞赛建议 -->
+<div class="section">
+<h2>六、微分方程建模的优点与局限</h2>
+
+<h3>6.1 优点</h3>
+<table>
+  <tr><th>优点</th><th>说明</th></tr>
+  <tr><td>物理机制明确</td><td>直接描述变化率与状态的关系，结果有明确的物理/工程含义</td></tr>
+  <tr><td>连续动态建模</td><td>天然适合处理随时间/空间连续变化的系统</td></tr>
+  <tr><td>丰富求解工具</td><td>有成熟的解析方法和数值求解器（MATLAB ode45/ode15s、Python solve_ivp）</td></tr>
+  <tr><td>可做定性分析</td><td>不需求解即可分析平衡点稳定性、周期解存在性等系统行为</td></tr>
+  <tr><td>可扩展性强</td><td>容易加入时滞、随机扰动、空间扩散等复杂因素</td></tr>
+</table>
+
+<h3>6.2 局限性</h3>
+<table>
+  <tr><th>局限性</th><th>说明</th></tr>
+  <tr><td>建模要求高</td><td>需要较强的物理/工程背景，假设需合理</td></tr>
+  <tr><td>参数估计困难</td><td>微分方程中的参数（如增长率、排出率）常需实验测定或数据拟合</td></tr>
+  <tr><td>解析解有限</td><td>大多数非线性方程无解析解，依赖数值方法</td></tr>
+  <tr><td>不适于离散系统</td><td>若系统本质是离散的，差分方程可能更合适</td></tr>
+</table>
+
+<div class="highlight"><strong>竞赛提示</strong>：微分方程建模适合<strong>物理过程、生物种群、化学反应、经济动态</strong>等连续变化问题。竞赛中优先使用数值求解（MATLAB/Python），关键是<strong>说清楚假设条件</strong>和<strong>参数选取依据</strong>。如果能给出解析解，论文档次更高。</div>
+</div>
+
+</div><!-- .container -->
+
+<div class="nav-links">
+  <a href="神经网络模型.html">← 第13章：神经网络模型</a>
+  <a href="偏微分方程.html">第15章：偏微分方程建模 →</a>
+</div>
+
+<div class="footer"><p>📐 数学建模学习平台 &copy; 2026 Jacky</p></div>
+</div><!-- .main-wrap -->
+
+<button class="back2top" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="回到顶部">↑</button>
+<button class="chapter-nav-toggle" onclick="toggleChapterNav()" title="章节导航">📖 章节导航</button>
+<div class="chapter-nav-panel" id="chapterNav"></div>
+
+<script src="common.js?v=1"></script>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="rag-retriever.js?v=1"></script>
+<script src="ai-chat.js?v=7"></script>
+</body>
+</html>
